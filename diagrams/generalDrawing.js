@@ -22,7 +22,8 @@ function GeneralDrawingTest(docTag)
 		canvas.style.display = "block";
 		canvas.addEventListener('mousemove', onMouseMove, false);
 		canvas.addEventListener('mousedown', onMouseDown, false);
-		canvas.addEventListener('wheel', onMouseWheel, false);
+		document.addEventListener('keydown', onKeyDown, false);
+		canvas.onwheel = onMouseWheel;
 			
 		root.appendChild(canvas);
 
@@ -31,6 +32,11 @@ function GeneralDrawingTest(docTag)
 		
 		scene.addObject(new Grid(new Vector(0,0), 1));
 		scene.addObject(new Wall(new Vector(-5,0), new Vector(5,0)));
+	}
+	
+	function onKeyDown(evt)
+	{
+		
 	}
 	
 	function onMouseDown(evt)
@@ -83,6 +89,8 @@ function GeneralDrawingTest(docTag)
 		camera.setViewPosition((minX+maxX)/2, (minY+maxY)/2);
 		camera.setUnitScale( camera.getUnitScale() / zoomFactor);
 		draw();
+		
+		return false;
 	}
 
 	function draw()
