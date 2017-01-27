@@ -37,6 +37,7 @@ function GraphicsTest(docTag)
 		root.appendChild(canvas);
 
 		var camera = new Camera(canvas);
+		camera.setUnitScale(Math.min(canvas.width, canvas.height)/2);
 		camera.clear();
 		camera.drawHemisphere(new Vector(0,0), new Vector(0,1), 1);
 		//camera.drawBRDFGraph(Lambert, new Vector(0,1,0), new Vector(0,1,0), 0, 0, 0,0);

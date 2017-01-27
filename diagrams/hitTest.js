@@ -35,19 +35,20 @@ function HitTest(docTag)
 		//root.appendChild(rayThresholdSlider);
 
 		camera = new Camera(canvas);
+		camera.setUnitScale(Math.min(canvas.width, canvas.height)/2);
 	}
 	
 	function onMouseMove(evt)
 	{
 		if (evt.buttons & 1)
 		{
-			targetPos = camera.getMousePos(evt, canvas);
+			targetPos = camera.getMousePos(evt);
 			draw();			
 		}
 		
 		if (evt.buttons & 2)
 		{
-			startPos = camera.getMousePos(evt, canvas);
+			startPos = camera.getMousePos(evt);
 			draw();			
 		}
 	}
@@ -56,13 +57,13 @@ function HitTest(docTag)
 	{
 		if (evt.buttons & 1)
 		{
-			targetPos = camera.getMousePos(evt, canvas);
+			targetPos = camera.getMousePos(evt);
 			draw();			
 		}
 		
 		if (evt.buttons & 2)
 		{
-			startPos = camera.getMousePos(evt, canvas);
+			startPos = camera.getMousePos(evt);
 			draw();			
 		}
 	}
