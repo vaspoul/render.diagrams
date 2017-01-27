@@ -51,7 +51,30 @@ function GeneralDrawingTest(docTag)
 	
 	function onKeyDown(evt)
 	{
-		
+		if (evt.keyCode==27)
+		{
+			if (mode == "move")
+			{
+		    	for (var i = 0; i < selectionList.length; ++i)
+		    	{
+		    		if (selectionList[i].getOrigin !== undefined)
+		    		{
+		    			selectionList[i].setOrigin(add(dragStartMousePos, moveOffsets[i]));
+		    		}
+				}
+			}
+
+			if (mode=="move" || mode=="selection" || mode=="marquee")
+			{
+				mode = null;
+			}
+			else
+			{
+				setSelection([]);
+			}
+
+			draw();
+		}
 	}
 	
 	function onMouseDown(evt)
@@ -162,6 +185,8 @@ function GeneralDrawingTest(docTag)
 				var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
 				setSelection(s);
 			}
+
+			mode = null;
 		}		
 	}
 
