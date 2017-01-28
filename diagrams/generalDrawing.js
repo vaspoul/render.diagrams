@@ -94,6 +94,20 @@ function GeneralDrawingTest(docTag)
 		    var threshold = 10 / camera.getUnitScale();
 		    var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
 
+			if (evt.altKey == 0)
+			{
+				var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30));
+
+				if (snapPoint !== null)
+				{
+					dragStartMousePos = snapPoint;
+				}
+				else
+				{
+					dragStartMousePos = mul(round(div(dragStartMousePos, grid.spacing)), grid.spacing);
+				}
+			}
+
 		    if (s.length == 0)
 		    {
 				mode = "marquee";
@@ -199,6 +213,13 @@ function GeneralDrawingTest(docTag)
 		
 		mouseCursor.setPos(camera.getMousePos(evt));
 		
+		var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30),  mode == "move" ? selectionList : undefined);
+
+		if (snapPoint !== null)
+		{
+			camera.drawRectangle(snapPoint, camera.invScale(10), "#0084e0", 2);
+		}
+
 		if (evt.buttons & 1) // object move or marquee
 		{
 			if (mode == "marquee") // marquee
@@ -209,6 +230,33 @@ function GeneralDrawingTest(docTag)
 			{
 				mode = "move";
 
+				if (evt.altKey == 0)
+				{
+					if (snapPoint !== null)
+					{
+						lastMousePos = snapPoint;
+					}
+					else
+					{
+						lastMousePos = mul(round(div(lastMousePos, grid.spacing)), grid.spacing);
+					}
+				}
+
+				if (evt.ctrlKey)
+				{
+					var delta = sub(lastMousePos, dragStartMousePos);
+					var absDelta = abs(delta);
+
+					if (absDelta.x > absDelta.y)
+					{
+						lastMousePos.y = dragStartMousePos.y;
+					}
+					else
+					{
+						lastMousePos.x = dragStartMousePos.x;
+					}
+				}
+				
 		    	for (var i = 0; i < selectionList.length; ++i)
 		    	{
 		    		if (selectionList[i].getOrigin !== undefined)
