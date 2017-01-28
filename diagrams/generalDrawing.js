@@ -46,6 +46,7 @@ function GeneralDrawingTest(docTag)
 		scene.addObject(new Wall(new Vector(-5, 0), new Vector(5, 0)));
 		scene.addObject(new Wall(new Vector(-5, 10), new Vector(-5, 0)));
 		scene.addObject(new Wall(new Vector(5, 0), new Vector(5, 10)));
+		scene.addObject(new ArcWall(new Vector(0, 10), 5, 0, Math.PI));
 		scene.addObject(mouseCursor);
 	}
 	
@@ -94,20 +95,6 @@ function GeneralDrawingTest(docTag)
 		    var threshold = 10 / camera.getUnitScale();
 		    var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
 
-			if (evt.altKey == 0)
-			{
-				var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30));
-
-				if (snapPoint !== null)
-				{
-					dragStartMousePos = snapPoint;
-				}
-				else
-				{
-					dragStartMousePos = mul(round(div(dragStartMousePos, grid.spacing)), grid.spacing);
-				}
-			}
-
 		    if (s.length == 0)
 		    {
 				mode = "marquee";
@@ -116,7 +103,21 @@ function GeneralDrawingTest(docTag)
 		    {
 		    	mode = "selection";
 
-		    	if (selectionList.indexOf(s[0])==-1)
+				if (evt.altKey == 0)
+				{
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30));
+
+					if (snapPoint !== null)
+					{
+						dragStartMousePos = snapPoint;
+					}
+					else
+					{
+						dragStartMousePos = mul(round(div(dragStartMousePos, grid.spacing)), grid.spacing);
+					}
+				}
+
+		    	if (selectionList.indexOf(s[0])==-1 && evt.ctrlKey==0)
 				{
 					setSelection(s);
 		    	}
@@ -145,7 +146,7 @@ function GeneralDrawingTest(docTag)
 		
 		if (evt.button == 0) // object move or marquee
 		{
-			if (mode == "marquee") // marquee
+			if (mode == "marquee" || mode == "selection") // marquee
 			{
 				var threshold = 10 / camera.getUnitScale();
 
@@ -193,12 +194,20 @@ function GeneralDrawingTest(docTag)
 
 				setSelection(s);
 			}
-			else if (mode == "selection")
-			{
-				var threshold = 10 / camera.getUnitScale();
-				var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
-				setSelection(s);
-			}
+			//else if (mode == "selection")
+			//{
+			//	var threshold = 10 / camera.getUnitScale();
+			//	var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
+
+			//	if (evt.ctrlKey)
+			//	{
+			//		s = selectionList.concat(s);
+			//	}
+			//	else if (evt.shiftKey)
+			//	{
+
+			//	setSelection(s);
+			//}
 
 			mode = null;
 		}		
