@@ -47,15 +47,14 @@ function GeneralDrawingTest(docTag)
 		scene = new Scene();
 		camera = new Camera(canvas);
 		
-		grid.spacing = 2;
+		grid.spacing = 1;
 		scene.addObject(grid);
-		scene.addObject(new Wall(new Vector(-5, 0), new Vector(5, 0)));
-		scene.addObject(new Wall(new Vector(-5, 10), new Vector(-5, 0)));
-		scene.addObject(new Wall(new Vector(5, 0), new Vector(5, 10)));
-		scene.addObject(new ArcWall(new Vector(0, 10), 5,  45*Math.PI/180, 135*Math.PI/180));
+		scene.addObject(new Wall( [new Vector(-10, 10), new Vector(-10, 0), new Vector(10, 0), new Vector(10, 10)] ));
+		scene.addObject(new ArcWall(new Vector(0, 10), 10,  0*Math.PI/180, 180*Math.PI/180));
+		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-5,-5),  scene));
 		scene.addObject(mouseCursor);
 
-		camera.setViewPosition(0, 5);
+		camera.setViewPosition(0, 10);
 	}
 	
 	function onKeyDown(evt)
@@ -181,7 +180,7 @@ function GeneralDrawingTest(docTag)
 			}
 			else if (tool == "modify")
 			{
-				dragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30));
+				dragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
 
 				mode = null;
 
@@ -298,11 +297,18 @@ function GeneralDrawingTest(docTag)
 			}
 			else if (tool == "modify")
 			{
-				var newDragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30));
+				var newDragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
 
 				if (newDragPoint.point !== null)
 				{
-					camera.drawRectangle(newDragPoint.point, camera.invScale(10), "#ff0000", 2);
+					if (newDragPoint.object.drawDragPoint !== undefined)
+					{
+						newDragPoint.object.drawDragPoint(camera, newDragPoint.index, evt.ctrlKey);
+					}
+					else
+					{
+						camera.drawRectangle(newDragPoint.point, camera.invScale(10), "#ff0000", 2);
+					}
 				}
 			}
 		}
