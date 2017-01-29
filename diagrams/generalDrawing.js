@@ -49,7 +49,7 @@ function GeneralDrawingTest(docTag)
 		scene.addObject(new Wall(new Vector(-5, 0), new Vector(5, 0)));
 		scene.addObject(new Wall(new Vector(-5, 10), new Vector(-5, 0)));
 		scene.addObject(new Wall(new Vector(5, 0), new Vector(5, 10)));
-		scene.addObject(new ArcWall(new Vector(0, 10), 5, 0, Math.PI));
+		scene.addObject(new ArcWall(new Vector(0, 10), 5,  45*Math.PI/180, 135*Math.PI/180));
 		scene.addObject(mouseCursor);
 
 		camera.setViewPosition(0, 5);
@@ -270,9 +270,10 @@ function GeneralDrawingTest(docTag)
 	{
 		draw();
 		
+
 		lastMousePos = camera.getMousePos(evt);
 		lastMousePosPixels = getMousePos(evt, canvas);
-		
+
 		mouseCursor.pos = camera.getMousePos(evt);
 	
 		if (evt.buttons == 0)
@@ -322,7 +323,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 
-				if (evt.ctrlKey)
+				if (evt.ctrlKey && tool == "select")
 				{
 					var delta = sub(lastMousePos, dragStartMousePos);
 					var absDelta = abs(delta);
@@ -361,7 +362,7 @@ function GeneralDrawingTest(docTag)
 			{
 				if (mode === "move")
 				{
-					dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos);
+					dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos, evt.ctrlKey);
 				}
 			}
 		}
