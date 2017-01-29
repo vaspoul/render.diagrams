@@ -38,7 +38,10 @@ function GeneralDrawingTest(docTag)
 		canvas.addEventListener('mouseup', onMouseUp, false);
 		document.addEventListener('keydown', onKeyDown, false);
 		canvas.onwheel = onMouseWheel;
-			
+		
+		root.appendChild(document.createTextNode("Q : select, V : modify"));
+		root.appendChild(document.createTextNode(", Ctrl and Alt to control behaviour"));
+
 		root.appendChild(canvas);
 
 		scene = new Scene();
@@ -104,6 +107,12 @@ function GeneralDrawingTest(docTag)
 
 			tool = "modify";
 			mouseCursor.shape = "angle";
+			draw();
+		}
+		else if (evt.keyCode==46) // del
+		{
+			scene.deleteObjects(selectionList);
+			setSelection([]);
 			draw();
 		}
 	}
