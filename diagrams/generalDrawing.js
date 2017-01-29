@@ -14,10 +14,12 @@ function GeneralDrawingTest(docTag)
 	var grid 					= new Grid()
 	var mouseCursor 			= new MouseCursor(grid);
 		
-	var mode					= "panzoom";
+	var tool					= "select";
+	var mode					= "";
 		
 	var selectionList = [];
 	var moveOffsets = [];
+	var dragPoint = null;
 	
 	function setup()
 	{
@@ -48,6 +50,8 @@ function GeneralDrawingTest(docTag)
 		scene.addObject(new Wall(new Vector(5, 0), new Vector(5, 10)));
 		scene.addObject(new ArcWall(new Vector(0, 10), 5, 0, Math.PI));
 		scene.addObject(mouseCursor);
+
+		camera.setViewPosition(0, 5);
 	}
 	
 	function onKeyDown(evt)
@@ -56,11 +60,14 @@ function GeneralDrawingTest(docTag)
 		{
 			if (mode == "move")
 			{
-		    	for (var i = 0; i < selectionList.length; ++i)
-		    	{
-		    		if (selectionList[i].getOrigin !== undefined)
+				if (tool == "select")
+				{
+		    		for (var i = 0; i < selectionList.length; ++i)
 		    		{
-		    			selectionList[i].setOrigin(add(dragStartMousePos, moveOffsets[i]));
+		    			if (selectionList[i].getOrigin !== undefined)
+		    			{
+		    				selectionList[i].setOrigin(add(dragStartMousePos, moveOffsets[i]));
+		    			}
 		    		}
 				}
 			}
@@ -75,6 +82,26 @@ function GeneralDrawingTest(docTag)
 			}
 
 			draw();
+		}
+		else if (evt.keyCode==81) // q
+		{
+			if (tool != "select")
+			{
+				mode = null;
+			}
+
+			tool = "select";
+			mouseCursor.setShape("cross");
+		}
+		else if (evt.keyCode==87) // w
+		{
+			if (tool != "modify")
+			{
+				mode = null;
+			}
+
+			tool = "modify";
+			mouseCursor.setShape("angle");
 		}
 	}
 	
@@ -92,50 +119,66 @@ function GeneralDrawingTest(docTag)
 
 		if (evt.buttons & 1)
 		{
-		    var threshold = 10 / camera.getUnitScale();
-		    var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
+			var threshold = 10 / camera.getUnitScale();
 
-		    if (s.length == 0)
-		    {
-				mode = "marquee";
-		    }
-		    else
-		    {
-		    	mode = "selection";
+			if (tool == "select")
+			{
+				var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
 
-				if (evt.altKey == 0)
+				if (s.length == 0)
 				{
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30));
-
-					if (snapPoint !== null)
-					{
-						dragStartMousePos = snapPoint;
-					}
-					else
-					{
-						dragStartMousePos = mul(round(div(dragStartMousePos, grid.spacing)), grid.spacing);
-					}
+					mode = "marquee";
 				}
-
-		    	if (selectionList.indexOf(s[0])==-1 && evt.ctrlKey==0)
+				else
 				{
-					setSelection(s);
-		    	}
+		    		mode = "selection";
 
-		    	moveOffsets = [];
-
-		    	for (var i = 0; i < selectionList.length; ++i)
-		    	{
-		    		if (selectionList[i].getOrigin !== undefined)
+					if (evt.altKey == 0)
 					{
-		    			moveOffsets.push(sub(selectionList[i].getOrigin(), dragStartMousePos));
+						var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30));
+
+						if (snapPoint !== null)
+						{
+							dragStartMousePos = snapPoint;
+						}
+						else
+						{
+							dragStartMousePos = mul(round(div(dragStartMousePos, grid.spacing)), grid.spacing);
+						}
+					}
+
+		    		if (selectionList.indexOf(s[0])==-1 && evt.ctrlKey==0)
+					{
+						setSelection(s);
 		    		}
-		    		else
+
+		    		moveOffsets = [];
+
+		    		for (var i = 0; i < selectionList.length; ++i)
 		    		{
-						moveOffsets.push(undefined);
+		    			if (selectionList[i].getOrigin !== undefined)
+						{
+		    				moveOffsets.push(sub(selectionList[i].getOrigin(), dragStartMousePos));
+		    			}
+		    			else
+		    			{
+							moveOffsets.push(undefined);
+		    			}
 		    		}
-		    	}
-		    }
+				}
+			}
+			else if (tool == "modify")
+			{
+				dragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30));
+
+				mode = null;
+
+				if (dragPoint.point !== null)
+				{
+					mode = "move";
+					dragStartMousePos = dragPoint.point;
+				}
+			}
         }
 	}
 
@@ -146,71 +189,78 @@ function GeneralDrawingTest(docTag)
 		
 		if (evt.button == 0) // object move or marquee
 		{
-			if (mode == "marquee" || mode == "selection") // marquee
+			if (tool == "select")
 			{
-				var threshold = 10 / camera.getUnitScale();
-
-				var s = [];
-
-				if ((sub(dragStartMousePos, lastMousePos)).length() < threshold)
+				if (mode == "marquee" || mode == "selection") // marquee
 				{
-					s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
-				}
-				else
-				{
-					var pMin = new Vector(Math.min(dragStartMousePos.x, lastMousePos.x), Math.min(dragStartMousePos.y, lastMousePos.y));
-					var pMax = new Vector(Math.max(dragStartMousePos.x, lastMousePos.x), Math.max(dragStartMousePos.y, lastMousePos.y));
+					var threshold = 10 / camera.getUnitScale();
 
-					pMin = sub(pMin, threshold);
-					pMax = add(pMax, threshold);
+					var s = [];
 
-					s = scene.hitTest(pMin, pMax);
-				}
-				
-				if (evt.ctrlKey)
-				{
-					s = selectionList.concat(s);
-				}
-				else if (evt.shiftKey)
-				{
-					var copy = selectionList.concat([]);
-
-					for (var i = 0; i < copy.length; ++i)
+					if ((sub(dragStartMousePos, lastMousePos)).length() < threshold)
 					{
-						for (var j = 0; j < s.length; ++j)
-						{
-							index = copy.indexOf(s[j]);
+						s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
+					}
+					else
+					{
+						var pMin = new Vector(Math.min(dragStartMousePos.x, lastMousePos.x), Math.min(dragStartMousePos.y, lastMousePos.y));
+						var pMax = new Vector(Math.max(dragStartMousePos.x, lastMousePos.x), Math.max(dragStartMousePos.y, lastMousePos.y));
 
-							if (index >= 0)
+						pMin = sub(pMin, threshold);
+						pMax = add(pMax, threshold);
+
+						s = scene.hitTest(pMin, pMax);
+					}
+				
+					if (evt.ctrlKey)
+					{
+						s = selectionList.concat(s);
+					}
+					else if (evt.shiftKey)
+					{
+						var copy = selectionList.concat([]);
+
+						for (var i = 0; i < copy.length; ++i)
+						{
+							for (var j = 0; j < s.length; ++j)
 							{
-								copy.splice(index, 1);
-								break;
+								index = copy.indexOf(s[j]);
+
+								if (index >= 0)
+								{
+									copy.splice(index, 1);
+									break;
+								}
 							}
 						}
+
+						s = copy;
 					}
 
-					s = copy;
+					setSelection(s);
 				}
+				//else if (mode == "selection")
+				//{
+				//	var threshold = 10 / camera.getUnitScale();
+				//	var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
 
-				setSelection(s);
+				//	if (evt.ctrlKey)
+				//	{
+				//		s = selectionList.concat(s);
+				//	}
+				//	else if (evt.shiftKey)
+				//	{
+
+				//	setSelection(s);
+				//}
+
+				mode = null;
 			}
-			//else if (mode == "selection")
-			//{
-			//	var threshold = 10 / camera.getUnitScale();
-			//	var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
-
-			//	if (evt.ctrlKey)
-			//	{
-			//		s = selectionList.concat(s);
-			//	}
-			//	else if (evt.shiftKey)
-			//	{
-
-			//	setSelection(s);
-			//}
-
-			mode = null;
-		}		
+			else if (tool == "modify")
+			{
+				mode = null;
+			}
+		}
 	}
 
 	function onMouseMove(evt)
@@ -221,28 +271,42 @@ function GeneralDrawingTest(docTag)
 		lastMousePosPixels = getMousePos(evt, canvas);
 		
 		mouseCursor.setPos(camera.getMousePos(evt));
-		
-		var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30),  mode == "move" ? selectionList : undefined);
-
-		if (snapPoint !== null)
+	
+		if (evt.buttons == 0)
 		{
-			camera.drawRectangle(snapPoint, camera.invScale(10), "#0084e0", 2);
-		}
-
-		if (evt.buttons & 1) // object move or marquee
-		{
-			if (mode == "marquee") // marquee
+			if (tool == "select")
 			{
-				camera.drawRectangle(dragStartMousePos, lastMousePos, "#000000", 1, [5,5]);
+				var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30));
+				camera.drawRectangle(snapPoint, camera.invScale(10), "#0084e0", 2);
 			}
-			else if (mode == "selection" || mode == "move" ) // object move
+			else if (tool == "modify")
 			{
-				mode = "move";
+				var newDragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30));
 
+				if (newDragPoint.point !== null)
+				{
+					camera.drawRectangle(newDragPoint.point, camera.invScale(10), "#ff0000", 2);
+				}
+			}
+		}
+		else if (evt.buttons & 1) // object move or marquee
+		{
+			if (mode == "move")
+			{
 				if (evt.altKey == 0)
 				{
+					var ignoreList;
+
+					if (tool == "select")
+						ignoreList = selectionList.concat([]);
+					else
+						ignoreList = [dragPoint.object];
+
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30), ignoreList);
+
 					if (snapPoint !== null)
 					{
+						camera.drawRectangle(snapPoint, camera.invScale(10), "#0084e0", 2);
 						lastMousePos = snapPoint;
 					}
 					else
@@ -265,13 +329,33 @@ function GeneralDrawingTest(docTag)
 						lastMousePos.x = dragStartMousePos.x;
 					}
 				}
+			}
+
+			if (tool == "select")
+			{
+				if (mode == "marquee") // marquee
+				{
+					camera.drawRectangle(dragStartMousePos, lastMousePos, "#000000", 1, [5,5]);
+				}
+				else if (mode == "selection" || mode == "move" ) // object move
+				{
+					mode = "move";
 				
-		    	for (var i = 0; i < selectionList.length; ++i)
-		    	{
-		    		if (selectionList[i].getOrigin !== undefined)
+		    		for (var i = 0; i < selectionList.length; ++i)
 		    		{
-		    			selectionList[i].setOrigin(add(lastMousePos, moveOffsets[i]));
-		    		}
+		    			if (selectionList[i].getOrigin !== undefined)
+		    			{
+		    				selectionList[i].setOrigin(add(lastMousePos, moveOffsets[i]));
+		    			}
+					}
+				}
+			}
+			else if (tool == "modify")
+			{
+				if (mode === "move")
+				{
+					camera.drawRectangle(lastMousePos, camera.invScale(10), "#ff0000", 2);
+					dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos);
 				}
 			}
 		}
