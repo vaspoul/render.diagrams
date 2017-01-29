@@ -44,6 +44,7 @@ function GeneralDrawingTest(docTag)
 		scene = new Scene();
 		camera = new Camera(canvas);
 		
+		grid.spacing = 2;
 		scene.addObject(grid);
 		scene.addObject(new Wall(new Vector(-5, 0), new Vector(5, 0)));
 		scene.addObject(new Wall(new Vector(-5, 10), new Vector(-5, 0)));
@@ -91,9 +92,10 @@ function GeneralDrawingTest(docTag)
 			}
 
 			tool = "select";
-			mouseCursor.setShape("cross");
+			mouseCursor.shape = "cross";
+			draw();
 		}
-		else if (evt.keyCode==87) // w
+		else if (evt.keyCode==86) // v
 		{
 			if (tool != "modify")
 			{
@@ -101,7 +103,8 @@ function GeneralDrawingTest(docTag)
 			}
 
 			tool = "modify";
-			mouseCursor.setShape("angle");
+			mouseCursor.shape = "angle";
+			draw();
 		}
 	}
 	
@@ -270,14 +273,18 @@ function GeneralDrawingTest(docTag)
 		lastMousePos = camera.getMousePos(evt);
 		lastMousePosPixels = getMousePos(evt, canvas);
 		
-		mouseCursor.setPos(camera.getMousePos(evt));
+		mouseCursor.pos = camera.getMousePos(evt);
 	
 		if (evt.buttons == 0)
 		{
 			if (tool == "select")
 			{
 				var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30));
-				camera.drawRectangle(snapPoint, camera.invScale(10), "#0084e0", 2);
+
+				if (snapPoint !== null)
+				{
+					camera.drawRectangle(snapPoint, camera.invScale(10), "#0084e0", 2);
+				}
 			}
 			else if (tool == "modify")
 			{
@@ -354,7 +361,6 @@ function GeneralDrawingTest(docTag)
 			{
 				if (mode === "move")
 				{
-					camera.drawRectangle(lastMousePos, camera.invScale(10), "#ff0000", 2);
 					dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos);
 				}
 			}
