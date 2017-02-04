@@ -122,11 +122,11 @@ function HitTest(docTag)
 	
 		var walls = 
 		[
-			{pointA:new Vector(-1,+1), pointB:new Vector(+1,+1)},
-			{pointA:new Vector(+1,+1), pointB:new Vector(+1,-1)},
-			{pointA:new Vector(+1,-1), pointB:new Vector(-1,-1)},
-			{pointA:new Vector(-1,-1), pointB:new Vector(-1,+1)},
-			{pointA:new Vector(+0,+1), pointB:new Vector(+1,+0)}
+			{pointA:new Vector(-1,-1), pointB:new Vector(+1,-1)},
+			{pointA:new Vector(+1,-1), pointB:new Vector(+1,+1)},
+			{pointA:new Vector(+1,+1), pointB:new Vector(-1,+1)},
+			{pointA:new Vector(-1,+1), pointB:new Vector(-1,-1)},
+			{pointA:new Vector(+0,-1), pointB:new Vector(+1,-0)}
 		];
 		
 		for (var w=0; w<walls.length; ++w)
