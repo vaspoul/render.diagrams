@@ -1,6 +1,7 @@
 function GeneralDrawingTest(docTag)
 {
 	var canvas;
+	var propertyGrid;
 	var scene;
 	var camera;
 
@@ -28,10 +29,14 @@ function GeneralDrawingTest(docTag)
 		canvas = document.createElement('canvas');
 		canvas.width  = 1200;
 		canvas.height = 700;
-		canvas.style.border   = "2px solid black";//#99D9EA";
-		canvas.style.marginLeft = "auto";
+		//canvas.style.width  = "70%";
+		//canvas.style.height = 700;
+		//canvas.style.align = "left";
+		canvas.style.border = "2px solid black";//#99D9EA";
+		//canvas.style.margin = "auto";
+		canvas.style.marginLeft = 200;
 		canvas.style.marginRight = "auto";
-		canvas.style.display = "block";
+		//canvas.style.display = "block";
 		canvas.style.cursor = "none";
 		canvas.addEventListener('mousemove', onMouseMove, false);
 		canvas.addEventListener('mousedown', onMouseDown, false);
@@ -39,10 +44,17 @@ function GeneralDrawingTest(docTag)
 		document.addEventListener('keydown', onKeyDown, false);
 		canvas.onwheel = onMouseWheel;
 		
-		root.appendChild(document.createTextNode("Q : select, V : modify"));
-		root.appendChild(document.createTextNode(", Ctrl and Alt to control behaviour"));
-
 		root.appendChild(canvas);
+
+		var propertyGridDock = document.createElement('div');
+		propertyGridDock.id = "propertyGrid";
+		propertyGridDock.style.border = "2px solid black";
+		propertyGridDock.style.width  = 400;
+		propertyGridDock.style.height = 700;
+		propertyGridDock.style.cssFloat = "right";
+		root.appendChild(propertyGridDock);
+
+		propertyGrid = new PropertyGrid(propertyGridDock);
 
 		scene = new Scene();
 		camera = new Camera(canvas);
@@ -51,8 +63,16 @@ function GeneralDrawingTest(docTag)
 		scene.addObject(grid);
 		scene.addObject(new Wall( [new Vector(-10, 10), new Vector(-10, 0), new Vector(10, 0), new Vector(10, 10)] ));
 		scene.addObject(new ArcWall(new Vector(0, 10), 10,  0*Math.PI/180, 180*Math.PI/180));
-		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-5,-5),  scene));
+		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-3,-5),  scene));
 		scene.addObject(mouseCursor);
+
+		for (var i = 0; i != scene.objects.length; ++i)
+		{
+			if (scene.objects[i].addChangeListener !== undefined)
+			{
+				scene.objects[i].addChangeListener(draw);
+			}
+		}
 
 		camera.setViewPosition(0, 10);
 	}
@@ -433,6 +453,15 @@ function GeneralDrawingTest(docTag)
 			{
 				selectionList[i].selected = true;
 			}
+		}
+
+		if (selectionList.length > 0)
+		{
+			propertyGrid.setProperties(selectionList[0].getProperties());
+		}
+		else
+		{
+			propertyGrid.setProperties([]);
 		}
 
 		draw();
