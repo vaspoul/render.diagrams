@@ -2,6 +2,7 @@ function GeneralDrawingTest(docTag)
 {
 	var canvas;
 	var propertyGrid;
+	var buttonList;
 	var scene;
 	var camera;
 
@@ -34,8 +35,8 @@ function GeneralDrawingTest(docTag)
 		//canvas.style.align = "left";
 		canvas.style.border = "2px solid black";//#99D9EA";
 		//canvas.style.margin = "auto";
-		canvas.style.marginLeft = 200;
-		canvas.style.marginRight = "auto";
+		canvas.style.marginLeft = 50;
+		canvas.style.marginRight = 50;
 		//canvas.style.display = "block";
 		canvas.style.cursor = "none";
 		canvas.addEventListener('mousemove', onMouseMove, false);
@@ -55,6 +56,18 @@ function GeneralDrawingTest(docTag)
 		root.appendChild(propertyGridDock);
 
 		propertyGrid = new PropertyGrid(propertyGridDock);
+
+		var buttonListdDock = document.createElement('div');
+		buttonListdDock.id = "propertyGrid";
+		buttonListdDock.style.border = "2px solid black";
+		buttonListdDock.style.width  = 150;
+		buttonListdDock.style.height = 700;
+		buttonListdDock.style.cssFloat = "left";
+		root.appendChild(buttonListdDock);
+
+		buttonList = new PropertyGrid(buttonListdDock);
+		buttonList.addProperty(undefined, new Button("Select (Q)", function(){setTool("select");}));
+		buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
 
 		scene = new Scene();
 		camera = new Camera(canvas);
@@ -77,6 +90,32 @@ function GeneralDrawingTest(docTag)
 		camera.setViewPosition(0, 10);
 	}
 	
+	function setTool(newTool)
+	{
+		if (newTool == "select")
+		{
+			if (tool != "select")
+			{
+				mode = null;
+			}
+
+			tool = "select";
+			mouseCursor.shape = "cross";
+			draw();
+		}
+		else if (newTool == "modify")
+		{
+			if (tool != "modify")
+			{
+				mode = null;
+			}
+
+			tool = "modify";
+			mouseCursor.shape = "angle";
+			draw();
+		}
+	}
+
 	function onKeyDown(evt)
 	{
 		if (evt.keyCode==27)
@@ -108,25 +147,11 @@ function GeneralDrawingTest(docTag)
 		}
 		else if (evt.keyCode==81) // q
 		{
-			if (tool != "select")
-			{
-				mode = null;
-			}
-
-			tool = "select";
-			mouseCursor.shape = "cross";
-			draw();
+			setTool("select");
 		}
 		else if (evt.keyCode==86) // v
 		{
-			if (tool != "modify")
-			{
-				mode = null;
-			}
-
-			tool = "modify";
-			mouseCursor.shape = "angle";
-			draw();
+			setTool("modify");
 		}
 		else if (evt.keyCode==46) // del
 		{
