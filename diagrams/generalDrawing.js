@@ -22,13 +22,15 @@ function GeneralDrawingTest(docTag)
 	var selectionList = [];
 	var moveOffsets = [];
 	var dragPoint = null;
+	var objectBeingMade = undefined;
+	var lastKeyPress;
 	
 	function setup()
 	{
 		var root = document.getElementById(docTag);
 		
 		canvas = document.createElement('canvas');
-		canvas.width  = 1200;
+		canvas.width  = 1250;
 		canvas.height = 700;
 		//canvas.style.width  = "70%";
 		//canvas.style.height = 700;
@@ -36,13 +38,14 @@ function GeneralDrawingTest(docTag)
 		canvas.style.border = "2px solid black";//#99D9EA";
 		//canvas.style.margin = "auto";
 		canvas.style.marginLeft = 50;
-		canvas.style.marginRight = 50;
+		canvas.style.marginRight = 20;
 		//canvas.style.display = "block";
 		canvas.style.cursor = "none";
 		canvas.addEventListener('mousemove', onMouseMove, false);
 		canvas.addEventListener('mousedown', onMouseDown, false);
 		canvas.addEventListener('mouseup', onMouseUp, false);
 		document.addEventListener('keydown', onKeyDown, false);
+		document.addEventListener('keyup', onKeyUp, false);
 		canvas.onwheel = onMouseWheel;
 		
 		root.appendChild(canvas);
@@ -58,7 +61,7 @@ function GeneralDrawingTest(docTag)
 		propertyGrid = new PropertyGrid(propertyGridDock);
 
 		var buttonListdDock = document.createElement('div');
-		buttonListdDock.id = "propertyGrid";
+		buttonListdDock.id = "buttonList";
 		buttonListdDock.style.border = "2px solid black";
 		buttonListdDock.style.width  = 150;
 		buttonListdDock.style.height = 700;
@@ -68,6 +71,9 @@ function GeneralDrawingTest(docTag)
 		buttonList = new PropertyGrid(buttonListdDock);
 		buttonList.addProperty(undefined, new Button("Select (Q)", function(){setTool("select");}));
 		buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
+		buttonList.addProperty(undefined, new Button("Add Wall (L)", function(){setTool("addWall");}));
+		buttonList.addProperty(undefined, new Button("Add Arc Wall (C)", function(){setTool("addArcWall");}));
+		buttonList.addProperty(undefined, new Button("Add Ray (R)", function(){setTool("addRay");}));
 
 		scene = new Scene();
 		camera = new Camera(canvas);
@@ -92,6 +98,22 @@ function GeneralDrawingTest(docTag)
 	
 	function setTool(newTool)
 	{
+		if (newTool != "addWall" && tool == "addWall")
+		{
+			if (objectBeingMade !== undefined && objectBeingMade instanceof Wall)
+			{
+				if (objectBeingMade.points.length <= 2)
+				{
+					scene.deleteObjects([objectBeingMade]);
+					delete objectBeingMade;
+				}
+				else
+				{
+					objectBeingMade.points.splice(objectBeingMade.points.length-1, 1);
+				}
+			}
+		}
+
 		if (newTool == "select")
 		{
 			if (tool != "select")
@@ -114,11 +136,52 @@ function GeneralDrawingTest(docTag)
 			mouseCursor.shape = "angle";
 			draw();
 		}
+		else if (newTool == "addWall")
+		{
+			if (tool != "addWall")
+			{
+				mode = null;
+			}
+
+			tool = "addWall";
+			mouseCursor.shape = "cross";
+			setSelection([]);
+			draw();
+		}
+		else if (newTool == "addArcWall")
+		{
+			if (tool != "addArcWall")
+			{
+				mode = null;
+			}
+
+			tool = "addArcWall";
+			mouseCursor.shape = "cross";
+			setSelection([]);
+			draw();
+		}
+		else if (newTool == "addRay")
+		{
+			if (tool != "addRay")
+			{
+				mode = null;
+			}
+
+			tool = "addRay";
+			mouseCursor.shape = "cross";
+			setSelection([]);
+			draw();
+		}
+
+		objectBeingMade = undefined;
 	}
 
 	function onKeyDown(evt)
 	{
-		if (evt.keyCode==27)
+		if (evt.keyCode == lastKeyPress)
+			return;
+
+		if (evt.keyCode==27) // ESC
 		{
 			if (mode == "move")
 			{
@@ -143,6 +206,7 @@ function GeneralDrawingTest(docTag)
 				setSelection([]);
 			}
 
+			setTool("select");
 			draw();
 		}
 		else if (evt.keyCode==81) // q
@@ -153,14 +217,47 @@ function GeneralDrawingTest(docTag)
 		{
 			setTool("modify");
 		}
+		else if (evt.keyCode==76) // L
+		{
+			setTool("addWall");
+		}
+		else if (evt.keyCode==67) // C
+		{
+			setTool("addArcWall");
+		}
+		else if (evt.keyCode==82) // R
+		{
+			setTool("addRay");
+		}
 		else if (evt.keyCode==46) // del
 		{
-			scene.deleteObjects(selectionList);
-			setSelection([]);
+			if (tool == "select")
+			{
+				scene.deleteObjects(selectionList);
+				setSelection([]);
+				draw();
+			}
+		}
+		else if (evt.keyCode == 16 && tool == "modify")
+		{
+			mouseCursor.shape = "cross";
 			draw();
 		}
+
+		lastKeyPress = evt.keyCode;
 	}
 	
+	function onKeyUp(evt)
+	{
+		if (evt.keyCode == 16 && tool == "modify")
+		{
+			mouseCursor.shape = "angle";
+			draw();
+		}
+
+		lastKeyPress = undefined;
+	}
+
 	function onMouseDown(evt)
 	{
 		lastMousePos = camera.getMousePos(evt);
@@ -314,7 +411,86 @@ function GeneralDrawingTest(docTag)
 			}
 			else if (tool == "modify")
 			{
+				if (evt.shiftKey)
+				{
+					dragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
+
+					if (dragPoint.point !== null)
+					{
+						if (dragPoint.object.deleteDragPoint != undefined)
+						{
+							dragPoint.object.deleteDragPoint(dragPoint.index);
+
+							if (dragPoint.object instanceof Wall)
+							{
+								if (dragPoint.object.getDragPoints(false).length < 2)
+								{
+									scene.deleteObjects([dragPoint.object]);
+								}
+							}
+
+							draw();
+						}
+					}
+				}
+
 				mode = null;
+			}
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay")
+			{
+				var newPoint = lastMousePos;
+
+				if (evt.altKey == 0)
+				{
+					newPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30), [objectBeingMade]);
+
+					if (newPoint === null)
+					{
+						newPoint = mul(round(div(lastMousePos, grid.spacing)), grid.spacing);
+					}
+				}
+
+				if (tool == "addWall")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new Wall([newPoint.copy()]);
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.addPoint(newPoint.copy());
+					}
+
+					// Add the next point as well, this is the one that moves with the cursor
+					objectBeingMade.addPoint(lastMousePos.copy());
+				}
+				else if (tool == "addArcWall")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new ArcWall(newPoint.copy(), 0, 0, Math.PI);
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(0, newPoint);
+						setTool("select");
+					}
+				}
+				else if (tool == "addRay")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new BRDFRay(newPoint.copy(), new Vector(0,1), scene);
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(1, newPoint);
+						setTool("select");
+					}
+				}
 			}
 		}
 	}
@@ -322,7 +498,6 @@ function GeneralDrawingTest(docTag)
 	function onMouseMove(evt)
 	{
 		draw();
-		
 
 		lastMousePos = camera.getMousePos(evt);
 		lastMousePosPixels = getMousePos(evt, canvas);
@@ -354,6 +529,40 @@ function GeneralDrawingTest(docTag)
 					{
 						camera.drawRectangle(newDragPoint.point, camera.invScale(10), "#ff0000", 2);
 					}
+				}
+			}
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay")
+			{
+				var newPoint = lastMousePos;
+
+				if (evt.altKey == 0)
+				{
+					newPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30), [objectBeingMade]);
+
+					if (newPoint !== null)
+					{
+						camera.drawRectangle(newPoint, camera.invScale(10), "#0084e0", 2);
+					}
+					else
+					{
+						newPoint = mul(round(div(lastMousePos, grid.spacing)), grid.spacing);
+					}
+				}
+
+				if (tool == "addWall")
+				{
+					if (objectBeingMade !== undefined)
+					{
+						objectBeingMade.points[objectBeingMade.points.length - 1] = newPoint;
+					}
+				}
+				else if (tool == "addArcWall")
+				{
+					objectBeingMade.setDragPointPos(0, newPoint);
+				}
+				else if (tool == "addRay")
+				{
+					objectBeingMade.setDragPointPos(1, newPoint);
 				}
 			}
 		}
