@@ -3,6 +3,7 @@ function GeneralDrawingTest(docTag)
 	var canvas;
 	var propertyGrid;
 	var buttonList;
+	var statusBar;
 	var scene;
 	var camera;
 
@@ -29,17 +30,13 @@ function GeneralDrawingTest(docTag)
 	{
 		var root = document.getElementById(docTag);
 		
+		// Main canvas
 		canvas = document.createElement('canvas');
 		canvas.width  = 1250;
 		canvas.height = 700;
-		//canvas.style.width  = "70%";
-		//canvas.style.height = 700;
-		//canvas.style.align = "left";
-		canvas.style.border = "2px solid black";//#99D9EA";
-		//canvas.style.margin = "auto";
+		canvas.style.border = "2px solid black";
 		canvas.style.marginLeft = 50;
 		canvas.style.marginRight = 20;
-		//canvas.style.display = "block";
 		canvas.style.cursor = "none";
 		canvas.addEventListener('mousemove', onMouseMove, false);
 		canvas.addEventListener('mousedown', onMouseDown, false);
@@ -47,9 +44,9 @@ function GeneralDrawingTest(docTag)
 		document.addEventListener('keydown', onKeyDown, false);
 		document.addEventListener('keyup', onKeyUp, false);
 		canvas.onwheel = onMouseWheel;
-		
 		root.appendChild(canvas);
 
+		// Property grid
 		var propertyGridDock = document.createElement('div');
 		propertyGridDock.id = "propertyGrid";
 		propertyGridDock.style.border = "2px solid black";
@@ -60,6 +57,7 @@ function GeneralDrawingTest(docTag)
 
 		propertyGrid = new PropertyGrid(propertyGridDock);
 
+		// Button list
 		var buttonListdDock = document.createElement('div');
 		buttonListdDock.id = "buttonList";
 		buttonListdDock.style.border = "2px solid black";
@@ -74,6 +72,16 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Wall (L)", function(){setTool("addWall");}));
 		buttonList.addProperty(undefined, new Button("Add Arc Wall (C)", function(){setTool("addArcWall");}));
 		buttonList.addProperty(undefined, new Button("Add Ray (R)", function(){setTool("addRay");}));
+
+		// Status bar
+		statusBar = document.createElement('div');
+		statusBar.id = "statusBar";
+		statusBar.style.border = "2px solid black";
+		statusBar.style.width  = 1250;
+		statusBar.style.height = 30;
+		statusBar.style.marginLeft = 204;
+		statusBar.style.marginTop = 5;
+		root.appendChild(statusBar);
 
 		scene = new Scene();
 		camera = new Camera(canvas);
@@ -123,6 +131,7 @@ function GeneralDrawingTest(docTag)
 
 			tool = "select";
 			mouseCursor.shape = "cross";
+			statusBar.innerHTML = "SELECT: Click to select and move objects. Ctrl restricts movement to X/Y axis. Snaps are ON by default. Use Alt to move freely.";
 			draw();
 		}
 		else if (newTool == "modify")
@@ -134,6 +143,7 @@ function GeneralDrawingTest(docTag)
 
 			tool = "modify";
 			mouseCursor.shape = "angle";
+			statusBar.innerHTML = "MODIFY: Click to select and move drag points. Ctrl restricts movement to object local space. Snaps are ON by default. Use Alt to move freely.";
 			draw();
 		}
 		else if (newTool == "addWall")
@@ -145,6 +155,7 @@ function GeneralDrawingTest(docTag)
 
 			tool = "addWall";
 			mouseCursor.shape = "cross";
+			statusBar.innerHTML = "Add Wall: Click to add points. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
 			setSelection([]);
 			draw();
 		}
@@ -157,6 +168,7 @@ function GeneralDrawingTest(docTag)
 
 			tool = "addArcWall";
 			mouseCursor.shape = "cross";
+			statusBar.innerHTML = "Add Arc Wall: Click to add points. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
 			setSelection([]);
 			draw();
 		}
@@ -169,6 +181,7 @@ function GeneralDrawingTest(docTag)
 
 			tool = "addRay";
 			mouseCursor.shape = "cross";
+			statusBar.innerHTML = "Add Ray: Click to add points. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
 			setSelection([]);
 			draw();
 		}
