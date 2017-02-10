@@ -54,7 +54,7 @@ function GeneralDrawingTest(docTag)
 		propertyGridDock.style.height = 700;
 		propertyGridDock.style.cssFloat = "right";
 		propertyGridDock.style.fontFamily = "Verdana,sans-serif";
-		propertyGridDock.style.fontSize = "small";
+		propertyGridDock.style.fontSize = "large";
 
 		root.appendChild(propertyGridDock);
 
@@ -75,8 +75,8 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Wall (L)", function(){setTool("addWall");}));
 		buttonList.addProperty(undefined, new Button("Add Arc Wall (C)", function(){setTool("addArcWall");}));
 		buttonList.addProperty(undefined, new Button("Add Ray (R)", function () { setTool("addRay"); }));
+		buttonList.addProperty(undefined, new Button("Add Point Light", function () { setTool("addPointLight"); }));
 		buttonList.addProperty(undefined, new Divider());
-		buttonList.addProperty(undefined, new Button("Add Point Light", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Add Spot Light", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Add Dir Light", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Add Camera", function () { window.alert("Not implemented!"); }));
@@ -109,16 +109,10 @@ function GeneralDrawingTest(docTag)
 		scene.addObject(grid);
 		scene.addObject(new Wall( [new Vector(-10, 10), new Vector(-10, 0), new Vector(10, 0), new Vector(10, 10)] ));
 		scene.addObject(new ArcWall(new Vector(0, 10), 10,  0*Math.PI/180, 180*Math.PI/180));
-		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-3,-5),  scene));
-		scene.addObject(mouseCursor);
+		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-3,-5)));
+		scene.addObject(new PointLight(new Vector(0, 10), 5));
 
-		for (var i = 0; i != scene.objects.length; ++i)
-		{
-			if (scene.objects[i].addChangeListener !== undefined)
-			{
-				scene.objects[i].addChangeListener(draw);
-			}
-		}
+		scene.addChangeListener(draw);
 
 		camera.setViewPosition(0, 10);
 	}
@@ -136,7 +130,8 @@ function GeneralDrawingTest(docTag)
 				}
 				else
 				{
-					objectBeingMade.points.splice(objectBeingMade.points.length-1, 1);
+					objectBeingMade.points.splice(objectBeingMade.points.length - 1, 1);
+					setSelection([scene.objects[scene.objects.length-1]]);
 				}
 			}
 		}
@@ -201,6 +196,19 @@ function GeneralDrawingTest(docTag)
 			tool = "addRay";
 			mouseCursor.shape = "cross";
 			statusBar.innerHTML = "Add Ray: Click to add points. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
+			setSelection([]);
+			draw();
+		}
+		else if (newTool == "addPointLight")
+		{
+			if (tool != "addPointLight")
+			{
+				mode = null;
+			}
+
+			tool = "addPointLight";
+			mouseCursor.shape = "cross";
+			statusBar.innerHTML = "Add Point Light: Click to add. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
 			setSelection([]);
 			draw();
 		}
@@ -468,7 +476,7 @@ function GeneralDrawingTest(docTag)
 
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight")
 			{
 				var newPoint = lastMousePos;
 
@@ -491,7 +499,7 @@ function GeneralDrawingTest(docTag)
 					}
 					else
 					{
-						objectBeingMade.addPoint(newPoint.copy());
+						objectBeingMade.points[objectBeingMade.points.length - 1] = newPoint;
 					}
 
 					// Add the next point as well, this is the one that moves with the cursor
@@ -508,6 +516,7 @@ function GeneralDrawingTest(docTag)
 					{
 						objectBeingMade.setDragPointPos(0, newPoint);
 						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
 					}
 				}
 				else if (tool == "addRay")
@@ -521,7 +530,15 @@ function GeneralDrawingTest(docTag)
 					{
 						objectBeingMade.setDragPointPos(1, newPoint);
 						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
 					}
+				}
+				else if (tool == "addPointLight")
+				{
+					objectBeingMade = new PointLight(newPoint.copy(), 5);
+					scene.addObject(objectBeingMade);
+					setTool("select");
+					setSelection([scene.objects[scene.objects.length-1]]);
 				}
 			}
 		}
@@ -736,6 +753,7 @@ function GeneralDrawingTest(docTag)
 	function draw()
 	{
 		scene.draw(camera);
+		mouseCursor.draw(camera);
 	}
 	
 	setup();
