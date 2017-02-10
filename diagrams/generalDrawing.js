@@ -73,8 +73,8 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Select (Q)", function(){setTool("select");}));
 		buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
 		buttonList.addProperty(undefined, new Button("Add Wall (L)", function(){setTool("addWall");}));
-		buttonList.addProperty(undefined, new Button("Add Arc Wall (C)", function(){setTool("addArcWall");}));
-		buttonList.addProperty(undefined, new Button("Add Ray (R)", function () { setTool("addRay"); }));
+		buttonList.addProperty(undefined, new Button("Add Arc Wall", function(){setTool("addArcWall");}));
+		buttonList.addProperty(undefined, new Button("Add Ray", function () { setTool("addRay"); }));
 		buttonList.addProperty(undefined, new Button("Add Point Light", function () { setTool("addPointLight"); }));
 		buttonList.addProperty(undefined, new Button("Add Spot Light", function () { setTool("addSpotLight"); }));
 		buttonList.addProperty(undefined, new Button("Add Parallel Light", function () { setTool("addParallelLight"); }));
@@ -84,7 +84,7 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Tree", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Add Person", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Divider());
-		buttonList.addProperty(undefined, new Button("Save as Image", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Save as Image", function () { saveAsImage(); }));
 		buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { window.alert("Not implemented!"); }));
 
@@ -261,14 +261,6 @@ function GeneralDrawingTest(docTag)
 		else if (evt.keyCode==76) // L
 		{
 			setTool("addWall");
-		}
-		else if (evt.keyCode==67) // C
-		{
-			setTool("addArcWall");
-		}
-		else if (evt.keyCode==82) // R
-		{
-			setTool("addRay");
 		}
 		else if (evt.keyCode==46) // del
 		{
@@ -791,6 +783,16 @@ function GeneralDrawingTest(docTag)
 		mouseCursor.draw(camera);
 	}
 	
+	function saveAsImage()
+	{
+		mouseCursor.hide = true;
+		draw();
+		var img = canvas.toDataURL("image/png");
+		mouseCursor.hide = false;
+		var popup = window.open();
+		popup.document.write('<img src="' + img + '"/>');
+	}
+
 	setup();
 	draw();
 }
