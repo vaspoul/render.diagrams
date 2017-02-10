@@ -110,7 +110,8 @@ function GeneralDrawingTest(docTag)
 		scene.addObject(new Wall( [new Vector(-10, 10), new Vector(-10, 0), new Vector(10, 0), new Vector(10, 10)] ));
 		scene.addObject(new ArcWall(new Vector(0, 10), 10,  0*Math.PI/180, 180*Math.PI/180));
 		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-3,-5)));
-		scene.addObject(new PointLight(new Vector(0, 10), 5));
+		//scene.addObject(new PointLight(new Vector(0, 10), 5));
+		scene.addObject(new SpotLight(new Vector(0, 10), new Vector(10, 0), 35));
 
 		scene.addChangeListener(draw);
 
