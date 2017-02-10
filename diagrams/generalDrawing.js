@@ -35,7 +35,7 @@ function GeneralDrawingTest(docTag)
 		canvas.width  = 1250;
 		canvas.height = 700;
 		canvas.style.border = "2px solid black";
-		canvas.style.marginLeft = 50;
+		canvas.style.marginLeft = 20;
 		canvas.style.marginRight = 20;
 		canvas.style.cursor = "none";
 		canvas.addEventListener('mousemove', onMouseMove, false);
@@ -53,6 +53,9 @@ function GeneralDrawingTest(docTag)
 		propertyGridDock.style.width  = 400;
 		propertyGridDock.style.height = 700;
 		propertyGridDock.style.cssFloat = "right";
+		propertyGridDock.style.fontFamily = "Verdana,sans-serif";
+		propertyGridDock.style.fontSize = "small";
+
 		root.appendChild(propertyGridDock);
 
 		propertyGrid = new PropertyGrid(propertyGridDock);
@@ -61,7 +64,7 @@ function GeneralDrawingTest(docTag)
 		var buttonListdDock = document.createElement('div');
 		buttonListdDock.id = "buttonList";
 		buttonListdDock.style.border = "2px solid black";
-		buttonListdDock.style.width  = 150;
+		buttonListdDock.style.width  = 180;
 		buttonListdDock.style.height = 700;
 		buttonListdDock.style.cssFloat = "left";
 		root.appendChild(buttonListdDock);
@@ -71,16 +74,32 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
 		buttonList.addProperty(undefined, new Button("Add Wall (L)", function(){setTool("addWall");}));
 		buttonList.addProperty(undefined, new Button("Add Arc Wall (C)", function(){setTool("addArcWall");}));
-		buttonList.addProperty(undefined, new Button("Add Ray (R)", function(){setTool("addRay");}));
+		buttonList.addProperty(undefined, new Button("Add Ray (R)", function () { setTool("addRay"); }));
+		buttonList.addProperty(undefined, new Divider());
+		buttonList.addProperty(undefined, new Button("Add Point Light", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Add Spot Light", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Add Dir Light", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Add Camera", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Add Box", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Add Tree", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Add Person", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Divider());
+		buttonList.addProperty(undefined, new Button("Save as Image", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { window.alert("Not implemented!"); }));
+
 
 		// Status bar
 		statusBar = document.createElement('div');
 		statusBar.id = "statusBar";
 		statusBar.style.border = "2px solid black";
-		statusBar.style.width  = 1250;
+		statusBar.style.width  = 1250-8;
 		statusBar.style.height = 30;
 		statusBar.style.marginLeft = 204;
 		statusBar.style.marginTop = 5;
+		statusBar.style.fontFamily = "Verdana,sans-serif";
+		statusBar.style.fontSize = "small";
+		statusBar.style.padding = "4px";
 		root.appendChild(statusBar);
 
 		scene = new Scene();
