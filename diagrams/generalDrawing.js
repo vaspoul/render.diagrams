@@ -76,8 +76,8 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Arc Wall (C)", function(){setTool("addArcWall");}));
 		buttonList.addProperty(undefined, new Button("Add Ray (R)", function () { setTool("addRay"); }));
 		buttonList.addProperty(undefined, new Button("Add Point Light", function () { setTool("addPointLight"); }));
+		buttonList.addProperty(undefined, new Button("Add Spot Light", function () { setTool("addSpotLight"); }));
 		buttonList.addProperty(undefined, new Divider());
-		buttonList.addProperty(undefined, new Button("Add Spot Light", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Add Dir Light", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Add Camera", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Add Box", function () { window.alert("Not implemented!"); }));
@@ -199,16 +199,16 @@ function GeneralDrawingTest(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addPointLight")
+		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addDirLight")
 		{
-			if (tool != "addPointLight")
+			if (tool != newTool)
 			{
 				mode = null;
 			}
 
-			tool = "addPointLight";
+			tool = newTool;
 			mouseCursor.shape = "cross";
-			statusBar.innerHTML = "Add Point Light: Click to add. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
+			statusBar.innerHTML = "Add Light: Click to add. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
 			setSelection([]);
 			draw();
 		}
@@ -476,7 +476,7 @@ function GeneralDrawingTest(docTag)
 
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight")
 			{
 				var newPoint = lastMousePos;
 
@@ -523,7 +523,7 @@ function GeneralDrawingTest(docTag)
 				{
 					if (objectBeingMade === undefined)
 					{
-						objectBeingMade = new BRDFRay(newPoint.copy(), new Vector(0,1), scene);
+						objectBeingMade = new BRDFRay(newPoint.copy(), new Vector(0,1));
 						scene.addObject(objectBeingMade);
 					}
 					else
@@ -539,6 +539,20 @@ function GeneralDrawingTest(docTag)
 					scene.addObject(objectBeingMade);
 					setTool("select");
 					setSelection([scene.objects[scene.objects.length-1]]);
+				}
+				else if (tool == "addSpotLight")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new SpotLight(newPoint.copy(), new Vector(0,1), 40);
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(1, newPoint);
+						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
+					}
 				}
 			}
 		}
@@ -580,7 +594,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight")
 			{
 				var newPoint = lastMousePos;
 
@@ -607,11 +621,17 @@ function GeneralDrawingTest(docTag)
 				}
 				else if (tool == "addArcWall")
 				{
-					objectBeingMade.setDragPointPos(0, newPoint);
+					if (objectBeingMade !== undefined)
+					{
+						objectBeingMade.setDragPointPos(0, newPoint);
+					}
 				}
-				else if (tool == "addRay")
+				else if (tool == "addRay" || tool == "addSpotLight")
 				{
-					objectBeingMade.setDragPointPos(1, newPoint);
+					if (objectBeingMade !== undefined)
+					{
+						objectBeingMade.setDragPointPos(1, newPoint);
+					}
 				}
 			}
 		}
