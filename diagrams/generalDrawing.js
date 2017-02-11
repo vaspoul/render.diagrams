@@ -74,13 +74,12 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
 		buttonList.addProperty(undefined, new Button("Add Wall (L)", function(){setTool("addWall");}));
 		buttonList.addProperty(undefined, new Button("Add Arc Wall", function(){setTool("addArcWall");}));
-		buttonList.addProperty(undefined, new Button("Add Ray", function () { setTool("addRay"); }));
+		buttonList.addProperty(undefined, new Button("Add BRDF Ray", function () { setTool("addRay"); }));
 		buttonList.addProperty(undefined, new Button("Add Point Light", function () { setTool("addPointLight"); }));
 		buttonList.addProperty(undefined, new Button("Add Spot Light", function () { setTool("addSpotLight"); }));
 		buttonList.addProperty(undefined, new Button("Add Parallel Light", function () { setTool("addParallelLight"); }));
 		buttonList.addProperty(undefined, new Divider());
 		buttonList.addProperty(undefined, new Button("Add Camera", function () { window.alert("Not implemented!"); }));
-		buttonList.addProperty(undefined, new Button("Add Box", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Add Tree", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Add Person", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Divider());
