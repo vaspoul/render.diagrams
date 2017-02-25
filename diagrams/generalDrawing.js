@@ -4,6 +4,7 @@ function GeneralDrawingTest(docTag)
 	var propertyGrid;
 	var buttonList;
 	var statusBar;
+	var codeBox;
 	var scene;
 	var camera;
 
@@ -84,8 +85,8 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Person", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Divider());
 		buttonList.addProperty(undefined, new Button("Save as Image", function () { saveAsImage(); }));
-		buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { window.alert("Not implemented!"); }));
-		buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { saveAsJavascript(); }));
+		buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { loadFromJavascript(); }));
 
 
 		// Status bar
@@ -101,6 +102,19 @@ function GeneralDrawingTest(docTag)
 		statusBar.style.padding = "4px";
 		root.appendChild(statusBar);
 
+		// Code box
+		codeBox = document.createElement('textarea');
+		codeBox.id = "codeBox";
+		codeBox.style.border = "2px solid black";
+		codeBox.style.width  = 1254;
+		codeBox.style.height = 300;
+		codeBox.style.marginLeft = 204;
+		codeBox.style.marginTop = 5;
+		codeBox.style.fontFamily = "Verdana,sans-serif";
+		codeBox.style.fontSize = "small";
+		root.appendChild(codeBox);
+
+
 		scene = new Scene();
 		camera = new Camera(canvas);
 		
@@ -109,7 +123,6 @@ function GeneralDrawingTest(docTag)
 		scene.addObject(new Wall( [new Vector(-10, 10), new Vector(-10, 0), new Vector(10, 0), new Vector(10, 10)] ));
 		scene.addObject(new ArcWall(new Vector(0, 10), 10,  0*Math.PI/180, 180*Math.PI/180));
 		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-3,-5)));
-		//scene.addObject(new PointLight(new Vector(0, 10), 5));
 		scene.addObject(new SpotLight(new Vector(0, 10), new Vector(10, 0), 35));
 
 		scene.addChangeListener(draw);
@@ -790,6 +803,26 @@ function GeneralDrawingTest(docTag)
 		mouseCursor.hide = false;
 		var popup = window.open();
 		popup.document.write('<img src="' + img + '"/>');
+	}
+
+	function saveAsJavascript()
+	{
+		var str = scene.saveAsJavascript();
+
+		codeBox.innerHTML = str;
+	}
+
+	function loadFromJavascript()
+	{
+		str = codeBox.innerHTML;
+
+		if (str != null)
+		{
+			scene.deleteAllObjects();
+			scene.addObject(grid);
+			eval(str);
+			draw();
+		}
 	}
 
 	setup();
