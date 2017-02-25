@@ -81,10 +81,10 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Parallel Light", function () { setTool("addParallelLight"); }));
 		buttonList.addProperty(undefined, new Divider());
 		buttonList.addProperty(undefined, new Button("Add Camera", function () { window.alert("Not implemented!"); }));
-		buttonList.addProperty(undefined, new Button("Add Tree", function () { window.alert("Not implemented!"); }));
-		buttonList.addProperty(undefined, new Button("Add Person", function () { window.alert("Not implemented!"); }));
+		buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
+		buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
 		buttonList.addProperty(undefined, new Divider());
-		buttonList.addProperty(undefined, new Button("Save as Image", function () { saveAsImage(); }));
+		//buttonList.addProperty(undefined, new Button("Save as Image", function () { saveAsImage(); }));
 		buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { saveAsJavascript(); }));
 		buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { loadFromJavascript(); }));
 
@@ -107,7 +107,7 @@ function GeneralDrawingTest(docTag)
 		codeBox.id = "codeBox";
 		codeBox.style.border = "2px solid black";
 		codeBox.style.width  = 1254;
-		codeBox.style.height = 300;
+		codeBox.style.height = 200;
 		codeBox.style.marginLeft = 204;
 		codeBox.style.marginTop = 5;
 		codeBox.style.fontFamily = "Verdana,sans-serif";
@@ -809,12 +809,12 @@ function GeneralDrawingTest(docTag)
 	{
 		var str = scene.saveAsJavascript();
 
-		codeBox.innerHTML = str;
+		codeBox.value = str;
 	}
 
 	function loadFromJavascript()
 	{
-		str = codeBox.innerHTML;
+		str = codeBox.value;
 
 		if (str != null)
 		{
@@ -823,6 +823,33 @@ function GeneralDrawingTest(docTag)
 			eval(str);
 			draw();
 		}
+	}
+
+	function addTree()
+	{
+		var w = new Wall([new Vector(-2, 2), new Vector(-2, 7), new Vector(0, 7), new Vector(0, 2), new Vector(-2, 2)]);
+		w.roughness = 0.1;
+		w.metalness = 0;
+		scene.addObject(w);
+
+		var w = new Wall([new Vector(-2, 7), new Vector(-5, 9), new Vector(-5, 11), new Vector(-6, 13), new Vector(-5, 15), new Vector(-5, 17), new Vector(-2.5131828247928443, 17.6149344555104), new Vector(-1, 19), new Vector(2.0701925996189092, 18.187856383561872), new Vector(2.881831997691824, 15.70519469533884), new Vector(4.6483412758505205, 13.699967947158697), new Vector(3.025062479704691, 11.503767222961393), new Vector(2.7386015156789565, 8.49592710069118), new Vector(0, 7), new Vector(-2, 7)]);
+		w.roughness = 0.6000000000000001;
+		w.metalness = 0;
+		scene.addObject(w);
+	}
+
+	function addPerson()
+	{
+		var w = new Wall([new Vector(-2, 10), new Vector(0, 10), new Vector(2, 7), new Vector(0, 8), new Vector(0, 1), new Vector(-1, 5), new Vector(-2, 1), new Vector(-2, 8), new Vector(-4, 7), new Vector(-2, 10)]);
+		w.roughness = 0;
+		w.metalness = 0;
+		scene.addObject(w);
+
+		var aw = new ArcWall(new Vector(-1, 11), 1, -90.00 * Math.PI/180, 270.00 * Math.PI/180);
+		aw.convex = false;
+		aw.roughness = 0;
+		aw.metalness = 0;
+		scene.addObject(aw);
 	}
 
 	setup();
