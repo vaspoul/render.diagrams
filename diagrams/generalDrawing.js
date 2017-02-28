@@ -79,8 +79,8 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Point Light", function () { setTool("addPointLight"); }));
 		buttonList.addProperty(undefined, new Button("Add Spot Light", function () { setTool("addSpotLight"); }));
 		buttonList.addProperty(undefined, new Button("Add Parallel Light", function () { setTool("addParallelLight"); }));
+		buttonList.addProperty(undefined, new Button("Add Camera", function () { setTool("addCamera"); }));
 		buttonList.addProperty(undefined, new Divider());
-		buttonList.addProperty(undefined, new Button("Add Camera", function () { window.alert("Not implemented!"); }));
 		buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
 		buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
 		buttonList.addProperty(undefined, new Divider());
@@ -212,7 +212,7 @@ function GeneralDrawingTest(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight")
+		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera")
 		{
 			if (tool != newTool)
 			{
@@ -481,7 +481,7 @@ function GeneralDrawingTest(docTag)
 
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera")
 			{
 				var newPoint = lastMousePos;
 
@@ -559,6 +559,20 @@ function GeneralDrawingTest(docTag)
 						setSelection([scene.objects[scene.objects.length-1]]);
 					}
 				}
+				else if (tool == "addCamera")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new CameraObject(newPoint.copy(), new Vector(0,1), 40);
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(1, newPoint);
+						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
+					}
+				}
 				else if (tool == "addParallelLight")
 				{
 					if (objectBeingMade === undefined)
@@ -613,7 +627,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera")
 			{
 				var newPoint = lastMousePos;
 
@@ -645,7 +659,7 @@ function GeneralDrawingTest(docTag)
 						objectBeingMade.setDragPointPos(0, newPoint);
 					}
 				}
-				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight")
+				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera")
 				{
 					if (objectBeingMade !== undefined)
 					{
