@@ -791,8 +791,15 @@ function GeneralDrawingTest(docTag)
 	
 	function draw()
 	{
+		var t0 = performance.now();
+
+		camera.clear();
 		scene.draw(camera);
 		mouseCursor.draw(camera);
+
+		var t1 = performance.now();
+
+		camera.getGraphics().drawText(new Vector(5, 20), (1000/(t1-t0)).toFixed(2) + "FPS", "#000000", "left"); 
 	}
 	
 	function saveAsImage()
