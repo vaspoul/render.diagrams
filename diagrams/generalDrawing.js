@@ -596,7 +596,7 @@ function GeneralDrawingTest(docTag)
 				{
 					if (objectBeingMade === undefined)
 					{
-						objectBeingMade = new Line(newPoint.copy(), new Vector(0,1));
+						objectBeingMade = new Line(newPoint.copy(), newPoint);
 						scene.addObject(objectBeingMade);
 					}
 					else
