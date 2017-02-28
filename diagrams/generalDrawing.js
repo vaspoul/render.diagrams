@@ -333,7 +333,7 @@ function GeneralDrawingTest(docTag)
 
 					if (evt.altKey == 0)
 					{
-						var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30));
+						var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30));
 
 						if (snapPoint !== null)
 						{
@@ -487,7 +487,7 @@ function GeneralDrawingTest(docTag)
 
 				if (evt.altKey == 0)
 				{
-					newPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30), [objectBeingMade]);
+					newPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), [objectBeingMade]);
 
 					if (newPoint === null)
 					{
@@ -604,7 +604,7 @@ function GeneralDrawingTest(docTag)
 		{
 			if (tool == "select")
 			{
-				var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30));
+				var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30));
 
 				if (snapPoint !== null)
 				{
@@ -633,7 +633,7 @@ function GeneralDrawingTest(docTag)
 
 				if (evt.altKey == 0)
 				{
-					newPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30), [objectBeingMade]);
+					newPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), [objectBeingMade]);
 
 					if (newPoint !== null)
 					{
@@ -681,7 +681,7 @@ function GeneralDrawingTest(docTag)
 					else
 						ignoreList = [dragPoint.object];
 
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.invScale(30), ignoreList);
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), ignoreList);
 
 					if (snapPoint !== null)
 					{
