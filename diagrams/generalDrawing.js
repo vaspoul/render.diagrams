@@ -503,7 +503,7 @@ function GeneralDrawingTest(docTag)
 			}
 			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine")
 			{
-				if (evt.altKey == 0 && (evt.ctrlKey == 0 || objectBeingMade === undefined))
+				if (evt.altKey == 0)
 				{
 					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), [objectBeingMade]);
 
@@ -514,7 +514,8 @@ function GeneralDrawingTest(docTag)
 
 					lastMousePos = snapPoint;
 				}
-				else if (evt.ctrlKey && objectBeingMade !== undefined)
+
+				if (evt.ctrlKey && objectBeingMade !== undefined)
 				{
 					var delta = sub(lastMousePos, lastMouseUpPos);
 					var absDelta = abs(delta);
@@ -684,7 +685,7 @@ function GeneralDrawingTest(docTag)
 			{
 				var newPoint = lastMousePos;
 
-				if (evt.altKey == 0 && (evt.ctrlKey == 0 || objectBeingMade === undefined))
+				if (evt.altKey == 0)
 				{
 					newPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), [objectBeingMade]);
 
@@ -697,7 +698,8 @@ function GeneralDrawingTest(docTag)
 						newPoint = mul(round(div(lastMousePos, grid.spacing)), grid.spacing);
 					}
 				}
-				else if (evt.ctrlKey && objectBeingMade !== undefined)
+
+				if (evt.ctrlKey && objectBeingMade !== undefined)
 				{
 					var delta = sub(lastMousePos, lastMouseUpPos);
 					var absDelta = abs(delta);
