@@ -22,12 +22,15 @@ function GeneralDrawingTest(docTag)
 	var tool					= "select";
 	var mode					= "";
 		
-	var selectionList = [];
-	var moveOffsets = [];
-	var dragPoint = null;
-	var objectBeingMade = undefined;
+	var selectionList			= [];
+	var moveOffsets				= [];
+	var dragPoint				= null;
+	var objectBeingMade			= undefined;
 	var lastKeyPress;
 	
+	var canvasProperties		= [];
+	var showGrid				= true;
+
 	function setup()
 	{
 		var root = document.getElementById(docTag);
@@ -116,12 +119,15 @@ function GeneralDrawingTest(docTag)
 		codeBox.style.fontSize = "small";
 		root.appendChild(codeBox);
 
+		canvasProperties =
+		[
+			{name: "Show Grid", control: new TickBox(showGrid, function (value) { showGrid = value; draw(); }) }
+		];
 
 		scene = new Scene();
 		camera = new Camera(canvas);
 		
 		grid.spacing = 1;
-		scene.addObject(grid);
 		scene.addObject(new Wall( [new Vector(-10, 10), new Vector(-10, 0), new Vector(10, 0), new Vector(10, 10)] ));
 		scene.addObject(new ArcWall(new Vector(0, 10), 10,  0*Math.PI/180, 180*Math.PI/180));
 		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-3,-5)));
@@ -130,6 +136,8 @@ function GeneralDrawingTest(docTag)
 		scene.addChangeListener(draw);
 
 		camera.setViewPosition(0, 10);
+
+		setSelection([]);
 	}
 	
 	function setTool(newTool)
@@ -866,7 +874,7 @@ function GeneralDrawingTest(docTag)
 		}
 		else
 		{
-			propertyGrid.setProperties([]);
+			propertyGrid.setProperties(canvasProperties);
 		}
 
 		draw();
@@ -877,6 +885,12 @@ function GeneralDrawingTest(docTag)
 		var t0 = performance.now();
 
 		camera.clear();
+
+		if (showGrid)
+		{
+			grid.draw(camera);
+		}
+
 		scene.draw(camera);
 		mouseCursor.draw(camera);
 
