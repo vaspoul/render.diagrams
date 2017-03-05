@@ -124,6 +124,7 @@ function GeneralDrawingTest(docTag)
 
 		buttonList = new PropertyGrid(buttonListdDock);
 		buttonList.addProperty(undefined, new Button("Select (Q)", function(){setTool("select");}));
+		buttonList.addProperty(undefined, new Button("Zoom Extents (F4)", function(){zoomExtents();}));
 		buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
 		buttonList.addProperty(undefined, new Button("Add Wall (W)", function(){setTool("addWall");}));
 		buttonList.addProperty(undefined, new Button("Add Arc Wall", function(){setTool("addArcWall");}));
@@ -377,7 +378,11 @@ function GeneralDrawingTest(docTag)
 		{
 			redo();
 		}
-
+		else if (evt.keyCode == 115) // F4
+		{
+			zoomExtents();
+		}
+	
 		lastKeyPress = undefined;
 	}
 
@@ -892,10 +897,36 @@ function GeneralDrawingTest(docTag)
 		maxY = zoomCenter.y + (maxY-zoomCenter.y) * zoomFactor;
 
 		camera.setViewPosition((minX+maxX)/2, (minY+maxY)/2);
-		camera.setUnitScale( camera.getUnitScale() / zoomFactor);
+		camera.setUnitScale(camera.getUnitScale() / zoomFactor);
+
+		if (camera.scale(grid.spacing) < 10)
+			grid.spacing *= 10;
+		else if (camera.scale(grid.spacing) > 100)
+			grid.spacing /= 10;
+
+
 		draw();
 		
 		return false;
+	}
+
+	function zoomExtents()
+	{
+		var center = avg(scene.getBoundsMin(), scene.getBoundsMax());
+		var extents = sub(scene.getBoundsMax(), scene.getBoundsMin());
+
+		var uniScaleX = window.innerWidth / extents.x;
+		var uniScaleY = window.innerHeight / extents.y;
+
+		camera.setViewPosition(center.x, center.y);
+		camera.setUnitScale(Math.min(uniScaleX, uniScaleY) * 0.9);
+
+		if (camera.scale(grid.spacing) < 10)
+			grid.spacing *= 10;
+		else if (camera.scale(grid.spacing) > 100)
+			grid.spacing /= 10;
+
+		draw();
 	}
 
 	function setSelection(s)
@@ -944,10 +975,12 @@ function GeneralDrawingTest(docTag)
 		scene.draw(camera);
 		mouseCursor.draw(camera);
 
+		//camera.drawRectangle(scene.getBoundsMin(), scene.getBoundsMax(), "#0084e0", 1, [5,5]);
+
 		var t1 = performance.now();
 
 		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 50), (1000 / (t1 - t0)).toFixed(0) + " FPS", "#909090", "left");
-		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 100), "UndoPos: " + undoRedoUndoPos + ", BackupPos: " + undoRedoBackupPos, "#909090", "left");
+		//camera.getGraphics().drawText(new Vector(5, window.innerHeight - 100), "UndoPos: " + undoRedoUndoPos + ", BackupPos: " + undoRedoBackupPos, "#909090", "left");
 	}
 	
 	function drawSnapPoint(snapPoint)
