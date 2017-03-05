@@ -3,6 +3,7 @@ function GeneralDrawingTest(docTag)
 	var canvas;
 	var propertyGrid;
 	var buttonList;
+	var objectList;
 	var statusBar;
 	var codeBox;
 	var scene;
@@ -31,17 +32,26 @@ function GeneralDrawingTest(docTag)
 	var canvasProperties		= [];
 	var showGrid				= true;
 
+	var undoRedoBuffer			= [];
+	var undoRedoMaxCount		= 64;
+	var undoRedoBackupPos		= 0;
+	var undoRedoUndoPos			= 0;
+	var undoRedoSuspendBackup	= false;
+
 	function setup()
 	{
 		var root = document.getElementById(docTag);
-		
+
 		// Main canvas
 		canvas = document.createElement('canvas');
-		canvas.width  = 1250;
-		canvas.height = 700;
-		canvas.style.border = "2px solid black";
-		canvas.style.marginLeft = 20;
-		canvas.style.marginRight = 20;
+		canvas.width  = window.innerWidth;
+		canvas.height = window.innerHeight;
+		//canvas.style.border = "2px solid black";
+		//canvas.style.marginLeft = 20;
+		//canvas.style.marginRight = 20;
+		canvas.style.position = "fixed";
+		canvas.style.left = "0";
+		canvas.style.top = "0";
 		canvas.style.cursor = "none";
 		canvas.addEventListener('mousemove', onMouseMove, false);
 		canvas.addEventListener('mousedown', onMouseDown, false);
@@ -55,9 +65,12 @@ function GeneralDrawingTest(docTag)
 		var propertyGridDock = document.createElement('div');
 		propertyGridDock.id = "propertyGrid";
 		propertyGridDock.style.border = "2px solid black";
+		propertyGridDock.style.backgroundColor = "white";
+		propertyGridDock.style.position = "fixed";
+		propertyGridDock.style.right = "5";
+		propertyGridDock.style.top = "5";
 		propertyGridDock.style.width  = 400;
-		propertyGridDock.style.height = 700;
-		propertyGridDock.style.cssFloat = "right";
+		propertyGridDock.style.height = 200;
 		propertyGridDock.style.fontFamily = "Verdana,sans-serif";
 		propertyGridDock.style.fontSize = "large";
 
@@ -65,13 +78,48 @@ function GeneralDrawingTest(docTag)
 
 		propertyGrid = new PropertyGrid(propertyGridDock);
 
+		// Object list
+		var objectListDock = document.createElement('div');
+		objectListDock.id = "objectList";
+		objectListDock.style.border = "2px solid black";
+		objectListDock.style.backgroundColor = "white";
+		objectListDock.style.position = "fixed";
+		objectListDock.style.right = "5";
+		objectListDock.style.top = "215";
+		objectListDock.style.width  = 400;
+		objectListDock.style.height = 500;
+		objectListDock.style.fontFamily = "Verdana,sans-serif";
+		objectListDock.style.fontSize = "large";
+
+		root.appendChild(objectListDock);
+
+		objectList = new PropertyGrid(objectListDock);
+
+
+		// Code box
+		codeBox = document.createElement('textarea');
+		codeBox.id = "codeBox";
+		codeBox.style.border = "2px solid black";
+		codeBox.style.backgroundColor = "white";
+		codeBox.style.position = "fixed";
+		codeBox.style.right = 5;
+		codeBox.style.bottom = 5;
+		codeBox.style.width  = 404;
+		codeBox.style.height = 250;
+		codeBox.style.fontFamily = "Verdana,sans-serif";
+		codeBox.style.fontSize = "small";
+		root.appendChild(codeBox);
+
 		// Button list
 		var buttonListdDock = document.createElement('div');
 		buttonListdDock.id = "buttonList";
 		buttonListdDock.style.border = "2px solid black";
+		buttonListdDock.style.backgroundColor = "white";
+		buttonListdDock.style.position = "fixed";
+		buttonListdDock.style.left = "5";
+		buttonListdDock.style.top = "5";
 		buttonListdDock.style.width  = 180;
 		buttonListdDock.style.height = 700;
-		buttonListdDock.style.cssFloat = "left";
 		root.appendChild(buttonListdDock);
 
 		buttonList = new PropertyGrid(buttonListdDock);
@@ -97,27 +145,17 @@ function GeneralDrawingTest(docTag)
 		// Status bar
 		statusBar = document.createElement('div');
 		statusBar.id = "statusBar";
-		statusBar.style.border = "2px solid black";
-		statusBar.style.width  = 1250-8;
+		//statusBar.style.border = "2px solid black";
+		//statusBar.style.backgroundColor = "white";
+		statusBar.style.position = "fixed";
+		statusBar.style.left = "0";
+		statusBar.style.bottom = "5";
+		statusBar.style.width  = window.innerWidth;
 		statusBar.style.height = 30;
-		statusBar.style.marginLeft = 204;
-		statusBar.style.marginTop = 5;
 		statusBar.style.fontFamily = "Verdana,sans-serif";
 		statusBar.style.fontSize = "small";
 		statusBar.style.padding = "4px";
 		root.appendChild(statusBar);
-
-		// Code box
-		codeBox = document.createElement('textarea');
-		codeBox.id = "codeBox";
-		codeBox.style.border = "2px solid black";
-		codeBox.style.width  = 1254;
-		codeBox.style.height = 200;
-		codeBox.style.marginLeft = 204;
-		codeBox.style.marginTop = 5;
-		codeBox.style.fontFamily = "Verdana,sans-serif";
-		codeBox.style.fontSize = "small";
-		root.appendChild(codeBox);
 
 		canvasProperties =
 		[
@@ -133,7 +171,7 @@ function GeneralDrawingTest(docTag)
 		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-3,-5)));
 		scene.addObject(new SpotLight(new Vector(0, 10), new Vector(10, 0), 35));
 
-		scene.addChangeListener(draw);
+		scene.addChangeListener(onSceneChange);
 
 		camera.setViewPosition(0, 10);
 
@@ -311,7 +349,7 @@ function GeneralDrawingTest(docTag)
 				draw();
 			}
 		}
-		else if (evt.keyCode == 16 && tool == "modify")
+		else if (evt.keyCode == 16 && tool == "modify") // shift
 		{
 			mouseCursor.shape = "cross";
 			draw();
@@ -322,10 +360,18 @@ function GeneralDrawingTest(docTag)
 	
 	function onKeyUp(evt)
 	{
-		if (evt.keyCode == 16 && tool == "modify")
+		if (evt.keyCode == 16 && tool == "modify") // shift
 		{
 			mouseCursor.shape = "angle";
 			draw();
+		}
+		else if (evt.keyCode == 90 && evt.ctrlKey == 1 && evt.shiftKey == 0)
+		{
+			undo();
+		}
+		else if (evt.keyCode == 90 && evt.ctrlKey == 1 && evt.shiftKey == 1)
+		{
+			redo();
 		}
 
 		lastKeyPress = undefined;
@@ -465,20 +511,10 @@ function GeneralDrawingTest(docTag)
 
 					setSelection(s);
 				}
-				//else if (mode == "selection")
-				//{
-				//	var threshold = 10 / camera.getUnitScale();
-				//	var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
-
-				//	if (evt.ctrlKey)
-				//	{
-				//		s = selectionList.concat(s);
-				//	}
-				//	else if (evt.shiftKey)
-				//	{
-
-				//	setSelection(s);
-				//}
+				else if (mode == "move")
+				{
+					backup();
+				}
 
 				mode = null;
 			}
@@ -507,6 +543,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 
+				backup();
 				mode = null;
 			}
 			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine")
@@ -653,6 +690,8 @@ function GeneralDrawingTest(docTag)
 						setSelection([scene.objects[scene.objects.length-1]]);
 					}
 				}
+
+				backup();
 			}
 		}
 
@@ -903,7 +942,8 @@ function GeneralDrawingTest(docTag)
 
 		var t1 = performance.now();
 
-		camera.getGraphics().drawText(new Vector(5, 20), (1000/(t1-t0)).toFixed(2) + "FPS", "#000000", "left"); 
+		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 50), (1000 / (t1 - t0)).toFixed(0) + " FPS", "#909090", "left");
+		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 100), "UndoPos: " + undoRedoUndoPos + ", BackupPos: " + undoRedoBackupPos, "#909090", "left");
 	}
 	
 	function drawSnapPoint(snapPoint)
@@ -938,14 +978,19 @@ function GeneralDrawingTest(docTag)
 
 	function saveAsJavascript()
 	{
-		var str = scene.saveAsJavascript();
+		var str = "";
+
+		str += camera.saveAsJavascript();
+		str += "\n\n";
+		str += scene.saveAsJavascript();
 
 		codeBox.value = str;
 	}
 
-	function loadFromJavascript()
+	function loadFromJavascript(str)
 	{
-		str = codeBox.value;
+		if (str === undefined)
+			str = codeBox.value;
 
 		if (str != null)
 		{
@@ -983,6 +1028,70 @@ function GeneralDrawingTest(docTag)
 		scene.addObject(aw);
 	}
 
+	function onSceneChange()
+	{
+		draw();
+		updateObjectList();
+		backup();
+	}
+
+	function updateObjectList()
+	{
+		objectList.setProperties([]);
+
+		for (var i=0; i!=scene.objects.length; ++i)
+		{
+			objectList.addProperty(scene.objects[i].constructor.name, new TickBox(true, function(value) {}));
+		}
+	}
+
+	function backup()
+	{
+		if (undoRedoSuspendBackup)
+			return;
+
+		// Making a change after an undo, we'll wipe some of the undo buffer
+		if (undoRedoUndoPos < undoRedoBackupPos)
+		{
+			undoRedoBackupPos = undoRedoUndoPos+1;
+		}
+		else
+		{
+			undoRedoBackupPos = undoRedoBackupPos+1;
+		}
+
+		undoRedoUndoPos = undoRedoBackupPos;
+
+		undoRedoBuffer[undoRedoBackupPos%undoRedoMaxCount] = scene.saveAsJavascript();
+	}
+	
+	function undo()
+	{
+		if (undoRedoUndoPos > 0)
+		{
+			undoRedoSuspendBackup = true;
+			undoRedoUndoPos -= 1;
+			loadFromJavascript(undoRedoBuffer[undoRedoUndoPos % undoRedoMaxCount]);
+			draw();
+			updateObjectList();
+			undoRedoSuspendBackup = false;
+		}
+	}
+
+	function redo()
+	{
+		if (undoRedoUndoPos < undoRedoBackupPos)
+		{
+			undoRedoSuspendBackup = true;
+			undoRedoUndoPos += 1;
+			loadFromJavascript(undoRedoBuffer[undoRedoUndoPos % undoRedoMaxCount]);
+			draw();
+			updateObjectList();
+			undoRedoSuspendBackup = false;
+		}
+	}
+
 	setup();
+	onSceneChange();
 	draw();
 }
