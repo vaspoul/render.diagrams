@@ -176,6 +176,10 @@ function GeneralDrawingTest(docTag)
 		camera.setViewPosition(0, 10);
 
 		setSelection([]);
+
+		undoRedoBackupPos = -1;
+		undoRedoUndoPos	= -1;
+		backup();
 	}
 	
 	function setTool(newTool)
@@ -943,6 +947,7 @@ function GeneralDrawingTest(docTag)
 		var t1 = performance.now();
 
 		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 50), (1000 / (t1 - t0)).toFixed(0) + " FPS", "#909090", "left");
+		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 100), "UndoPos: " + undoRedoUndoPos + ", BackupPos: " + undoRedoBackupPos, "#909090", "left");
 	}
 	
 	function drawSnapPoint(snapPoint)
@@ -1091,6 +1096,6 @@ function GeneralDrawingTest(docTag)
 	}
 
 	setup();
-	onSceneChange();
+	updateObjectList();
 	draw();
 }
