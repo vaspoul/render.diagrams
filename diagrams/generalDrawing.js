@@ -91,9 +91,21 @@ function GeneralDrawingTest(docTag)
 		objectListDock.style.fontFamily = "Verdana,sans-serif";
 		objectListDock.style.fontSize = "large";
 
-		root.appendChild(objectListDock);
 
-		objectList = new PropertyGrid(objectListDock);
+		objectList = document.createElement('table');
+		objectList.id = "objectList";
+		objectList.style.width = "100%";
+		objectList.style.padding = "0";
+		objectList.style.spacing = "0";
+		objectList.style.cellpadding = "0";
+		objectList.style.cellspacing = "0";
+		//objectList.style.border = "2px solid black";
+		objectList.style.fontFamily = "Verdana,sans-serif";
+		objectList.style.fontSize = "12px";
+		//objectList.style.fontSize = "large";
+
+		objectListDock.appendChild(objectList);
+		root.appendChild(objectListDock);
 
 
 		// Code box
@@ -939,7 +951,13 @@ function GeneralDrawingTest(docTag)
 			}
 		}
 	
-		selectionList = s;
+		selectionList = [];
+
+		for (var i = 0; i < s.length; ++i)
+		{
+			if (!s[i].isFrozen())
+				selectionList.push(s[i]);
+		}
 		
 		for (var i=0; i<selectionList.length; ++i)
 		{
@@ -1074,11 +1092,54 @@ function GeneralDrawingTest(docTag)
 
 	function updateObjectList()
 	{
-		objectList.setProperties([]);
+		while(objectList.rows[0]) objectList.deleteRow(0);
 
 		for (var i=0; i!=scene.objects.length; ++i)
 		{
-			objectList.addProperty(scene.objects[i].constructor.name, new TickBox(true, function(value) {}));
+			var row = objectList.insertRow();
+			var nameCell = row.insertCell();
+			var visibilityCell = row.insertCell();
+			var frozenCell = row.insertCell();
+
+			visibilityCell.style.width = 15;
+			frozenCell.style.width = 15;
+
+			visibilityCell.style.border = "1px solid black";
+			frozenCell.style.border = "1px solid black";
+
+			visibilityCell.style.backgroundColor = scene.objects[i].isVisible() ? "#00C0FF" : "#FFFFFF";
+			frozenCell.style.backgroundColor = scene.objects[i].isFrozen() ? "#606060" : "#FFFFFF";
+
+			nameCell.onmouseup = function (evt)
+			{
+				if (evt.ctrlKey)
+				{
+					var index = selectionList.indexOf(this);
+
+					if (index >= 0)
+					{
+						var s = selectionList.concat([]);
+						s.splice(index, 1);
+						setSelection(s);
+					}
+					else
+					{
+						var s = selectionList.concat(this);
+						setSelection(s);
+					}
+				}
+				else
+				{
+					setSelection([this]);
+				}
+
+			}.bind(scene.objects[i]);
+
+
+			visibilityCell.onmouseup = function() { this.toggleVisibility(); }.bind(scene.objects[i]);
+			frozenCell.onmouseup = function() { this.toggleFrozen(); }.bind(scene.objects[i]);
+
+			nameCell.innerHTML = scene.objects[i].constructor.name;
 		}
 	}
 
