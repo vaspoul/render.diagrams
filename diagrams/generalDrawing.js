@@ -245,7 +245,7 @@ function GeneralDrawingTest(docTag)
 
 			tool = newTool;
 			mouseCursor.shape = "cross";
-			statusBar.innerHTML = "Click to add. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
+			statusBar.innerHTML = newTool + " : Click to add. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
 			setSelection([]);
 			draw();
 		}
@@ -365,7 +365,7 @@ function GeneralDrawingTest(docTag)
 
 						if (snapPoint !== null)
 						{
-							dragStartMousePos = snapPoint;
+							dragStartMousePos = snapPoint.p;
 						}
 						else
 						{
@@ -515,12 +515,18 @@ function GeneralDrawingTest(docTag)
 				{
 					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), [objectBeingMade]);
 
-					if (snapPoint === null)
+					var snapPos;
+
+					if (snapPoint !== null)
 					{
-						snapPoint = mul(round(div(lastMousePos, grid.spacing)), grid.spacing);
+						snapPos = snapPoint.p;
+					}
+					else
+					{
+						snapPos = mul(round(div(lastMousePos, grid.spacing)), grid.spacing);
 					}
 
-					lastMousePos = snapPoint;
+					lastMousePos = snapPos;
 				}
 
 				if (evt.ctrlKey && objectBeingMade !== undefined)
@@ -670,7 +676,7 @@ function GeneralDrawingTest(docTag)
 
 				if (snapPoint !== null)
 				{
-					camera.drawRectangle(snapPoint, camera.invScale(10), "#0084e0", 2);
+					drawSnapPoint(snapPoint);
 				}
 			}
 			else if (tool == "modify")
@@ -695,11 +701,12 @@ function GeneralDrawingTest(docTag)
 
 				if (evt.altKey == 0)
 				{
-					newPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), [objectBeingMade]);
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), [objectBeingMade]);
 
-					if (newPoint !== null)
+					if (snapPoint !== null)
 					{
-						camera.drawRectangle(newPoint, camera.invScale(10), "#0084e0", 2);
+						newPoint = snapPoint.p;
+						drawSnapPoint(snapPoint);
 					}
 					else
 					{
@@ -762,8 +769,8 @@ function GeneralDrawingTest(docTag)
 
 					if (snapPoint !== null)
 					{
-						camera.drawRectangle(snapPoint, camera.invScale(10), "#0084e0", 2);
-						lastMousePos = snapPoint;
+						drawSnapPoint(snapPoint);
+						lastMousePos = snapPoint.p;
 					}
 					else
 					{
@@ -899,6 +906,26 @@ function GeneralDrawingTest(docTag)
 		camera.getGraphics().drawText(new Vector(5, 20), (1000/(t1-t0)).toFixed(2) + "FPS", "#000000", "left"); 
 	}
 	
+	function drawSnapPoint(snapPoint)
+	{
+		if (snapPoint.type == "node")
+		{
+			camera.drawRectangle(snapPoint.p, camera.invScale(10), "#0084e0", 2);
+		}
+		else if (snapPoint.type == "midpoint")
+		{
+			camera.drawStar(snapPoint.p, 3, camera.invScale(7), Math.cos(60*Math.PI/180), 180*Math.PI/180, "#0084e0", 2);
+		}
+		else if (snapPoint.type == "intersection")
+		{
+			camera.drawCross(snapPoint.p, camera.invScale(10), 45 * Math.PI/180, "#0084e0", 2);
+		}
+		else
+		{
+			camera.drawRectangle(snapPoint.p, camera.invScale(10), "#0084e0", 2);
+		}
+	}
+
 	function saveAsImage()
 	{
 		mouseCursor.hide = true;
