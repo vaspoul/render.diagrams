@@ -734,6 +734,8 @@ function GeneralDrawingTest(docTag)
 
 	function onMouseMove(evt)
 	{
+		undoRedoSuspendBackup = true;
+
 		draw();
 
 		lastMousePos = camera.getMousePos(evt);
@@ -923,6 +925,8 @@ function GeneralDrawingTest(docTag)
 			var P = add(dragStartCamPos, delta);
 			camera.setViewPosition(P.x, P.y);
 		}
+
+		undoRedoSuspendBackup = false;
 	}
 
 	function onMouseWheel(evt)
@@ -1091,7 +1095,7 @@ function GeneralDrawingTest(docTag)
 		if (str != null)
 		{
 			scene.deleteAllObjects();
-			scene.addObject(grid);
+			//scene.addObject(grid);
 			eval(str);
 			draw();
 		}
