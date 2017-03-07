@@ -976,6 +976,7 @@ function GeneralDrawingTest(docTag)
 			propertyGrid.setProperties(canvasProperties);
 		}
 
+		updateObjectList();
 		draw();
 	}
 	
@@ -1139,7 +1140,12 @@ function GeneralDrawingTest(docTag)
 			visibilityCell.onmouseup = function() { this.toggleVisibility(); }.bind(scene.objects[i]);
 			frozenCell.onmouseup = function() { this.toggleFrozen(); }.bind(scene.objects[i]);
 
-			nameCell.innerHTML = scene.objects[i].constructor.name;
+			var str = scene.objects[i].constructor.name;
+
+			if (scene.objects[i].selected)
+				str = str.bold();
+
+			nameCell.innerHTML = str;
 		}
 	}
 
