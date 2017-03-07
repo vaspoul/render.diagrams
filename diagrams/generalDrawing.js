@@ -145,6 +145,7 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Spot Light", function () { setTool("addSpotLight"); }));
 		buttonList.addProperty(undefined, new Button("Add Parallel Light", function () { setTool("addParallelLight"); }));
 		buttonList.addProperty(undefined, new Button("Add Camera", function () { setTool("addCamera"); }));
+		buttonList.addProperty(undefined, new Button("Add Hemisphere", function () { setTool("addHemisphere"); }));
 		buttonList.addProperty(undefined, new Divider());
 		buttonList.addProperty(undefined, new Button("Add Line (L)", function () { setTool("addLine"); }));
 		buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
@@ -215,7 +216,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine")
+			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addHemisphere")
 			{
 				if (objectBeingMade !== undefined)
 				{
@@ -227,6 +228,8 @@ function GeneralDrawingTest(docTag)
 
 			newTool = "select";
 		}
+
+		objectBeingMade = undefined;
 
 		if (newTool == "select")
 		{
@@ -291,7 +294,7 @@ function GeneralDrawingTest(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addLine")
+		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addLine" || newTool == "addHemisphere")
 		{
 			if (tool != newTool)
 			{
@@ -302,10 +305,15 @@ function GeneralDrawingTest(docTag)
 			mouseCursor.shape = "cross";
 			statusBar.innerHTML = newTool + " : Click to add. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
 			setSelection([]);
+
+			if (newTool == "addHemisphere")
+			{
+				objectBeingMade = new Hemisphere(new Vector(1000, 1000), 5, new Vector(0,1));
+				scene.addObject(objectBeingMade);
+			}
+
 			draw();
 		}
-
-		objectBeingMade = undefined;
 	}
 
 	function onKeyDown(evt)
@@ -428,7 +436,7 @@ function GeneralDrawingTest(docTag)
 
 					if (evt.altKey == 0)
 					{
-						var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30));
+						var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30));
 
 						if (snapPoint !== null)
 						{
@@ -567,11 +575,11 @@ function GeneralDrawingTest(docTag)
 				backup();
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addHemisphere")
 			{
 				if (evt.altKey == 0)
 				{
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), [objectBeingMade]);
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [objectBeingMade]);
 
 					var snapPos;
 
@@ -654,6 +662,11 @@ function GeneralDrawingTest(docTag)
 					setTool("select");
 					setSelection([scene.objects[scene.objects.length-1]]);
 				}
+				else if (tool == "addHemisphere")
+				{
+					setTool("select");
+					setSelection([scene.objects[scene.objects.length-1]]);
+				}
 				else if (tool == "addSpotLight")
 				{
 					if (objectBeingMade === undefined)
@@ -732,7 +745,7 @@ function GeneralDrawingTest(docTag)
 		{
 			if (tool == "select")
 			{
-				var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30));
+				var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30));
 
 				if (snapPoint !== null)
 				{
@@ -755,13 +768,14 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addHemisphere")
 			{
 				var newPoint = lastMousePos;
+				var snapPoint = null;
 
 				if (evt.altKey == 0)
 				{
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), [objectBeingMade]);
+					snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [objectBeingMade]);
 
 					if (snapPoint !== null)
 					{
@@ -810,6 +824,28 @@ function GeneralDrawingTest(docTag)
 						objectBeingMade.setDragPointPos(1, newPoint);
 					}
 				}
+				else if (tool == "addHemisphere")
+				{
+					if (objectBeingMade !== undefined)
+					{
+						if (snapPoint !== null)
+						{
+							if (snapPoint.N != undefined)
+							{
+								if (dot(sub(lastMousePos, snapPoint.p), snapPoint.N) > 0)
+								{
+									objectBeingMade.normal = snapPoint.N;
+								}
+								else
+								{
+									objectBeingMade.normal = snapPoint.N.neg();
+								}
+							}
+						}
+
+						objectBeingMade.setDragPointPos(0, newPoint);
+					}
+				}
 			}
 		}
 		else if (evt.buttons & 1) // object move or marquee
@@ -825,7 +861,7 @@ function GeneralDrawingTest(docTag)
 					else
 						ignoreList = [dragPoint.object];
 
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(), camera.invScale(30), ignoreList);
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), ignoreList);
 
 					if (snapPoint !== null)
 					{
@@ -1016,6 +1052,10 @@ function GeneralDrawingTest(docTag)
 		{
 			camera.drawCross(snapPoint.p, camera.invScale(10), 45 * Math.PI/180, "#0084e0", 2);
 		}
+		else if (snapPoint.type == "coincident")
+		{
+			camera.drawArc(snapPoint.p, camera.invScale(5), 0, 2*Math.PI, "#0084e0", 2);
+		}
 		else
 		{
 			camera.drawRectangle(snapPoint.p, camera.invScale(10), "#0084e0", 2);
@@ -1086,8 +1126,12 @@ function GeneralDrawingTest(docTag)
 
 	function onSceneChange()
 	{
-		draw();
-		updateObjectList();
+		if ( (tool != "modify" || mode != "move") && tool != "addHemisphere" )
+		{
+			draw();
+			updateObjectList();
+		}
+
 		backup();
 	}
 
