@@ -308,8 +308,10 @@ function GeneralDrawingTest(docTag)
 
 			if (newTool == "addHemisphere")
 			{
+				undoRedoSuspendBackup = true;
 				objectBeingMade = new Hemisphere(new Vector(1000, 1000), 5, new Vector(0,1));
 				scene.addObject(objectBeingMade);
+				undoRedoSuspendBackup = false;
 			}
 
 			draw();
