@@ -28,7 +28,8 @@ function GeneralDrawingTest(docTag)
 	var dragPoint				= null;
 	var objectBeingMade			= undefined;
 	var lastKeyPress;
-	
+	var enableSnap				= [];
+
 	var canvasProperties		= [];
 	var showGrid				= true;
 
@@ -46,9 +47,6 @@ function GeneralDrawingTest(docTag)
 		canvas = document.createElement('canvas');
 		canvas.width  = window.innerWidth;
 		canvas.height = window.innerHeight;
-		//canvas.style.border = "2px solid black";
-		//canvas.style.marginLeft = 20;
-		//canvas.style.marginRight = 20;
 		canvas.style.position = "fixed";
 		canvas.style.left = "0";
 		canvas.style.top = "0";
@@ -159,8 +157,6 @@ function GeneralDrawingTest(docTag)
 		// Status bar
 		statusBar = document.createElement('div');
 		statusBar.id = "statusBar";
-		//statusBar.style.border = "2px solid black";
-		//statusBar.style.backgroundColor = "white";
 		statusBar.style.position = "fixed";
 		statusBar.style.left = "0";
 		statusBar.style.bottom = "5";
@@ -171,9 +167,19 @@ function GeneralDrawingTest(docTag)
 		statusBar.style.padding = "4px";
 		root.appendChild(statusBar);
 
+		enableSnap["grid"] = true;
+		enableSnap["node"] = true;
+		enableSnap["intersection"] = true;
+		enableSnap["coincident"] = false;
+
 		canvasProperties =
 		[
-			{name: "Show Grid", control: new TickBox(showGrid, function (value) { showGrid = value; draw(); }) }
+			{name: "Show Grid", control: new TickBox(showGrid, function (value) { showGrid = value; draw(); }) },
+			{name: "", control: new Divider() },
+			{name: "Snap: Grid", control: new TickBox(enableSnap["grid"], function (value) { enableSnap["grid"] = value; }) },
+			{name: "Snap: Node", control: new TickBox(enableSnap["node"], function (value) { enableSnap["node"] = value; }) },
+			{name: "Snap: Intersection", control: new TickBox(enableSnap["intersection"], function (value) { enableSnap["intersection"] = value; }) },
+			{name: "Snap: Coincident", control: new TickBox(enableSnap["coincident"], function (value) { enableSnap["coincident"] = value; }) }
 		];
 
 		scene = new Scene();
@@ -438,7 +444,7 @@ function GeneralDrawingTest(docTag)
 
 					if (evt.altKey == 0)
 					{
-						var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30));
+						var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [], enableSnap);
 
 						if (snapPoint !== null)
 						{
@@ -581,7 +587,7 @@ function GeneralDrawingTest(docTag)
 			{
 				if (evt.altKey == 0)
 				{
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [objectBeingMade]);
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [objectBeingMade], enableSnap);
 
 					var snapPos;
 
@@ -749,7 +755,7 @@ function GeneralDrawingTest(docTag)
 		{
 			if (tool == "select")
 			{
-				var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30));
+				var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [], enableSnap);
 
 				if (snapPoint !== null)
 				{
@@ -779,7 +785,7 @@ function GeneralDrawingTest(docTag)
 
 				if (evt.altKey == 0)
 				{
-					snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [objectBeingMade]);
+					snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [objectBeingMade], enableSnap);
 
 					if (snapPoint !== null)
 					{
@@ -865,7 +871,7 @@ function GeneralDrawingTest(docTag)
 					else
 						ignoreList = [dragPoint.object];
 
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), ignoreList);
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), ignoreList, enableSnap);
 
 					if (snapPoint !== null)
 					{
@@ -1132,7 +1138,7 @@ function GeneralDrawingTest(docTag)
 
 	function onSceneChange()
 	{
-		if ( (tool != "modify" || mode != "move") && tool != "addHemisphere" )
+		if ( (tool != "modify" || mode != "move") && tool != "addHemisphere" && !undoRedoSuspendBackup)
 		{
 			draw();
 			updateObjectList();
