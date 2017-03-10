@@ -146,6 +146,7 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Hemisphere", function () { setTool("addHemisphere"); }));
 		buttonList.addProperty(undefined, new Divider());
 		buttonList.addProperty(undefined, new Button("Add Line (L)", function () { setTool("addLine"); }));
+		buttonList.addProperty(undefined, new Button("Add Rectangle (R)", function () { setTool("addRect"); }));
 		buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
 		buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
 		buttonList.addProperty(undefined, new Divider());
@@ -222,7 +223,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addHemisphere")
+			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere")
 			{
 				if (objectBeingMade !== undefined)
 				{
@@ -300,7 +301,7 @@ function GeneralDrawingTest(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addLine" || newTool == "addHemisphere")
+		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addLine" || newTool == "addRect" || newTool == "addHemisphere")
 		{
 			if (tool != newTool)
 			{
@@ -368,6 +369,10 @@ function GeneralDrawingTest(docTag)
 		else if (evt.keyCode==76) // L
 		{
 			setTool("addLine");
+		}
+		else if (evt.keyCode==82) // R
+		{
+			setTool("addRect");
 		}
 		else if (evt.keyCode==87) // W
 		{
@@ -583,7 +588,7 @@ function GeneralDrawingTest(docTag)
 				backup();
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addHemisphere")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere")
 			{
 				if (evt.altKey == 0)
 				{
@@ -619,6 +624,9 @@ function GeneralDrawingTest(docTag)
 				}
 
 				var newPoint = lastMousePos;
+
+				backup();
+				undoRedoSuspendBackup = true;
 
 				if (tool == "addWall")
 				{
@@ -732,8 +740,22 @@ function GeneralDrawingTest(docTag)
 						setSelection([scene.objects[scene.objects.length-1]]);
 					}
 				}
+				else if (tool == "addRect")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new Rectangle(newPoint.copy());
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(2, newPoint);
+						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
+					}
+				}
 
-				backup();
+				undoRedoSuspendBackup = false;
 			}
 		}
 
@@ -778,7 +800,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addHemisphere")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere")
 			{
 				var newPoint = lastMousePos;
 				var snapPoint = null;
@@ -832,6 +854,13 @@ function GeneralDrawingTest(docTag)
 					if (objectBeingMade !== undefined)
 					{
 						objectBeingMade.setDragPointPos(1, newPoint);
+					}
+				}
+				else if (tool == "addRect")
+				{
+					if (objectBeingMade !== undefined)
+					{
+						objectBeingMade.setDragPointPos(2, newPoint);
 					}
 				}
 				else if (tool == "addHemisphere")
@@ -1047,6 +1076,7 @@ function GeneralDrawingTest(docTag)
 		var t1 = performance.now();
 
 		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 50), (1000 / (t1 - t0)).toFixed(0) + " FPS", "#909090", "left");
+		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 75), "xy: " + lastMousePos.x.toFixed(2) + ", " + lastMousePos.y.toFixed(2), "#909090", "left");
 		//camera.getGraphics().drawText(new Vector(5, window.innerHeight - 100), "UndoPos: " + undoRedoUndoPos + ", BackupPos: " + undoRedoBackupPos, "#909090", "left");
 	}
 	
