@@ -453,7 +453,7 @@ function GeneralDrawingTest(docTag)
 
 						if (snapPoint !== null)
 						{
-							dragStartMousePos = snapPoint.p;
+							dragStartMousePos = snapPoint.p.copy();
 						}
 						else
 						{
@@ -493,7 +493,9 @@ function GeneralDrawingTest(docTag)
 					dragStartMousePos = dragPoint.point;
 				}
 			}
-        }
+		}
+
+		draw();
 	}
 
 	function onMouseUp(evt)
@@ -905,7 +907,7 @@ function GeneralDrawingTest(docTag)
 					if (snapPoint !== null)
 					{
 						drawSnapPoint(snapPoint);
-						lastMousePos = snapPoint.p;
+						lastMousePos = snapPoint.p.copy();
 					}
 					else
 					{
