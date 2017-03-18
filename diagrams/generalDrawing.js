@@ -176,6 +176,7 @@ function GeneralDrawingTest(docTag)
 		canvasProperties =
 		[
 			{name: "Show Grid", control: new TickBox(showGrid, function (value) { showGrid = value; draw(); }) },
+			{name: "Grid Type", control: new Dropdown(["cartesian", "isometric", "radial"], "cartesian", function (value) { grid.type = value; draw(); }) },
 			{name: "", control: new Divider() },
 			{name: "Snap: Grid", control: new TickBox(enableSnap["grid"], function (value) { enableSnap["grid"] = value; }) },
 			{name: "Snap: Node", control: new TickBox(enableSnap["node"], function (value) { enableSnap["node"] = value; }) },
@@ -457,7 +458,7 @@ function GeneralDrawingTest(docTag)
 						}
 						else
 						{
-							dragStartMousePos = mul(round(div(dragStartMousePos, grid.spacing)), grid.spacing);
+							dragStartMousePos = grid.getSnapPoint(dragStartMousePos);
 						}
 					}
 
@@ -604,7 +605,7 @@ function GeneralDrawingTest(docTag)
 					}
 					else
 					{
-						snapPos = mul(round(div(lastMousePos, grid.spacing)), grid.spacing);
+						snapPos = grid.getSnapPoint(lastMousePos);
 					}
 
 					lastMousePos = snapPos;
@@ -818,7 +819,7 @@ function GeneralDrawingTest(docTag)
 					}
 					else
 					{
-						newPoint = mul(round(div(lastMousePos, grid.spacing)), grid.spacing);
+						newPoint = grid.getSnapPoint(lastMousePos);
 					}
 				}
 
@@ -911,7 +912,7 @@ function GeneralDrawingTest(docTag)
 					}
 					else
 					{
-						lastMousePos = mul(round(div(lastMousePos, grid.spacing)), grid.spacing);
+						lastMousePos = grid.getSnapPoint(lastMousePos);
 					}
 				}
 
