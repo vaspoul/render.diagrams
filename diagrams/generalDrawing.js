@@ -90,6 +90,7 @@ function GeneralDrawingTest(docTag)
 		objectListDock.style.height = 500;
 		objectListDock.style.fontFamily = "Verdana,sans-serif";
 		objectListDock.style.fontSize = "large";
+		objectListDock.style.overflow = "auto";
 
 
 		objectList = document.createElement('table');
