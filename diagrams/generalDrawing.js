@@ -39,6 +39,8 @@ function GeneralDrawingTest(docTag)
 	var undoRedoUndoPos			= 0;
 	var undoRedoSuspendBackup	= false;
 
+	var clipboardText			= "";
+
 	function setup()
 	{
 		var root = document.getElementById(docTag);
@@ -358,6 +360,14 @@ function GeneralDrawingTest(docTag)
 
 			setTool("cancel");
 			draw();
+		}
+		else if (evt.ctrlKey && evt.keyCode==67) // Ctrl+C
+		{
+			clipboardCopy();
+		}
+		else if (evt.ctrlKey && evt.keyCode==86) // Ctrl+V
+		{
+			clipboardPaste();
 		}
 		else if (evt.keyCode==81) // q
 		{
@@ -1173,6 +1183,8 @@ function GeneralDrawingTest(docTag)
 	{
 		if ( (tool != "modify" || mode != "move") && tool != "addHemisphere" && !undoRedoSuspendBackup)
 		{
+			//var s = selectionList.concat([]);
+			//setSelection(s);
 			draw();
 			updateObjectList();
 		}
@@ -1282,6 +1294,49 @@ function GeneralDrawingTest(docTag)
 			updateObjectList();
 			undoRedoSuspendBackup = false;
 		}
+	}
+
+	function clipboardCopy()
+	{
+		clipboardText = "";
+
+		for (var i=0; i<selectionList.length; ++i)
+		{
+			if (selectionList[i].saveAsJavascript === undefined)
+				continue;
+
+			clipboardText += selectionList[i].saveAsJavascript();
+
+			clipboardText += "\n";
+		}
+
+	}
+
+	function clipboardPaste()
+	{
+		var newSelectionList = [];
+
+		var previousObjectCount = scene.objects.length;
+
+		undoRedoSuspendBackup = true;
+
+		eval(clipboardText);
+
+		var delta = new Vector(1, -1);
+
+		for (var i = previousObjectCount; i < scene.objects.length; ++i)
+		{
+			scene.objects[i].setOrigin(add(scene.objects[i].getOrigin(), delta));
+			newSelectionList.push(scene.objects[i]);
+		}
+
+		undoRedoSuspendBackup = false;
+
+		backup();
+
+		setSelection(newSelectionList);
+
+		draw();
 	}
 
 	setup();
