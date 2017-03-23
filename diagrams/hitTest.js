@@ -161,7 +161,7 @@ function HitTest(docTag)
 			if (bestHit.tRay<1000)
 			{
 				camera.drawLine(ray.start, bestHit.P, "#000000", 2, [5,5]);
-				camera.drawArrow(ray.start, ray.dir, 0.3, "#00FF00", 3);
+				//camera.drawArrow(ray.start, mad(ray.dir, 0.3, ray.start), "#00FF00", 3);
 				camera.drawBRDFGraph(BRDF, ray.dir.unit().neg(), bestHit.N, F0, roughness, bestHit.P);
 				
 				var RV = reflect(ray.dir, bestHit.N);

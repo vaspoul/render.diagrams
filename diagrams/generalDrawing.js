@@ -211,9 +211,9 @@ function GeneralDrawingTest(docTag)
 	{
 		if (newTool == "cancel")
 		{
-			if (tool == "addWall")
+			if (tool == "addWall" || tool == "addLine")
 			{
-				if (objectBeingMade !== undefined && objectBeingMade instanceof Wall)
+				if (objectBeingMade !== undefined && (objectBeingMade instanceof Wall || objectBeingMade instanceof Line))
 				{
 					if (objectBeingMade.points.length <= 2)
 					{
@@ -227,7 +227,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere")
+			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere")
 			{
 				if (objectBeingMade !== undefined)
 				{
@@ -266,16 +266,16 @@ function GeneralDrawingTest(docTag)
 			statusBar.innerHTML = "MODIFY: Click to select and move drag points. Ctrl restricts movement to object local space. Snaps are ON by default. Use Alt to move freely.";
 			draw();
 		}
-		else if (newTool == "addWall")
+		else if (newTool == "addWall" || newTool == "addLine")
 		{
-			if (tool != "addWall")
+			if (tool != newTool)
 			{
 				mode = null;
 			}
 
-			tool = "addWall";
+			tool = newTool;
 			mouseCursor.shape = "cross";
-			statusBar.innerHTML = "Add Wall: Click to add points. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
+			statusBar.innerHTML = newTool + ": Click to add points. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
 			setSelection([]);
 			draw();
 		}
@@ -305,7 +305,7 @@ function GeneralDrawingTest(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addLine" || newTool == "addRect" || newTool == "addHemisphere")
+		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addRect" || newTool == "addHemisphere")
 		{
 			if (tool != newTool)
 			{
@@ -642,20 +642,35 @@ function GeneralDrawingTest(docTag)
 				backup();
 				undoRedoSuspendBackup = true;
 
-				if (tool == "addWall")
+				if (tool == "addWall" || tool == "addLine")
 				{
 					if (objectBeingMade === undefined)
 					{
-						objectBeingMade = new Wall([newPoint.copy()]);
+						if (tool == "addWall")
+							objectBeingMade = new Wall([newPoint.copy()]);
+						else if (tool == "addLine")
+							objectBeingMade = new Line([newPoint.copy()]);
 						scene.addObject(objectBeingMade);
+
+						// Add the next point as well, this is the one that moves with the cursor
+						objectBeingMade.addPoint(lastMousePos.copy());
 					}
 					else
 					{
-						objectBeingMade.points[objectBeingMade.points.length - 1] = newPoint;
-					}
+						if (equal(objectBeingMade.points[0], newPoint))
+						{
+							objectBeingMade.closed = true;
+							objectBeingMade.onChange();
+							setTool("cancel");
+						}
+						else
+						{
+							objectBeingMade.points[objectBeingMade.points.length - 1] = newPoint;
 
-					// Add the next point as well, this is the one that moves with the cursor
-					objectBeingMade.addPoint(lastMousePos.copy());
+							// Add the next point as well, this is the one that moves with the cursor
+							objectBeingMade.addPoint(lastMousePos.copy());
+						}
+					}
 				}
 				else if (tool == "addArcWall")
 				{
@@ -736,21 +751,6 @@ function GeneralDrawingTest(docTag)
 					{
 						objectBeingMade.setDragPointPos(1, newPoint);
 						setTool("select");
-						setSelection([scene.objects[scene.objects.length-1]]);
-					}
-				}
-				else if (tool == "addLine")
-				{
-					if (objectBeingMade === undefined)
-					{
-						objectBeingMade = new Line(newPoint.copy(), newPoint);
-						scene.addObject(objectBeingMade);
-					}
-					else
-					{
-						objectBeingMade.setDragPointPos(1, newPoint);
-						setTool("select");
-						setTool("addLine");
 						setSelection([scene.objects[scene.objects.length-1]]);
 					}
 				}
@@ -849,7 +849,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 
-				if (tool == "addWall")
+				if (tool == "addWall" || tool == "addLine")
 				{
 					if (objectBeingMade !== undefined)
 					{
@@ -863,7 +863,7 @@ function GeneralDrawingTest(docTag)
 						objectBeingMade.setDragPointPos(0, newPoint);
 					}
 				}
-				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine")
+				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera")
 				{
 					if (objectBeingMade !== undefined)
 					{
@@ -1058,7 +1058,11 @@ function GeneralDrawingTest(docTag)
 			}
 		}
 
-		if (selectionList.length > 0)
+		if (selectionList.length == 1)
+		{
+			propertyGrid.setProperties(selectionList[0].getProperties());
+		}
+		else if (selectionList.length > 0)
 		{
 			propertyGrid.setProperties(selectionList[0].getProperties());
 		}

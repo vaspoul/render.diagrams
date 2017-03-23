@@ -47,7 +47,7 @@ function GraphicsTest(docTag)
 		{
 			var L = new Vector(-Math.sin(ang * Math.PI / 180), -Math.cos(ang * Math.PI / 180), 0);
 
-			camera.drawArrow(new Vector(-0.65 * L.x, -0.65 * L.y), L, 0.15, "#FFC000", 1.5);
+			//camera.drawArrow(new Vector(-0.65 * L.x, -0.65 * L.y), L, 0.15, "#FFC000", 1.5);
 			camera.drawText(new Vector(-0.72 * L.x, -0.72 * L.y), "Li = 1.0");
 			camera.drawLight(new Vector(-0.67 * L.x, -0.67 * L.y), 0.04);
 		}
