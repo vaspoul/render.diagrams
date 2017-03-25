@@ -4,6 +4,10 @@ function GeneralDrawingTest(docTag)
 	var propertyGrid;
 	var buttonList;
 	var objectList;
+	var groupButton;
+	var ungroupButton;
+	var moveUpButton;
+	var moveDownButton;
 	var statusBar;
 	var codeBox;
 	var scene;
@@ -88,10 +92,19 @@ function GeneralDrawingTest(docTag)
 		objectListDock.style.top = "215";
 		objectListDock.style.width  = 400;
 		objectListDock.style.height = 500;
-		objectListDock.style.fontFamily = "Verdana,sans-serif";
-		objectListDock.style.fontSize = "large";
-		objectListDock.style.overflow = "auto";
 
+
+		var objectListDockScrollable = document.createElement('div');
+		objectListDockScrollable.style.position = "fixed";
+		objectListDockScrollable.style.overflow = "auto";
+		objectListDockScrollable.style.backgroundColor = "white";
+		objectListDockScrollable.style.position = "fixed";
+		objectListDockScrollable.style.width  = 400;
+		objectListDockScrollable.style.height = 470;
+		objectListDockScrollable.style.fontFamily = "Verdana,sans-serif";
+		objectListDockScrollable.style.fontSize = "large";
+
+		objectListDock.appendChild(objectListDockScrollable);
 
 		objectList = document.createElement('table');
 		objectList.id = "objectList";
@@ -104,8 +117,39 @@ function GeneralDrawingTest(docTag)
 		objectList.style.fontFamily = "Verdana,sans-serif";
 		objectList.style.fontSize = "12px";
 		//objectList.style.fontSize = "large";
+		objectListDockScrollable.appendChild(objectList);
 
-		objectListDock.appendChild(objectList);
+		var buttonArea = document.createElement("div");
+		buttonArea.style.position = "relative";
+		//buttonArea.style.display = "block";
+		//buttonArea.style.margin = "auto";
+		buttonArea.style.textAlign = "center";
+		buttonArea.style.top = 470;
+		buttonArea.style.bottom = 0;
+
+		groupButton = document.createElement("button");
+		groupButton.appendChild(document.createTextNode("Group"));
+		groupButton.onclick = groupSelection;
+		//groupButton.addEventListener('onclick', groupSelection, false);
+
+		buttonArea.appendChild(groupButton);
+
+		ungroupButton = document.createElement("button");
+		ungroupButton.appendChild(document.createTextNode("Ungroup"));
+		ungroupButton.onclick = ungroupSelection;
+		//ungroupButton.addEventListener('onclick', ungroupSelection, false);
+		buttonArea.appendChild(ungroupButton);
+
+		moveUpButton = document.createElement("button");
+		moveUpButton.appendChild(document.createTextNode("Up"));
+		buttonArea.appendChild(moveUpButton);
+
+		moveDownButton = document.createElement("button");
+		moveDownButton.appendChild(document.createTextNode("Down"));
+		buttonArea.appendChild(moveDownButton);
+
+		objectListDock.appendChild(buttonArea);
+
 		root.appendChild(objectListDock);
 
 
@@ -193,7 +237,7 @@ function GeneralDrawingTest(docTag)
 		grid.spacing = 1;
 		scene.addObject(new Wall( [new Vector(-10, 10), new Vector(-10, 0), new Vector(10, 0), new Vector(10, 10)] ));
 		scene.addObject(new ArcWall(new Vector(0, 10), 10,  0*Math.PI/180, 180*Math.PI/180));
-		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-3,-5)));
+		scene.addObject(new BRDFRay(new Vector(0, 10), new Vector(-3, -5)));
 		scene.addObject(new SpotLight(new Vector(0, 10), new Vector(10, 0), 35));
 
 		scene.addChangeListener(onSceneChange);
@@ -1342,6 +1386,34 @@ function GeneralDrawingTest(docTag)
 		setSelection(newSelectionList);
 
 		draw();
+	}
+
+	function groupSelection()
+	{
+		if (selectionList.length == 0)
+			return;
+
+		var group = new Group(selectionList);
+
+		scene.addObject(group);
+		backup();
+		setSelection([scene.objects[scene.objects.length-1]]);
+	}
+
+	function ungroupSelection()
+	{
+		if (selectionList.length == 0)
+			return;
+
+		for (var i=0; i!=selectionList.length; ++i)
+		{
+			var obj = selectionList[i];
+
+			if (obj.constructor.name == "Group")
+			{
+				selectionList[i].deleteAllObjects();
+			}
+		}
 	}
 
 	setup();
