@@ -117,7 +117,13 @@ function GeneralDrawingTest(docTag)
 		objectList.style.fontFamily = "Verdana,sans-serif";
 		objectList.style.fontSize = "12px";
 		//objectList.style.fontSize = "large";
+		objectList.onmousedown = function(e)
+		{
+			if(e.preventDefault) e.preventDefault();
+		}
+
 		objectListDockScrollable.appendChild(objectList);
+
 
 		var buttonArea = document.createElement("div");
 		buttonArea.style.position = "relative";
@@ -1261,9 +1267,30 @@ function GeneralDrawingTest(docTag)
 			visibilityCell.style.backgroundColor = scene.objects[i].isVisible() ? "#00C0FF" : "#FFFFFF";
 			frozenCell.style.backgroundColor = scene.objects[i].isFrozen() ? "#606060" : "#FFFFFF";
 
+			nameCell.style.cursor = "pointer";
+
 			nameCell.onmouseup = function (evt)
 			{
-				if (evt.ctrlKey)
+				if (evt.shiftKey)
+				{
+					var index0 = this.scene.getObjectIndex(selectionList[selectionList.length - 1]);
+					var index1 = this.scene.getObjectIndex(this);
+
+					var firstIndex = Math.min(index0, index1);
+					var lastIndex = Math.max(index0, index1);
+
+					for (var i=firstIndex; i<=lastIndex; ++i)
+					{
+						var obj = this.scene.objects[i];
+
+						if (selectionList.indexOf(obj) < 0)
+						{
+							var s = selectionList.concat(obj);
+							setSelection(s);
+						}
+					}
+				}
+				else if (evt.ctrlKey)
 				{
 					var index = selectionList.indexOf(this);
 
