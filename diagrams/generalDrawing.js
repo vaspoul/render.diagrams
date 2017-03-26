@@ -384,6 +384,8 @@ function GeneralDrawingTest(docTag)
 		if (evt.keyCode == lastKeyPress)
 			return;
 
+		var handled = true;
+
 		if (evt.keyCode==27) // ESC
 		{
 			if (mode == "move")
@@ -412,6 +414,11 @@ function GeneralDrawingTest(docTag)
 			setTool("cancel");
 			draw();
 		}
+		else if (evt.ctrlKey && evt.keyCode==65) // Ctrl+A
+		{
+			evt.preventDefault();
+			setSelection(scene.objects);
+		}
 		else if (evt.ctrlKey && evt.keyCode==67) // Ctrl+C
 		{
 			clipboardCopy();
@@ -419,6 +426,10 @@ function GeneralDrawingTest(docTag)
 		else if (evt.ctrlKey && evt.keyCode==86) // Ctrl+V
 		{
 			clipboardPaste();
+		}
+		else if (evt.ctrlKey && evt.keyCode==71) // Ctrl+G
+		{
+			groupSelection();
 		}
 		else if (evt.keyCode==81) // q
 		{
@@ -454,6 +465,13 @@ function GeneralDrawingTest(docTag)
 			mouseCursor.shape = "cross";
 			draw();
 		}
+		else
+		{
+			handled = false;
+		}
+
+		if (handled)
+			evt.preventDefault();
 
 		lastKeyPress = evt.keyCode;
 	}
@@ -465,11 +483,15 @@ function GeneralDrawingTest(docTag)
 			mouseCursor.shape = "angle";
 			draw();
 		}
-		else if (evt.keyCode == 90 && evt.ctrlKey == 1 && evt.shiftKey == 0)
+		else if (evt.keyCode == 90 && evt.ctrlKey == 1 && evt.shiftKey == 0) // Ctrl + Z
 		{
 			undo();
 		}
-		else if (evt.keyCode == 90 && evt.ctrlKey == 1 && evt.shiftKey == 1)
+		else if (evt.keyCode == 90 && evt.ctrlKey == 1 && evt.shiftKey == 1) // Ctrl + Shift + Z
+		{
+			redo();
+		}
+		else if (evt.keyCode == 89 && evt.ctrlKey == 1) // Ctrl + Y
 		{
 			redo();
 		}
@@ -1439,15 +1461,26 @@ function GeneralDrawingTest(docTag)
 		if (selectionList.length == 0)
 			return;
 
+		undoRedoSuspendBackup = true;
+
+		var objects = [];
+
 		for (var i=0; i!=selectionList.length; ++i)
 		{
 			var obj = selectionList[i];
 
 			if (obj.constructor.name == "Group")
 			{
+				objects = objects.concat(obj.objects);
 				selectionList[i].deleteAllObjects();
 			}
 		}
+
+		setSelection(objects);
+
+		undoRedoSuspendBackup = false;
+
+		backup();
 	}
 
 	function moveUpSelection()
