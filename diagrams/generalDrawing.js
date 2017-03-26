@@ -130,22 +130,22 @@ function GeneralDrawingTest(docTag)
 		groupButton = document.createElement("button");
 		groupButton.appendChild(document.createTextNode("Group"));
 		groupButton.onclick = groupSelection;
-		//groupButton.addEventListener('onclick', groupSelection, false);
 
 		buttonArea.appendChild(groupButton);
 
 		ungroupButton = document.createElement("button");
 		ungroupButton.appendChild(document.createTextNode("Ungroup"));
 		ungroupButton.onclick = ungroupSelection;
-		//ungroupButton.addEventListener('onclick', ungroupSelection, false);
 		buttonArea.appendChild(ungroupButton);
 
 		moveUpButton = document.createElement("button");
 		moveUpButton.appendChild(document.createTextNode("Up"));
+		moveUpButton.onclick = moveUpSelection;
 		buttonArea.appendChild(moveUpButton);
 
 		moveDownButton = document.createElement("button");
 		moveDownButton.appendChild(document.createTextNode("Down"));
+		moveDownButton.onclick = moveDownSelection;
 		buttonArea.appendChild(moveDownButton);
 
 		objectListDock.appendChild(buttonArea);
@@ -1390,14 +1390,21 @@ function GeneralDrawingTest(docTag)
 
 	function groupSelection()
 	{
-		if (selectionList.length == 0)
+		if (selectionList.length <= 1)
 			return;
+
+		var index = scene.getObjectIndex(selectionList[0]);
+
+		undoRedoSuspendBackup = true;
 
 		var group = new Group(selectionList);
 
-		scene.addObject(group);
+		scene.addObject(group, index);
+
+		undoRedoSuspendBackup = false;
+
 		backup();
-		setSelection([scene.objects[scene.objects.length-1]]);
+		setSelection([group]);
 	}
 
 	function ungroupSelection()
@@ -1412,6 +1419,42 @@ function GeneralDrawingTest(docTag)
 			if (obj.constructor.name == "Group")
 			{
 				selectionList[i].deleteAllObjects();
+			}
+		}
+	}
+
+	function moveUpSelection()
+	{
+		if (selectionList.length == 0)
+			return;
+
+		for (var i=0; i!=selectionList.length; ++i)
+		{
+			var obj = selectionList[i];
+
+			var index = scene.getObjectIndex(obj);
+
+			if (index>0)
+			{
+				scene.setObjectIndex(obj, index-1);
+			}
+		}
+	}
+
+	function moveDownSelection()
+	{
+		if (selectionList.length == 0)
+			return;
+
+		for (var i=0; i!=selectionList.length; ++i)
+		{
+			var obj = selectionList[i];
+
+			var index = scene.getObjectIndex(obj);
+
+			if (index<scene.objects.length-1)
+			{
+				scene.setObjectIndex(obj, index+1);
 			}
 		}
 	}
