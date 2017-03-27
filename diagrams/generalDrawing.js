@@ -51,7 +51,8 @@ function GeneralDrawingTest(docTag)
 
 		// Main canvas
 		canvas = document.createElement('canvas');
-		canvas.width  = window.innerWidth;
+
+		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
 		canvas.style.position = "fixed";
 		canvas.style.left = "0";
@@ -60,9 +61,11 @@ function GeneralDrawingTest(docTag)
 		canvas.addEventListener('mousemove', onMouseMove, false);
 		canvas.addEventListener('mousedown', onMouseDown, false);
 		canvas.addEventListener('mouseup', onMouseUp, false);
-		document.addEventListener('keydown', onKeyDown, false);
-		document.addEventListener('keyup', onKeyUp, false);
+		canvas.addEventListener('keydown', onKeyDown, false);
+		canvas.addEventListener('keyup', onKeyUp, false);
 		canvas.onwheel = onMouseWheel;
+		canvas.tabIndex = -1;
+		canvas.focus();
 		root.appendChild(canvas);
 
 		// Property grid
@@ -224,6 +227,7 @@ function GeneralDrawingTest(docTag)
 
 		enableSnap["grid"] = true;
 		enableSnap["node"] = true;
+		enableSnap["midpoint"] = true;
 		enableSnap["intersection"] = true;
 		enableSnap["coincident"] = false;
 
@@ -235,6 +239,7 @@ function GeneralDrawingTest(docTag)
 			{name: "Snap: Grid", control: new TickBox(enableSnap["grid"], function (value) { enableSnap["grid"] = value; }) },
 			{name: "Snap: Node", control: new TickBox(enableSnap["node"], function (value) { enableSnap["node"] = value; }) },
 			{name: "Snap: Intersection", control: new TickBox(enableSnap["intersection"], function (value) { enableSnap["intersection"] = value; }) },
+			{name: "Snap: Midpoint", control: new TickBox(enableSnap["midpoint"], function (value) { enableSnap["midpoint"] = value; }) },
 			{name: "Snap: Coincident", control: new TickBox(enableSnap["coincident"], function (value) { enableSnap["coincident"] = value; }) }
 		];
 
@@ -256,6 +261,8 @@ function GeneralDrawingTest(docTag)
 		undoRedoBackupPos = -1;
 		undoRedoUndoPos	= -1;
 		backup();
+
+		setTool("select");
 	}
 	
 	function setTool(newTool)
@@ -418,7 +425,17 @@ function GeneralDrawingTest(docTag)
 		else if (evt.ctrlKey && evt.keyCode==65) // Ctrl+A
 		{
 			evt.preventDefault();
-			setSelection(scene.objects);
+			var s = []
+
+			for (var i = 0; i != scene.objects.length; ++i)
+			{
+				if (!scene.objects[i].isFrozen())
+				{
+					s.push(scene.objects[i]);
+				}
+			}
+
+			setSelection(s);
 		}
 		else if (evt.ctrlKey && evt.keyCode==67) // Ctrl+C
 		{
@@ -443,6 +460,10 @@ function GeneralDrawingTest(docTag)
 		else if (evt.keyCode==76) // L
 		{
 			setTool("addLine");
+		}
+		else if (evt.keyCode==73) // I
+		{
+			enableSnap["coincident"] = !enableSnap["coincident"];
 		}
 		else if (evt.keyCode==82) // R
 		{
@@ -851,6 +872,7 @@ function GeneralDrawingTest(docTag)
 
 	function onMouseMove(evt)
 	{
+		canvas.focus();
 		undoRedoSuspendBackup = true;
 
 		draw();
@@ -1119,8 +1141,7 @@ function GeneralDrawingTest(docTag)
 
 		for (var i = 0; i < s.length; ++i)
 		{
-			if (!s[i].isFrozen())
-				selectionList.push(s[i]);
+			selectionList.push(s[i]);
 		}
 		
 		for (var i=0; i<selectionList.length; ++i)
