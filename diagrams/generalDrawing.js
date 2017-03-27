@@ -1488,9 +1488,9 @@ function GeneralDrawingTest(docTag)
 		if (selectionList.length == 0)
 			return;
 
-		selectionList.sort(function(a,b) { return scene.getObjectIndex(b)-scene.getObjectIndex(a); });
+		selectionList.sort(function(a,b) { return scene.getObjectIndex(a)-scene.getObjectIndex(b); });
 
-		for (var i = 0; i != selectionList.length; ++i)
+		for (var i=0; i!=selectionList.length; ++i)
 		{
 			var obj = selectionList[i];
 
@@ -1508,9 +1508,9 @@ function GeneralDrawingTest(docTag)
 		if (selectionList.length == 0)
 			return;
 
-		selectionList.sort(function(a,b) { return scene.getObjectIndex(a)-scene.getObjectIndex(b); });
+		selectionList.sort(function(a,b) { return scene.getObjectIndex(b)-scene.getObjectIndex(a); });
 
-		for (var i=0; i!=selectionList.length; ++i)
+		for (var i = 0; i != selectionList.length; ++i)
 		{
 			var obj = selectionList[i];
 
