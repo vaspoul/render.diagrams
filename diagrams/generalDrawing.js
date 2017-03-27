@@ -1134,37 +1134,10 @@ function GeneralDrawingTest(docTag)
 		{
 			propertyGrid.setProperties(selectionList[0].getProperties());
 		}
-		//else if (selectionList.length > 0)
-		//{
-		//	var commonProperties = selectionList[0].getProperties();
-
-		//	for (var i=1; i<selectionList.length; ++i)
-		//	{
-		//		var objectProperties = selectionList[i].getProperties();
-
-		//		for (var p=0; p<commonProperties.length; ++p)
-		//		{
-		//			var found = false;
-
-		//			for (var j=0; j<objectProperties.length; ++j)
-		//			{
-		//				if (commonProperties[p].name == objectProperties[j].name)
-		//				{
-		//					found = true;
-		//					break;
-		//				}
-		//			}
-
-		//			if (!found)
-		//			{
-		//				commonProperties.splice(p, 1);
-		//				--p;
-		//			}
-		//		}
-		//	}
-
-		//	propertyGrid.setProperties(commonProperties);
-		//}
+		else if (selectionList.length > 0)
+		{
+			propertyGrid.setProperties(selectionList[0].getProperties());
+		}
 		else
 		{
 			propertyGrid.setProperties(canvasProperties);
