@@ -219,6 +219,7 @@ function GeneralDrawingTest(docTag)
 		statusBar.style.fontFamily = "Verdana,sans-serif";
 		statusBar.style.fontSize = "small";
 		statusBar.style.padding = "4px";
+		statusBar.style.pointerEvents = "none";
 		root.appendChild(statusBar);
 
 		enableSnap["grid"] = true;
