@@ -204,6 +204,7 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Divider());
 		buttonList.addProperty(undefined, new Button("Add Line (L)", function () { setTool("addLine"); }));
 		buttonList.addProperty(undefined, new Button("Add Rectangle (R)", function () { setTool("addRect"); }));
+		buttonList.addProperty(undefined, new Button("Add Circle / NGon (C)", function () { setTool("addNGon"); }));
 		buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
 		buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
 		buttonList.addProperty(undefined, new Divider());
@@ -286,7 +287,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere")
+			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon")
 			{
 				if (objectBeingMade !== undefined)
 				{
@@ -364,7 +365,7 @@ function GeneralDrawingTest(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addRect" || newTool == "addHemisphere")
+		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addRect" || newTool == "addHemisphere" || newTool == "addNGon")
 		{
 			if (tool != newTool)
 			{
@@ -469,6 +470,10 @@ function GeneralDrawingTest(docTag)
 		else if (evt.keyCode==82) // R
 		{
 			setTool("addRect");
+		}
+		else if (evt.keyCode==67) // C
+		{
+			setTool("addNGon");
 		}
 		else if (evt.keyCode==87) // W
 		{
@@ -697,7 +702,7 @@ function GeneralDrawingTest(docTag)
 				backup();
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon")
 			{
 				if (evt.altKey == 0)
 				{
@@ -863,6 +868,20 @@ function GeneralDrawingTest(docTag)
 						setSelection([scene.objects[scene.objects.length-1]]);
 					}
 				}
+				else if (tool == "addNGon")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new NGon(newPoint.copy(), 0);
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(-1, newPoint);
+						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
+					}
+				}
 
 				undoRedoSuspendBackup = false;
 			}
@@ -910,7 +929,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon")
 			{
 				var newPoint = lastMousePos;
 				var snapPoint = null;
@@ -971,6 +990,13 @@ function GeneralDrawingTest(docTag)
 					if (objectBeingMade !== undefined)
 					{
 						objectBeingMade.setDragPointPos(2, newPoint);
+					}
+				}
+				else if (tool == "addNGon")
+				{
+					if (objectBeingMade !== undefined)
+					{
+						objectBeingMade.setDragPointPos(-1, newPoint);
 					}
 				}
 				else if (tool == "addHemisphere")
