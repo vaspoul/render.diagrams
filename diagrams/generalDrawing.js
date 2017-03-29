@@ -80,6 +80,7 @@ function GeneralDrawingTest(docTag)
 		propertyGridDock.style.height = 200;
 		propertyGridDock.style.fontFamily = "Verdana,sans-serif";
 		propertyGridDock.style.fontSize = "large";
+		propertyGridDock.style.overflow = "auto";
 
 		root.appendChild(propertyGridDock);
 
