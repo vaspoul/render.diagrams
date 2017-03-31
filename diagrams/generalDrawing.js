@@ -45,6 +45,34 @@ function GeneralDrawingTest(docTag)
 
 	var clipboardText			= "";
 
+	window.addEventListener("resize", onResize);
+
+	function onResize()
+	{
+		if (camera != undefined)
+		{
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+
+			camera.onResize();
+
+			var minX = camera.getViewPosition().x - camera.getViewSize().x/2;
+			var maxX = camera.getViewPosition().x + camera.getViewSize().x/2;
+			var minY = camera.getViewPosition().y - camera.getViewSize().y/2;
+			var maxY = camera.getViewPosition().y + camera.getViewSize().y/2;
+		
+			camera.setViewPosition((minX+maxX)/2, (minY+maxY)/2);
+			camera.setUnitScale(camera.getUnitScale());
+
+			if (camera.scale(grid.spacing) < 10)
+				grid.spacing *= 10;
+			else if (camera.scale(grid.spacing) > 100)
+				grid.spacing /= 10;
+
+			draw();
+		}
+	}
+
 	function setup()
 	{
 		var root = document.getElementById(docTag);
