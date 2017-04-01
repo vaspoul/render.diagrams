@@ -34,7 +34,6 @@ function GeneralDrawingTest(docTag)
 	var lastKeyPress;
 	var enableSnap				= [];
 
-	var canvasProperties		= [];
 	var showGrid				= true;
 
 	var undoRedoBuffer			= [];
@@ -260,18 +259,7 @@ function GeneralDrawingTest(docTag)
 		enableSnap["midpoint"] = true;
 		enableSnap["intersection"] = true;
 		enableSnap["coincident"] = false;
-
-		canvasProperties =
-		[
-			{name: "Show Grid", control: new TickBox(showGrid, function (value) { showGrid = value; draw(); }) },
-			{name: "Grid Type", control: new Dropdown(["cartesian", "isometric", "radial"], "cartesian", function (value) { grid.type = value; draw(); }) },
-			{name: "", control: new Divider() },
-			{name: "Snap: Grid", control: new TickBox(enableSnap["grid"], function (value) { enableSnap["grid"] = value; }) },
-			{name: "Snap: Node", control: new TickBox(enableSnap["node"], function (value) { enableSnap["node"] = value; }) },
-			{name: "Snap: Intersection", control: new TickBox(enableSnap["intersection"], function (value) { enableSnap["intersection"] = value; }) },
-			{name: "Snap: Midpoint", control: new TickBox(enableSnap["midpoint"], function (value) { enableSnap["midpoint"] = value; }) },
-			{name: "Snap: Coincident", control: new TickBox(enableSnap["coincident"], function (value) { enableSnap["coincident"] = value; }) }
-		];
+		enableSnap["perpendicular"] = true;
 
 		scene = new Scene();
 		camera = new Camera(canvas);
@@ -295,6 +283,24 @@ function GeneralDrawingTest(docTag)
 		setTool("select");
 	}
 	
+	function getCanvasProperties()
+	{
+		var canvasProperties =
+		[
+			{name: "Show Grid", control: new TickBox(showGrid, function (value) { showGrid = value; draw(); }) },
+			{name: "Grid Type", control: new Dropdown(["cartesian", "isometric", "radial"], "cartesian", function (value) { grid.type = value; draw(); }) },
+			{name: "", control: new Divider() },
+			{name: "Snap: Grid", control: new TickBox(enableSnap["grid"], function (value) { enableSnap["grid"] = value; }) },
+			{name: "Snap: Node", control: new TickBox(enableSnap["node"], function (value) { enableSnap["node"] = value; }) },
+			{name: "Snap: Intersection", control: new TickBox(enableSnap["intersection"], function (value) { enableSnap["intersection"] = value; }) },
+			{name: "Snap: Midpoint", control: new TickBox(enableSnap["midpoint"], function (value) { enableSnap["midpoint"] = value; }) },
+			{name: "Snap: Coincident (I)", control: new TickBox(enableSnap["coincident"], function (value) { enableSnap["coincident"] = value; }) },
+			{name: "Snap: Perpendicular (P)", control: new TickBox(enableSnap["perpendicular"], function (value) { enableSnap["perpendicular"] = value; }) }
+		];
+
+		return canvasProperties;
+	}
+
 	function setTool(newTool)
 	{
 		if (newTool == "cancel")
@@ -494,6 +500,12 @@ function GeneralDrawingTest(docTag)
 		else if (evt.keyCode==73) // I
 		{
 			enableSnap["coincident"] = !enableSnap["coincident"];
+			propertyGrid.setProperties(getCanvasProperties());
+		}
+		else if (evt.keyCode==80) // P
+		{
+			enableSnap["perpendicular"] = !enableSnap["perpendicular"];
+			propertyGrid.setProperties(getCanvasProperties());
 		}
 		else if (evt.keyCode==82) // R
 		{
@@ -734,7 +746,17 @@ function GeneralDrawingTest(docTag)
 			{
 				if (evt.altKey == 0)
 				{
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [objectBeingMade], enableSnap);
+					var previousMousePos = undefined;
+
+					if (tool == "addWall" || tool == "addLine")
+					{
+						if (objectBeingMade !== undefined)
+						{
+							previousMousePos = objectBeingMade.points[objectBeingMade.points.length - 2];
+						}
+					}
+
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos, previousMousePos), camera.invScale(30), [objectBeingMade], enableSnap);
 
 					var snapPos;
 
@@ -964,7 +986,17 @@ function GeneralDrawingTest(docTag)
 
 				if (evt.altKey == 0)
 				{
-					snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [objectBeingMade], enableSnap);
+					var previousMousePos = undefined;
+
+					if (tool == "addWall" || tool == "addLine")
+					{
+						if (objectBeingMade !== undefined)
+						{
+							previousMousePos = objectBeingMade.points[objectBeingMade.points.length - 2];
+						}
+					}
+
+					snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos, previousMousePos), camera.invScale(30), [objectBeingMade], enableSnap);
 
 					if (snapPoint !== null)
 					{
@@ -1244,7 +1276,7 @@ function GeneralDrawingTest(docTag)
 		//}
 		else
 		{
-			propertyGrid.setProperties(canvasProperties);
+			propertyGrid.setProperties(getCanvasProperties());
 		}
 
 		updateObjectList();
@@ -1291,6 +1323,29 @@ function GeneralDrawingTest(docTag)
 		else if (snapPoint.type == "coincident")
 		{
 			camera.drawArc(snapPoint.p, camera.invScale(5), 0, 2*Math.PI, "#0084e0", 2);
+		}
+		else if (snapPoint.type == "perpendicular")
+		{
+			camera.drawLine(snapPoint.testP, snapPoint.p0, "#0084e0", 2, [5,5]);
+
+			var N = snapPoint.N;
+			var T = sub(snapPoint.p, snapPoint.testP).unit();
+
+			var p = snapPoint.p;
+
+			p = mad(N, camera.invScale(5), p);
+			p = mad(T, camera.invScale(5), p);
+
+			var points = [];
+
+			points.push( mad(T, camera.invScale(5), mad(N, camera.invScale(5), p)) );
+			points.push( mad(T, camera.invScale(5), mad(N, camera.invScale(-5), p)) );
+			points.push( mad(T, camera.invScale(-5), mad(N, camera.invScale(-5), p)) );
+			points.push( mad(T, camera.invScale(-5), mad(N, camera.invScale(5), p)) );
+			points.push( points[0] );
+
+			camera.drawLineStrip(points, "#0084e0", 2);
+			camera.drawRectangle(p, camera.invScale(1), "#0084e0", 1);
 		}
 		else
 		{
