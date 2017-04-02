@@ -224,7 +224,7 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
 		buttonList.addProperty(undefined, new Button("Add Wall (W)", function(){setTool("addWall");}));
 		buttonList.addProperty(undefined, new Button("Add Arc Wall", function(){setTool("addArcWall");}));
-		buttonList.addProperty(undefined, new Button("Add BRDF Ray", function () { setTool("addRay"); }));
+		buttonList.addProperty(undefined, new Button("Add BRDF Ray (B)", function () { setTool("addRay"); }));
 		buttonList.addProperty(undefined, new Button("Add Point Light", function () { setTool("addPointLight"); }));
 		buttonList.addProperty(undefined, new Button("Add Spot Light", function () { setTool("addSpotLight"); }));
 		buttonList.addProperty(undefined, new Button("Add Parallel Light", function () { setTool("addParallelLight"); }));
@@ -262,7 +262,7 @@ function GeneralDrawingTest(docTag)
 		enableSnap["midpoint"] = true;
 		enableSnap["intersection"] = true;
 		enableSnap["coincident"] = false;
-		enableSnap["perpendicular"] = true;
+		enableSnap["perpendicular"] = false;
 
 		scene = new Scene();
 		camera = new Camera(canvas);
@@ -525,6 +525,10 @@ function GeneralDrawingTest(docTag)
 		else if (evt.keyCode==87) // W
 		{
 			setTool("addWall");
+		}
+		else if (evt.keyCode==66) // B
+		{
+			setTool("addRay");
 		}
 		else if (evt.keyCode==46) // del
 		{
