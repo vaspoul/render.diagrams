@@ -210,6 +210,8 @@ function GeneralDrawingTest(docTag)
 		buttonListdDock.style.border = "2px solid black";
 		buttonListdDock.style.backgroundColor = "white";
 		buttonListdDock.style.position = "fixed";
+		buttonListdDock.style.overflowY = "auto";
+		buttonListdDock.style.overflowX = "hidden";
 		buttonListdDock.style.left = "5";
 		buttonListdDock.style.top = "5";
 		buttonListdDock.style.width  = 180;
@@ -232,6 +234,7 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Line (L)", function () { setTool("addLine"); }));
 		buttonList.addProperty(undefined, new Button("Add Rectangle (R)", function () { setTool("addRect"); }));
 		buttonList.addProperty(undefined, new Button("Add Circle / NGon (C)", function () { setTool("addNGon"); }));
+		buttonList.addProperty(undefined, new Button("Add Dimension (D)", function () { setTool("addDimension"); }));
 		buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
 		buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
 		buttonList.addProperty(undefined, new Divider());
@@ -321,7 +324,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon")
+			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension")
 			{
 				if (objectBeingMade !== undefined)
 				{
@@ -399,7 +402,7 @@ function GeneralDrawingTest(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addRect" || newTool == "addHemisphere" || newTool == "addNGon")
+		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addRect" || newTool == "addHemisphere" || newTool == "addNGon" || newTool == "addDimension")
 		{
 			if (tool != newTool)
 			{
@@ -496,6 +499,10 @@ function GeneralDrawingTest(docTag)
 		else if (evt.keyCode==76) // L
 		{
 			setTool("addLine");
+		}
+		else if (evt.keyCode==68) // D
+		{
+			setTool("addDimension");
 		}
 		else if (evt.keyCode==73) // I
 		{
@@ -742,7 +749,7 @@ function GeneralDrawingTest(docTag)
 				backup();
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension")
 			{
 				if (evt.altKey == 0)
 				{
@@ -932,6 +939,20 @@ function GeneralDrawingTest(docTag)
 						setSelection([scene.objects[scene.objects.length-1]]);
 					}
 				}
+				else if (tool == "addDimension")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new Dimension(newPoint.copy(), newPoint.copy());
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(1, newPoint);
+						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
+					}
+				}
 
 				undoRedoSuspendBackup = false;
 			}
@@ -979,7 +1000,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension")
 			{
 				var newPoint = lastMousePos;
 				var snapPoint = null;
@@ -1038,7 +1059,7 @@ function GeneralDrawingTest(docTag)
 						objectBeingMade.setDragPointPos(0, newPoint);
 					}
 				}
-				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera")
+				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addDimension")
 				{
 					if (objectBeingMade !== undefined)
 					{
