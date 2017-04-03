@@ -800,7 +800,6 @@ function GeneralDrawingTest(docTag)
 
 				var newPoint = lastMousePos;
 
-				backup();
 				undoRedoSuspendBackup = true;
 
 				if (tool == "addWall" || tool == "addLine")
@@ -959,6 +958,8 @@ function GeneralDrawingTest(docTag)
 				}
 
 				undoRedoSuspendBackup = false;
+
+				backup();
 			}
 		}
 
@@ -1415,15 +1416,17 @@ function GeneralDrawingTest(docTag)
 
 	function addTree()
 	{
-		var w = new Wall([new Vector(-2, 2), new Vector(-2, 7), new Vector(0, 7), new Vector(0, 2), new Vector(-2, 2)]);
-		w.roughness = 0.1;
-		w.metalness = 0;
-		scene.addObject(w);
+		var w1 = new Wall([new Vector(-2, 2), new Vector(-2, 7), new Vector(0, 7), new Vector(0, 2), new Vector(-2, 2)]);
+		w1.roughness = 0.1;
+		w1.metalness = 0;
 
-		var w = new Wall([new Vector(-2, 7), new Vector(-5, 9), new Vector(-5, 11), new Vector(-6, 13), new Vector(-5, 15), new Vector(-5, 17), new Vector(-2.5131828247928443, 17.6149344555104), new Vector(-1, 19), new Vector(2.0701925996189092, 18.187856383561872), new Vector(2.881831997691824, 15.70519469533884), new Vector(4.6483412758505205, 13.699967947158697), new Vector(3.025062479704691, 11.503767222961393), new Vector(2.7386015156789565, 8.49592710069118), new Vector(0, 7), new Vector(-2, 7)]);
-		w.roughness = 0.6000000000000001;
-		w.metalness = 0;
-		scene.addObject(w);
+		var w2 = new Wall([new Vector(-2, 7), new Vector(-5, 9), new Vector(-5, 11), new Vector(-6, 13), new Vector(-5, 15), new Vector(-5, 17), new Vector(-2.5131828247928443, 17.6149344555104), new Vector(-1, 19), new Vector(2.0701925996189092, 18.187856383561872), new Vector(2.881831997691824, 15.70519469533884), new Vector(4.6483412758505205, 13.699967947158697), new Vector(3.025062479704691, 11.503767222961393), new Vector(2.7386015156789565, 8.49592710069118), new Vector(0, 7), new Vector(-2, 7)]);
+		w2.roughness = 0.6000000000000001;
+		w2.metalness = 0;
+
+		var g = new Group([w1, w2]);
+
+		scene.addObject(g);
 	}
 
 	function addPerson()
@@ -1431,13 +1434,15 @@ function GeneralDrawingTest(docTag)
 		var w = new Wall([new Vector(-2, 10), new Vector(0, 10), new Vector(2, 7), new Vector(0, 8), new Vector(0, 1), new Vector(-1, 5), new Vector(-2, 1), new Vector(-2, 8), new Vector(-4, 7), new Vector(-2, 10)]);
 		w.roughness = 0;
 		w.metalness = 0;
-		scene.addObject(w);
 
 		var aw = new ArcWall(new Vector(-1, 11), 1, -90.00 * Math.PI/180, 270.00 * Math.PI/180);
 		aw.convex = false;
 		aw.roughness = 0;
 		aw.metalness = 0;
-		scene.addObject(aw);
+
+		var g = new Group([w, aw]);
+
+		scene.addObject(g);
 	}
 
 	function onSceneChange()
