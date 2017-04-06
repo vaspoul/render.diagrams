@@ -297,7 +297,7 @@ function GeneralDrawingTest(docTag)
 			{name: "Snap: Node", control: new TickBox(enableSnap["node"], function (value) { enableSnap["node"] = value; }) },
 			{name: "Snap: Intersection", control: new TickBox(enableSnap["intersection"], function (value) { enableSnap["intersection"] = value; }) },
 			{name: "Snap: Midpoint", control: new TickBox(enableSnap["midpoint"], function (value) { enableSnap["midpoint"] = value; }) },
-			{name: "Snap: Coincident (I)", control: new TickBox(enableSnap["coincident"], function (value) { enableSnap["coincident"] = value; }) },
+			{name: "Snap: Coincident (O)", control: new TickBox(enableSnap["coincident"], function (value) { enableSnap["coincident"] = value; }) },
 			{name: "Snap: Perpendicular (P)", control: new TickBox(enableSnap["perpendicular"], function (value) { enableSnap["perpendicular"] = value; }) }
 		];
 
@@ -504,7 +504,7 @@ function GeneralDrawingTest(docTag)
 		{
 			setTool("addDimension");
 		}
-		else if (evt.keyCode==73) // I
+		else if (evt.keyCode==79) // O
 		{
 			enableSnap["coincident"] = !enableSnap["coincident"];
 			propertyGrid.setProperties(getCanvasProperties());
