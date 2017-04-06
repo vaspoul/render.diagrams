@@ -1323,7 +1323,25 @@ function GeneralDrawingTest(docTag)
 		scene.draw(camera);
 		mouseCursor.draw(camera);
 
-		//camera.drawRectangle(scene.getBoundsMin(), scene.getBoundsMax(), "#0084e0", 1, [5,5]);
+		// Selection bounding box
+		{
+			var boundsMin = new Vector(100000,100000);
+			var boundsMax = new Vector(-100000,-100000);
+
+			for (var i=0; i<selectionList.length; ++i)
+			{
+				if (selectionList[i].getBoundsMin !== undefined)
+				{
+					boundsMin = min(boundsMin, selectionList[i].getBoundsMin());
+					boundsMax = max(boundsMax, selectionList[i].getBoundsMax());
+				}
+			}
+			
+			boundsMin = sub(boundsMin, camera.invScale(5));
+			boundsMax = add(boundsMax, camera.invScale(5));
+
+			camera.drawRectangle(boundsMin, boundsMax, "#0084e0", 1, [5,5]);
+		}
 
 		var t1 = performance.now();
 
@@ -1404,6 +1422,11 @@ function GeneralDrawingTest(docTag)
 	{
 		if (str === undefined)
 			str = codeBox.value;
+
+		//if (	str.search(/document/i)>=0 ||
+		//		str.search(/window/i)>0 ||
+		//		str.search(/frame/i)>0 ||
+		//		str.search(/cookie/i)>0 ||
 
 		if (str != null)
 		{
@@ -1596,7 +1619,6 @@ function GeneralDrawingTest(docTag)
 
 			clipboardText += "\n";
 		}
-
 	}
 
 	function clipboardPaste()
