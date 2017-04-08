@@ -1324,6 +1324,7 @@ function GeneralDrawingTest(docTag)
 		mouseCursor.draw(camera);
 
 		// Selection bounding box
+		if (selectionList.length>0)
 		{
 			var boundsMin = new Vector(100000,100000);
 			var boundsMax = new Vector(-100000,-100000);
