@@ -215,7 +215,7 @@ function GeneralDrawingTest(docTag)
 		buttonListdDock.style.left = "5";
 		buttonListdDock.style.top = "5";
 		buttonListdDock.style.width  = 180;
-		buttonListdDock.style.height = 700;
+		buttonListdDock.style.height = 740;
 		root.appendChild(buttonListdDock);
 
 		buttonList = new PropertyGrid(buttonListdDock);
@@ -234,6 +234,7 @@ function GeneralDrawingTest(docTag)
 		buttonList.addProperty(undefined, new Button("Add Line (L)", function () { setTool("addLine"); }));
 		buttonList.addProperty(undefined, new Button("Add Rectangle (R)", function () { setTool("addRect"); }));
 		buttonList.addProperty(undefined, new Button("Add Circle / NGon (C)", function () { setTool("addNGon"); }));
+		buttonList.addProperty(undefined, new Button("Add Bar Chart", function () { setTool("addBarChart"); }));
 		buttonList.addProperty(undefined, new Button("Add Dimension (D)", function () { setTool("addDimension"); }));
 		buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
 		buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
@@ -324,7 +325,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension")
+			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart")
 			{
 				if (objectBeingMade !== undefined)
 				{
@@ -402,7 +403,7 @@ function GeneralDrawingTest(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addRect" || newTool == "addHemisphere" || newTool == "addNGon" || newTool == "addDimension")
+		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addRect" || newTool == "addHemisphere" || newTool == "addNGon" || newTool == "addDimension" || newTool == "addBarChart")
 		{
 			if (tool != newTool)
 			{
@@ -753,7 +754,7 @@ function GeneralDrawingTest(docTag)
 				backup();
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart")
 			{
 				if (evt.altKey == 0)
 				{
@@ -956,6 +957,20 @@ function GeneralDrawingTest(docTag)
 						setSelection([scene.objects[scene.objects.length-1]]);
 					}
 				}
+				else if (tool == "addBarChart")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new BarChart(newPoint.copy(), newPoint.copy());
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(1, newPoint);
+						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
+					}
+				}
 
 				undoRedoSuspendBackup = false;
 
@@ -1005,7 +1020,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart")
 			{
 				var newPoint = lastMousePos;
 				var snapPoint = null;
@@ -1064,7 +1079,7 @@ function GeneralDrawingTest(docTag)
 						objectBeingMade.setDragPointPos(0, newPoint);
 					}
 				}
-				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addDimension")
+				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addDimension" || tool == "addBarChart")
 				{
 					if (objectBeingMade !== undefined)
 					{
@@ -1391,6 +1406,30 @@ function GeneralDrawingTest(docTag)
 
 			camera.drawLineStrip(points, "#0084e0", 2);
 			camera.drawRectangle(p, camera.invScale(1), "#0084e0", 1);
+		}
+		else if (snapPoint.type == "extendTo")
+		{
+			camera.drawLine(snapPoint.p, snapPoint.p0, "#0084e0", 2, [5,5]);
+			camera.drawRectangle(snapPoint.p, camera.invScale(10), "#0084e0", 1);
+
+			//var N = snapPoint.N;
+			//var T = sub(snapPoint.p, snapPoint.testP).unit();
+
+			//var p = snapPoint.p;
+
+			//p = mad(N, camera.invScale(5), p);
+			//p = mad(T, camera.invScale(5), p);
+
+			//var points = [];
+
+			//points.push( mad(T, camera.invScale(5), mad(N, camera.invScale(5), p)) );
+			//points.push( mad(T, camera.invScale(5), mad(N, camera.invScale(-5), p)) );
+			//points.push( mad(T, camera.invScale(-5), mad(N, camera.invScale(-5), p)) );
+			//points.push( mad(T, camera.invScale(-5), mad(N, camera.invScale(5), p)) );
+			//points.push( points[0] );
+
+			//camera.drawLineStrip(points, "#0084e0", 2);
+			//camera.drawRectangle(p, camera.invScale(1), "#0084e0", 1);
 		}
 		else
 		{
