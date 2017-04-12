@@ -10,6 +10,8 @@ function GeneralDrawingTest(docTag)
 	var moveDownButton;
 	var statusBar;
 	var codeBox;
+	var fileManagerDock;
+	var fileManagerBox;
 	var scene;
 	var camera;
 
@@ -33,6 +35,7 @@ function GeneralDrawingTest(docTag)
 	var objectBeingMade			= undefined;
 	var lastKeyPress;
 	var enableSnap				= [];
+	var showingModal			= false;
 
 	var showGrid				= true;
 
@@ -77,172 +80,226 @@ function GeneralDrawingTest(docTag)
 		var root = document.getElementById(docTag);
 
 		// Main canvas
-		canvas = document.createElement('canvas');
-
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
-		canvas.style.position = "fixed";
-		canvas.style.left = "0";
-		canvas.style.top = "0";
-		canvas.style.cursor = "none";
-		canvas.addEventListener('mousemove', onMouseMove, false);
-		canvas.addEventListener('mousedown', onMouseDown, false);
-		canvas.addEventListener('mouseup', onMouseUp, false);
-		canvas.addEventListener('keydown', onKeyDown, false);
-		canvas.addEventListener('keyup', onKeyUp, false);
-		canvas.onwheel = onMouseWheel;
-		canvas.tabIndex = -1;
-		canvas.focus();
-		root.appendChild(canvas);
-
-		// Property grid
-		var propertyGridDock = document.createElement('div');
-		propertyGridDock.id = "propertyGrid";
-		propertyGridDock.style.border = "2px solid black";
-		propertyGridDock.style.backgroundColor = "white";
-		propertyGridDock.style.position = "fixed";
-		propertyGridDock.style.right = "5";
-		propertyGridDock.style.top = "5";
-		propertyGridDock.style.width  = 400;
-		propertyGridDock.style.height = 200;
-		propertyGridDock.style.fontFamily = "Verdana,sans-serif";
-		propertyGridDock.style.fontSize = "large";
-		propertyGridDock.style.overflow = "auto";
-
-		root.appendChild(propertyGridDock);
-
-		propertyGrid = new PropertyGrid(propertyGridDock);
-
-		// Object list
-		var objectListDock = document.createElement('div');
-		objectListDock.id = "objectList";
-		objectListDock.style.border = "2px solid black";
-		objectListDock.style.backgroundColor = "white";
-		objectListDock.style.position = "fixed";
-		objectListDock.style.right = "5";
-		objectListDock.style.top = "215";
-		objectListDock.style.width  = 400;
-		objectListDock.style.height = 500;
-
-
-		var objectListDockScrollable = document.createElement('div');
-		objectListDockScrollable.style.position = "fixed";
-		objectListDockScrollable.style.overflow = "auto";
-		objectListDockScrollable.style.backgroundColor = "white";
-		objectListDockScrollable.style.position = "fixed";
-		objectListDockScrollable.style.width  = 400;
-		objectListDockScrollable.style.height = 470;
-		objectListDockScrollable.style.fontFamily = "Verdana,sans-serif";
-		objectListDockScrollable.style.fontSize = "large";
-
-		objectListDock.appendChild(objectListDockScrollable);
-
-		objectList = document.createElement('table');
-		objectList.id = "objectList";
-		objectList.style.width = "100%";
-		objectList.style.padding = "0";
-		objectList.style.spacing = "0";
-		objectList.style.cellpadding = "0";
-		objectList.style.cellspacing = "0";
-		//objectList.style.border = "2px solid black";
-		objectList.style.fontFamily = "Verdana,sans-serif";
-		objectList.style.fontSize = "12px";
-		//objectList.style.fontSize = "large";
-		objectList.onmousedown = function(e)
 		{
-			if(e.preventDefault) e.preventDefault();
+			canvas = document.createElement('canvas');
+
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			canvas.style.position = "fixed";
+			canvas.style.left = "0";
+			canvas.style.top = "0";
+			canvas.style.cursor = "none";
+			canvas.addEventListener('mousemove', onMouseMove, false);
+			canvas.addEventListener('mousedown', onMouseDown, false);
+			canvas.addEventListener('mouseup', onMouseUp, false);
+			canvas.addEventListener('keydown', onKeyDown, false);
+			canvas.addEventListener('keyup', onKeyUp, false);
+			canvas.onwheel = onMouseWheel;
+			canvas.tabIndex = -1;
+			canvas.focus();
+			root.appendChild(canvas);
 		}
 
-		objectListDockScrollable.appendChild(objectList);
+		// Property grid
+		{
+			var propertyGridDock = document.createElement('div');
+			propertyGridDock.id = "propertyGrid";
+			propertyGridDock.style.border = "2px solid black";
+			propertyGridDock.style.backgroundColor = "white";
+			propertyGridDock.style.position = "fixed";
+			propertyGridDock.style.right = "5";
+			propertyGridDock.style.top = "5";
+			propertyGridDock.style.width  = 400;
+			propertyGridDock.style.height = 200;
+			propertyGridDock.style.fontFamily = "Verdana,sans-serif";
+			propertyGridDock.style.fontSize = "large";
+			propertyGridDock.style.overflow = "auto";
+
+			root.appendChild(propertyGridDock);
+
+			propertyGrid = new PropertyGrid(propertyGridDock);
+		}
+
+		// Object list
+		{
+			var objectListDock = document.createElement('div');
+			objectListDock.id = "objectList";
+			objectListDock.style.border = "2px solid black";
+			objectListDock.style.backgroundColor = "white";
+			objectListDock.style.position = "fixed";
+			objectListDock.style.right = "5";
+			objectListDock.style.top = "215";
+			objectListDock.style.width  = 400;
+			objectListDock.style.height = 500;
 
 
-		var buttonArea = document.createElement("div");
-		buttonArea.style.position = "relative";
-		//buttonArea.style.display = "block";
-		//buttonArea.style.margin = "auto";
-		buttonArea.style.textAlign = "center";
-		buttonArea.style.top = 470;
-		buttonArea.style.bottom = 0;
+			var objectListDockScrollable = document.createElement('div');
+			objectListDockScrollable.style.position = "fixed";
+			objectListDockScrollable.style.overflow = "auto";
+			objectListDockScrollable.style.backgroundColor = "white";
+			objectListDockScrollable.style.position = "fixed";
+			objectListDockScrollable.style.width  = 400;
+			objectListDockScrollable.style.height = 470;
+			objectListDockScrollable.style.fontFamily = "Verdana,sans-serif";
+			objectListDockScrollable.style.fontSize = "large";
 
-		groupButton = document.createElement("button");
-		groupButton.appendChild(document.createTextNode("Group"));
-		groupButton.onclick = groupSelection;
+			objectListDock.appendChild(objectListDockScrollable);
 
-		buttonArea.appendChild(groupButton);
+			objectList = document.createElement('table');
+			objectList.id = "objectList";
+			objectList.style.width = "100%";
+			objectList.style.padding = "0";
+			objectList.style.spacing = "0";
+			objectList.style.cellpadding = "0";
+			objectList.style.cellspacing = "0";
+			//objectList.style.border = "2px solid black";
+			objectList.style.fontFamily = "Verdana,sans-serif";
+			objectList.style.fontSize = "12px";
+			//objectList.style.fontSize = "large";
+			objectList.onmousedown = function(e)
+			{
+				if(e.preventDefault) e.preventDefault();
+			}
 
-		ungroupButton = document.createElement("button");
-		ungroupButton.appendChild(document.createTextNode("Ungroup"));
-		ungroupButton.onclick = ungroupSelection;
-		buttonArea.appendChild(ungroupButton);
+			objectListDockScrollable.appendChild(objectList);
 
-		moveUpButton = document.createElement("button");
-		moveUpButton.appendChild(document.createTextNode("Up"));
-		moveUpButton.onclick = moveUpSelection;
-		buttonArea.appendChild(moveUpButton);
+			var buttonArea = document.createElement("div");
+			buttonArea.style.position = "relative";
+			//buttonArea.style.display = "block";
+			//buttonArea.style.margin = "auto";
+			buttonArea.style.textAlign = "center";
+			buttonArea.style.top = 470;
+			buttonArea.style.bottom = 0;
 
-		moveDownButton = document.createElement("button");
-		moveDownButton.appendChild(document.createTextNode("Down"));
-		moveDownButton.onclick = moveDownSelection;
-		buttonArea.appendChild(moveDownButton);
+			groupButton = document.createElement("button");
+			groupButton.appendChild(document.createTextNode("Group"));
+			groupButton.onclick = groupSelection;
 
-		objectListDock.appendChild(buttonArea);
+			buttonArea.appendChild(groupButton);
 
-		root.appendChild(objectListDock);
+			ungroupButton = document.createElement("button");
+			ungroupButton.appendChild(document.createTextNode("Ungroup"));
+			ungroupButton.onclick = ungroupSelection;
+			buttonArea.appendChild(ungroupButton);
 
+			moveUpButton = document.createElement("button");
+			moveUpButton.appendChild(document.createTextNode("Up"));
+			moveUpButton.onclick = moveUpSelection;
+			buttonArea.appendChild(moveUpButton);
+
+			moveDownButton = document.createElement("button");
+			moveDownButton.appendChild(document.createTextNode("Down"));
+			moveDownButton.onclick = moveDownSelection;
+			buttonArea.appendChild(moveDownButton);
+
+			objectListDock.appendChild(buttonArea);
+
+			root.appendChild(objectListDock);
+		}
 
 		// Code box
-		codeBox = document.createElement('textarea');
-		codeBox.id = "codeBox";
-		codeBox.style.border = "2px solid black";
-		codeBox.style.backgroundColor = "white";
-		codeBox.style.position = "fixed";
-		codeBox.style.right = 5;
-		codeBox.style.bottom = 5;
-		codeBox.style.width  = 404;
-		codeBox.style.height = 250;
-		codeBox.style.fontFamily = "Verdana,sans-serif";
-		codeBox.style.fontSize = "small";
-		root.appendChild(codeBox);
+		{
+			codeBox = document.createElement('textarea');
+			codeBox.id = "codeBox";
+			codeBox.style.border = "2px solid black";
+			codeBox.style.backgroundColor = "white";
+			codeBox.style.position = "fixed";
+			codeBox.style.right = 5;
+			codeBox.style.bottom = 5;
+			codeBox.style.width  = 404;
+			codeBox.style.height = 250;
+			codeBox.style.fontFamily = "Verdana,sans-serif";
+			codeBox.style.fontSize = "small";
+			root.appendChild(codeBox);
+		}
 
 		// Button list
-		var buttonListdDock = document.createElement('div');
-		buttonListdDock.id = "buttonList";
-		buttonListdDock.style.border = "2px solid black";
-		buttonListdDock.style.backgroundColor = "white";
-		buttonListdDock.style.position = "fixed";
-		buttonListdDock.style.overflowY = "auto";
-		buttonListdDock.style.overflowX = "hidden";
-		buttonListdDock.style.left = "5";
-		buttonListdDock.style.top = "5";
-		buttonListdDock.style.width  = 180;
-		buttonListdDock.style.height = 740;
-		root.appendChild(buttonListdDock);
+		{
+			var buttonListdDock = document.createElement('div');
+			buttonListdDock.id = "buttonList";
+			buttonListdDock.style.border = "2px solid black";
+			buttonListdDock.style.backgroundColor = "white";
+			buttonListdDock.style.position = "fixed";
+			buttonListdDock.style.overflowY = "auto";
+			buttonListdDock.style.overflowX = "hidden";
+			buttonListdDock.style.left = "5";
+			buttonListdDock.style.top = "5";
+			buttonListdDock.style.width  = 180;
+			buttonListdDock.style.height = 740;
+			root.appendChild(buttonListdDock);
 
-		buttonList = new PropertyGrid(buttonListdDock);
-		buttonList.addProperty(undefined, new Button("Select (Q)", function(){setTool("select");}));
-		buttonList.addProperty(undefined, new Button("Zoom Extents (F4)", function(){zoomExtents();}));
-		buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
-		buttonList.addProperty(undefined, new Button("Add Wall (W)", function(){setTool("addWall");}));
-		buttonList.addProperty(undefined, new Button("Add Arc Wall", function(){setTool("addArcWall");}));
-		buttonList.addProperty(undefined, new Button("Add BRDF Ray (B)", function () { setTool("addRay"); }));
-		buttonList.addProperty(undefined, new Button("Add Point Light", function () { setTool("addPointLight"); }));
-		buttonList.addProperty(undefined, new Button("Add Spot Light", function () { setTool("addSpotLight"); }));
-		buttonList.addProperty(undefined, new Button("Add Parallel Light", function () { setTool("addParallelLight"); }));
-		buttonList.addProperty(undefined, new Button("Add Camera", function () { setTool("addCamera"); }));
-		buttonList.addProperty(undefined, new Button("Add Hemisphere", function () { setTool("addHemisphere"); }));
-		buttonList.addProperty(undefined, new Divider());
-		buttonList.addProperty(undefined, new Button("Add Line (L)", function () { setTool("addLine"); }));
-		buttonList.addProperty(undefined, new Button("Add Rectangle (R)", function () { setTool("addRect"); }));
-		buttonList.addProperty(undefined, new Button("Add Circle / NGon (C)", function () { setTool("addNGon"); }));
-		buttonList.addProperty(undefined, new Button("Add Bar Chart", function () { setTool("addBarChart"); }));
-		buttonList.addProperty(undefined, new Button("Add Dimension (D)", function () { setTool("addDimension"); }));
-		buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
-		buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
-		buttonList.addProperty(undefined, new Divider());
-		//buttonList.addProperty(undefined, new Button("Save as Image", function () { saveAsImage(); }));
-		buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { saveAsJavascript(); }));
-		buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { loadFromJavascript(); }));
+			buttonList = new PropertyGrid(buttonListdDock);
+			buttonList.addProperty(undefined, new Button("Select (Q)", function(){setTool("select");}));
+			buttonList.addProperty(undefined, new Button("Zoom Extents (F4)", function(){zoomExtents();}));
+			buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
+			buttonList.addProperty(undefined, new Button("Add Wall (W)", function(){setTool("addWall");}));
+			buttonList.addProperty(undefined, new Button("Add Arc Wall", function(){setTool("addArcWall");}));
+			buttonList.addProperty(undefined, new Button("Add BRDF Ray (B)", function () { setTool("addRay"); }));
+			buttonList.addProperty(undefined, new Button("Add Point Light", function () { setTool("addPointLight"); }));
+			buttonList.addProperty(undefined, new Button("Add Spot Light", function () { setTool("addSpotLight"); }));
+			buttonList.addProperty(undefined, new Button("Add Parallel Light", function () { setTool("addParallelLight"); }));
+			buttonList.addProperty(undefined, new Button("Add Camera", function () { setTool("addCamera"); }));
+			buttonList.addProperty(undefined, new Button("Add Hemisphere", function () { setTool("addHemisphere"); }));
+			buttonList.addProperty(undefined, new Divider());
+			buttonList.addProperty(undefined, new Button("Add Line (L)", function () { setTool("addLine"); }));
+			buttonList.addProperty(undefined, new Button("Add Rectangle (R)", function () { setTool("addRect"); }));
+			buttonList.addProperty(undefined, new Button("Add Circle / NGon (C)", function () { setTool("addNGon"); }));
+			buttonList.addProperty(undefined, new Button("Add Bar Chart", function () { setTool("addBarChart"); }));
+			buttonList.addProperty(undefined, new Button("Add Dimension (D)", function () { setTool("addDimension"); }));
+			buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
+			buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
+			buttonList.addProperty(undefined, new Divider());
+			//buttonList.addProperty(undefined, new Button("Save as Image", function () { saveAsImage(); }));
+			//buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { saveAsJavascript(); }));
+			//buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { loadFromJavascript(); }));
+			buttonList.addProperty(undefined, new Button("Save to LocalStorage", function () { saveToLocalStorage(); }));
+			buttonList.addProperty(undefined, new Button("Load from LocalStorage", function () { loadFromLocalStorage(); }));
+		}
 
+		// File manager
+		{
+			fileManagerDock = document.createElement('div');
+			fileManagerDock.id = "fileManagerDock";
+			fileManagerDock.style.border = "2px solid black";
+			fileManagerDock.style.backgroundColor = "white";
+			fileManagerDock.style.position = "fixed";
+			fileManagerDock.style.top = "250";
+			fileManagerDock.style.width  = 800;
+			fileManagerDock.style.height = 500;
+			fileManagerDock.style.left = (window.innerWidth - 800) / 2;
+			fileManagerDock.style.overflow = "auto";
+			fileManagerDock.style.fontFamily = "Verdana,sans-serif";
+			fileManagerDock.style.fontSize = "large";
+			fileManagerDock.style.display = "none";
+			fileManagerDock.tabIndex = 0;
+
+			fileManagerBox = document.createElement('table');
+			fileManagerBox.id = "fileManagerBox";
+			fileManagerBox.style.width = "100%";
+			fileManagerBox.style.padding = "0";
+			fileManagerBox.style.spacing = "0";
+			fileManagerBox.style.cellpadding = "0";
+			fileManagerBox.style.cellspacing = "0";
+			fileManagerBox.style.fontFamily = "Verdana,sans-serif";
+			fileManagerBox.style.fontSize = "12px";
+			fileManagerBox.onmousedown = function(e)
+			{
+				if(e.preventDefault) e.preventDefault();
+			}
+
+			fileManagerDock.addEventListener('keyup', function(evt)
+														{
+															if (evt.keyCode==27) // ESC
+															{
+																fileManagerDock.style.display = "none";
+																canvas.focus();
+															}
+														}, false);
+
+			fileManagerDock.appendChild(fileManagerBox);
+
+			root.appendChild(fileManagerDock);
+		}
 
 		// Status bar
 		statusBar = document.createElement('div');
@@ -489,6 +546,14 @@ function GeneralDrawingTest(docTag)
 		{
 			groupSelection();
 		}
+		else if (evt.keyCode == 76 && evt.ctrlKey == 1) // Ctrl + L
+		{
+			loadFromLocalStorage();
+		}
+		else if (evt.keyCode == 83 && evt.ctrlKey == 1) // Ctrl + S
+		{
+			saveToLocalStorage();
+		}
 		else if (evt.keyCode==81) // q
 		{
 			setTool("select");
@@ -585,6 +650,9 @@ function GeneralDrawingTest(docTag)
 
 	function onMouseDown(evt)
 	{
+		if (showingModal)
+			return;
+
 		lastMousePos = camera.getMousePos(evt);
 		lastMousePosPixels = getMousePos(evt, canvas);
 		
@@ -664,6 +732,17 @@ function GeneralDrawingTest(docTag)
 
 	function onMouseUp(evt)
 	{
+		if (showingModal)
+		{
+			if (evt.button == 0) // object move or marquee
+			{
+				fileManagerDock.style.display = "none";
+				showingModal = false;
+			}
+
+			return;
+		}
+
 		lastMousePos = camera.getMousePos(evt);
 		lastMousePosPixels = getMousePos(evt, canvas);
 		
@@ -983,6 +1062,16 @@ function GeneralDrawingTest(docTag)
 
 	function onMouseMove(evt)
 	{
+		if (showingModal)
+		{
+			canvas.style.cursor = "default";
+			return;
+		}
+		else
+		{
+			canvas.style.cursor = "none";
+		}
+
 		canvas.focus();
 		undoRedoSuspendBackup = true;
 
@@ -1510,6 +1599,208 @@ function GeneralDrawingTest(docTag)
 			//scene.addObject(grid);
 			eval(str);
 			draw();
+		}
+	}
+
+	function saveToLocalStorage()
+	{
+		if (typeof (Storage) === "undefined")
+			return;
+
+		setSelection([]);
+
+		var str = "";
+
+		str += camera.saveAsJavascript();
+		str += "\n\n";
+		str += scene.saveAsJavascript();
+		
+		var thumbnailData;
+
+		// thumbnail
+		{
+			var popoutCanvas = document.createElement('canvas');
+			popoutCanvas.width = 256;
+			popoutCanvas.height = 256;
+		
+			var popoutGrid = new Grid()
+			popoutGrid.spacing = grid.spacing;
+
+			var popoutCamera = new Camera(popoutCanvas);
+			popoutCamera.setViewPosition(0, 0);
+
+			var center = avg(scene.getBoundsMin(), scene.getBoundsMax());
+			var extents = sub(scene.getBoundsMax(), scene.getBoundsMin());
+
+			var uniScaleX = 256 / extents.x;
+			var uniScaleY = 256 / extents.y;
+
+			popoutCamera.setViewPosition(center.x, center.y);
+			popoutCamera.setUnitScale(Math.min(uniScaleX, uniScaleY) * 0.9);
+
+			// draw
+			{
+				popoutCamera.clear();
+
+				if (showGrid)
+				{
+					popoutGrid.draw(popoutCamera);
+				}
+
+				scene.draw(popoutCamera);
+			}
+
+			thumbnailData = popoutCanvas.toDataURL("image/png");
+		}
+
+		localStorage.setItem("savedScene:" + scene.name, scene.name);
+		localStorage.setItem("sceneCode:" + scene.name, str);
+		localStorage.setItem("sceneDate:" + scene.name, (new Date()).toString());
+		localStorage.setItem("sceneThumbnail:" + scene.name, thumbnailData);
+	}
+
+	function loadFromLocalStorage()
+	{
+		if (typeof (Storage) === "undefined")
+			return;
+
+		showingModal = true;
+
+		canvas.blur();
+		fileManagerDock.style.display = "block";
+		fileManagerDock.focus();
+
+		// populate list
+		{
+			while(fileManagerBox.rows[0]) fileManagerBox.deleteRow(0);
+
+			var sceneList = [];
+
+			for (var i = 0; i != localStorage.length; ++i)
+			{
+				var key = localStorage.key(i);
+
+				if (key.startsWith("savedScene:"))
+				{
+					sceneList.push( localStorage.getItem(key) );
+				}
+			}
+
+			for (var i=0; i!=sceneList.length; ++i)
+			{
+				var row = fileManagerBox.insertRow();
+				var imageCell = row.insertCell();
+				var detailsCell = row.insertCell();
+
+				detailsCell.style.verticalAlign = "top";
+				var detailsName = document.createElement("div");
+				var detailsNameEdit = document.createElement("input");
+				var detailsDate = document.createElement("div");
+				var detailsButtons = document.createElement("div");
+				detailsCell.appendChild(detailsName);
+				detailsCell.appendChild(detailsNameEdit);
+				detailsCell.appendChild(detailsDate);
+				detailsCell.appendChild(detailsButtons);
+
+				detailsName.style.fontFamily = "Verdana,sans-serif";
+				detailsName.style.fontSize = "large";
+				detailsName.style.textAlign = "center";
+				detailsName.style.display = "block";
+				detailsName.innerHTML = sceneList[i];
+				detailsName.ondblclick = function()
+											{
+												detailsName.style.display = "none";
+												detailsNameEdit.style.display = "block";
+												detailsNameEdit.focus();
+											}
+
+				detailsNameEdit.type = "text";
+				detailsNameEdit.style.display = "none";
+				detailsNameEdit.style.fontFamily = "Verdana,sans-serif";
+				detailsNameEdit.style.fontSize = "large";
+				detailsNameEdit.style.textAlign = "center";
+				detailsNameEdit.value = sceneList[i];
+
+				detailsNameEdit.addEventListener('blur', function ()
+															{
+																detailsName.style.display = "block";
+																detailsNameEdit.style.display = "none";
+																fileManagerDock.focus();
+															});
+
+				detailsNameEdit.addEventListener('keypress', function (evt)
+															{
+																if (evt.keyCode == 13)
+																{
+																	detailsName.style.display = "block";
+																	detailsNameEdit.style.display = "none";
+
+																	var oldName = this;
+																	var newName = detailsNameEdit.value;
+
+																	detailsName.innerHTML = newName;
+
+																	localStorage.setItem("savedScene:" + newName, newName);
+																	localStorage.setItem("sceneCode:" + newName, localStorage.getItem("sceneCode:" + oldName));
+																	localStorage.setItem("sceneDate:" + newName, localStorage.getItem("sceneDate:" + oldName));
+																	localStorage.setItem("sceneThumbnail:" + newName, localStorage.getItem("sceneThumbnail:" + oldName));
+
+																	localStorage.removeItem("savedScene:" + oldName);
+																	localStorage.removeItem("sceneCode:" + oldName);
+																	localStorage.removeItem("sceneDate:" + oldName);
+																	localStorage.removeItem("sceneThumbnail:" + oldName);
+																}
+															}.bind(sceneList[i]) );
+
+				var dateStr = localStorage.getItem( "sceneDate:" + sceneList[i] );
+				var sceneDate = new Date(dateStr);
+				detailsDate.innerHTML = sceneDate.toLocaleString();
+				detailsDate.style.textAlign = "center";
+
+				var deleteIcon = document.createElement("div");
+				detailsButtons.appendChild(deleteIcon);
+
+				deleteIcon.innerHTML = "Delete";
+				deleteIcon.style.width = 50;
+				deleteIcon.style.height = 15;
+				deleteIcon.style.border = "1px solid black";
+				deleteIcon.style.backgroundColor = "#FF0000";
+				deleteIcon.onmouseup = function ()
+					{
+						if (confirm("Are you sure you want to delete '" + sceneName + "'") == true)
+						{
+							var sceneName = this;
+							localStorage.removeItem("savedScene:" + sceneName);
+							localStorage.removeItem("sceneCode:" + sceneName);
+							localStorage.removeItem("sceneDate:" + sceneName);
+							localStorage.removeItem("sceneThumbnail:" + sceneName);
+						}
+
+						fileManagerDock.style.display = "none";
+						showingModal = false;
+
+					}.bind(sceneList[i]);
+
+				imageCell.style.width = 256;
+				imageCell.style.border = "1px solid black";
+				imageCell.ondblclick = function()
+					{
+						var sceneName = this;
+						
+						var sceneCode = localStorage.getItem("sceneCode:" + sceneName);
+						loadFromJavascript(sceneCode);
+
+						fileManagerDock.style.display = "none";
+						showingModal = false;
+
+					}.bind(sceneList[i]);
+
+				var thumbnail = document.createElement("img");
+
+				thumbnail.src = localStorage.getItem( "sceneThumbnail:" + sceneList[i] );
+
+				imageCell.appendChild(thumbnail);
+			}
 		}
 	}
 
