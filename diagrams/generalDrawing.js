@@ -1439,12 +1439,48 @@ function GeneralDrawingTest(docTag)
 
 	function saveAsImage()
 	{
-		mouseCursor.hide = true;
-		draw();
-		var img = canvas.toDataURL("image/png");
-		mouseCursor.hide = false;
+		//mouseCursor.hide = true;
+		//draw();
+		//var img = canvas.toDataURL("image/png");
+		//mouseCursor.hide = false;
+		//var popup = window.open();
+		//popup.document.write('<img src="' + img + '"/>');
+
+		//var popup = window.open("", "", "width=512, height=512, resizable=0, menubar=0, scrollbars=0, status=0, titlebar=0, toolbar=0, location=0", false);
 		var popup = window.open();
-		popup.document.write('<img src="' + img + '"/>');
+
+		popup.blur();
+		window.focus();
+
+		popup.document.write('<body><div id=\"drawingImage\"/></body>');
+
+		var popupRoot = popup.document.getElementById("drawingImage");
+
+		var popoutCanvas = popup.document.createElement('canvas');
+		popoutCanvas.width = popup.innerWidth;
+		popoutCanvas.height = popup.innerHeight;
+		popoutCanvas.style.position = "fixed";
+		popoutCanvas.style.left = "0";
+		popoutCanvas.style.top = "0";
+		popupRoot.appendChild(popoutCanvas);
+		
+		var popoutGrid = new Grid()
+		popoutGrid.spacing = grid.spacing;
+
+		var popoutCamera = new Camera(popoutCanvas);
+		popoutCamera.setViewPosition(0, 0);
+
+		// draw
+		{
+			popoutCamera.clear();
+
+			if (showGrid)
+			{
+				popoutGrid.draw(popoutCamera);
+			}
+
+			scene.draw(popoutCamera);
+		}
 	}
 
 	function saveAsJavascript()
@@ -1676,6 +1712,9 @@ function GeneralDrawingTest(docTag)
 		for (var i = previousObjectCount; i < scene.objects.length; ++i)
 		{
 			scene.objects[i].setOrigin(add(scene.objects[i].getOrigin(), delta));
+
+			scene.objects[i].toggleFrozen(false);
+
 			newSelectionList.push(scene.objects[i]);
 		}
 
@@ -1734,7 +1773,7 @@ function GeneralDrawingTest(docTag)
 		backup();
 	}
 
-	function moveUpSelection()
+	function moveUpSelection(evt)
 	{
 		if (selectionList.length == 0)
 			return;
@@ -1749,17 +1788,31 @@ function GeneralDrawingTest(docTag)
 
 			if (index>0)
 			{
-				scene.setObjectIndex(obj, index-1);
+				if (evt.ctrlKey)
+				{
+					scene.setObjectIndex(obj, i);
+				}
+				else
+				{
+					scene.setObjectIndex(obj, index-1);
+				}
 			}
 		}
 	}
 
-	function moveDownSelection()
+	function moveDownSelection(evt)
 	{
 		if (selectionList.length == 0)
 			return;
 
-		selectionList.sort(function(a,b) { return scene.getObjectIndex(b)-scene.getObjectIndex(a); });
+		if (evt.ctrlKey)
+		{
+			selectionList.sort(function(a,b) { return scene.getObjectIndex(a)-scene.getObjectIndex(b); });
+		}
+		else
+		{
+			selectionList.sort(function(a,b) { return scene.getObjectIndex(b)-scene.getObjectIndex(a); });
+		}
 
 		for (var i = 0; i != selectionList.length; ++i)
 		{
@@ -1769,7 +1822,14 @@ function GeneralDrawingTest(docTag)
 
 			if (index<scene.objects.length-1)
 			{
-				scene.setObjectIndex(obj, index+1);
+				if (evt.ctrlKey)
+				{
+					scene.setObjectIndex(obj, scene.objects.length-1);
+				}
+				else
+				{
+					scene.setObjectIndex(obj, index+1);
+				}
 			}
 		}
 	}
