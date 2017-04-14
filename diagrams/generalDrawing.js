@@ -1929,8 +1929,9 @@ function GeneralDrawing(docTag)
 							localStorage.removeItem("sceneThumbnail:" + sceneName);
 						}
 
-						//fileManagerDock.style.display = "none";
-						//showingModal = false;
+						fileManagerDock.style.display = "none";
+						showingModal = false;
+						loadFromLocalStorage();
 
 					}.bind(sceneList[i]);
 
