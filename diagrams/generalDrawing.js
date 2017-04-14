@@ -225,13 +225,14 @@ function GeneralDrawingTest(docTag)
 			buttonListdDock.style.left = "5";
 			buttonListdDock.style.top = "5";
 			buttonListdDock.style.width  = 180;
-			buttonListdDock.style.height = 740;
+			buttonListdDock.style.height = 850;
 			root.appendChild(buttonListdDock);
 
 			buttonList = new PropertyGrid(buttonListdDock);
 			buttonList.addProperty(undefined, new Button("Select (Q)", function(){setTool("select");}));
-			buttonList.addProperty(undefined, new Button("Zoom Extents (F4)", function(){zoomExtents();}));
 			buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
+			buttonList.addProperty(undefined, new Button("Zoom Extents (F4)", function(){zoomExtents();}));
+			buttonList.addProperty(undefined, new Divider());
 			buttonList.addProperty(undefined, new Button("Add Wall (W)", function(){setTool("addWall");}));
 			buttonList.addProperty(undefined, new Button("Add Arc Wall", function(){setTool("addArcWall");}));
 			buttonList.addProperty(undefined, new Button("Add BRDF Ray (B)", function () { setTool("addRay"); }));
@@ -240,7 +241,6 @@ function GeneralDrawingTest(docTag)
 			buttonList.addProperty(undefined, new Button("Add Parallel Light", function () { setTool("addParallelLight"); }));
 			buttonList.addProperty(undefined, new Button("Add Camera", function () { setTool("addCamera"); }));
 			buttonList.addProperty(undefined, new Button("Add Hemisphere", function () { setTool("addHemisphere"); }));
-			buttonList.addProperty(undefined, new Divider());
 			buttonList.addProperty(undefined, new Button("Add Line (L)", function () { setTool("addLine"); }));
 			buttonList.addProperty(undefined, new Button("Add Rectangle (R)", function () { setTool("addRect"); }));
 			buttonList.addProperty(undefined, new Button("Add Circle / NGon (C)", function () { setTool("addNGon"); }));
@@ -249,9 +249,9 @@ function GeneralDrawingTest(docTag)
 			buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
 			buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
 			buttonList.addProperty(undefined, new Divider());
-			//buttonList.addProperty(undefined, new Button("Save as Image", function () { saveAsImage(); }));
-			//buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { saveAsJavascript(); }));
-			//buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { loadFromJavascript(); }));
+			buttonList.addProperty(undefined, new Button("Save as Image", function () { saveAsImage(); }));
+			buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { saveAsJavascript(); }));
+			buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { loadFromJavascript(); }));
 			buttonList.addProperty(undefined, new Button("Save to LocalStorage", function () { saveToLocalStorage(); }));
 			buttonList.addProperty(undefined, new Button("Load from LocalStorage", function () { loadFromLocalStorage(); }));
 		}
@@ -348,6 +348,7 @@ function GeneralDrawingTest(docTag)
 	{
 		var canvasProperties =
 		[
+			{name: "Scene Name", control: new TextBox(scene.name, function (value) { scene.name = value; }) },
 			{name: "Show Grid", control: new TickBox(showGrid, function (value) { showGrid = value; draw(); }) },
 			{name: "Grid Type", control: new Dropdown(["cartesian", "isometric", "radial"], "cartesian", function (value) { grid.type = value; draw(); }) },
 			{name: "", control: new Divider() },
@@ -546,7 +547,7 @@ function GeneralDrawingTest(docTag)
 		{
 			groupSelection();
 		}
-		else if (evt.keyCode == 76 && evt.ctrlKey == 1) // Ctrl + L
+		else if (evt.keyCode == 79 && evt.ctrlKey == 1) // Ctrl + O
 		{
 			loadFromLocalStorage();
 		}
@@ -1528,54 +1529,55 @@ function GeneralDrawingTest(docTag)
 
 	function saveAsImage()
 	{
-		//mouseCursor.hide = true;
-		//draw();
-		//var img = canvas.toDataURL("image/png");
-		//mouseCursor.hide = false;
-		//var popup = window.open();
-		//popup.document.write('<img src="' + img + '"/>');
-
-		//var popup = window.open("", "", "width=512, height=512, resizable=0, menubar=0, scrollbars=0, status=0, titlebar=0, toolbar=0, location=0", false);
+		mouseCursor.hide = true;
+		draw();
+		var img = canvas.toDataURL("image/png");
+		mouseCursor.hide = false;
 		var popup = window.open();
+		popup.document.write('<img src="' + img + '"/>');
 
-		popup.blur();
-		window.focus();
+		////var popup = window.open("", "", "width=512, height=512, resizable=0, menubar=0, scrollbars=0, status=0, titlebar=0, toolbar=0, location=0", false);
+		//var popup = window.open();
 
-		popup.document.write('<body><div id=\"drawingImage\"/></body>');
+		//popup.blur();
+		//window.focus();
 
-		var popupRoot = popup.document.getElementById("drawingImage");
+		//popup.document.write('<body><div id=\"drawingImage\"/></body>');
 
-		var popoutCanvas = popup.document.createElement('canvas');
-		popoutCanvas.width = popup.innerWidth;
-		popoutCanvas.height = popup.innerHeight;
-		popoutCanvas.style.position = "fixed";
-		popoutCanvas.style.left = "0";
-		popoutCanvas.style.top = "0";
-		popupRoot.appendChild(popoutCanvas);
+		//var popupRoot = popup.document.getElementById("drawingImage");
+
+		//var popoutCanvas = popup.document.createElement('canvas');
+		//popoutCanvas.width = popup.innerWidth;
+		//popoutCanvas.height = popup.innerHeight;
+		//popoutCanvas.style.position = "fixed";
+		//popoutCanvas.style.left = "0";
+		//popoutCanvas.style.top = "0";
+		//popupRoot.appendChild(popoutCanvas);
 		
-		var popoutGrid = new Grid()
-		popoutGrid.spacing = grid.spacing;
+		//var popoutGrid = new Grid()
+		//popoutGrid.spacing = grid.spacing;
 
-		var popoutCamera = new Camera(popoutCanvas);
-		popoutCamera.setViewPosition(0, 0);
+		//var popoutCamera = new Camera(popoutCanvas);
+		//popoutCamera.setViewPosition(0, 0);
 
-		// draw
-		{
-			popoutCamera.clear();
+		//// draw
+		//{
+		//	popoutCamera.clear();
 
-			if (showGrid)
-			{
-				popoutGrid.draw(popoutCamera);
-			}
+		//	if (showGrid)
+		//	{
+		//		popoutGrid.draw(popoutCamera);
+		//	}
 
-			scene.draw(popoutCamera);
-		}
+		//	scene.draw(popoutCamera);
+		//}
 	}
 
 	function saveAsJavascript()
 	{
 		var str = "";
 
+		str += "scene.name = \"" + scene.name + "\";\n";
 		str += camera.saveAsJavascript();
 		str += "\n\n";
 		str += scene.saveAsJavascript();
@@ -1596,9 +1598,9 @@ function GeneralDrawingTest(docTag)
 		if (str != null)
 		{
 			scene.deleteAllObjects();
-			//scene.addObject(grid);
 			eval(str);
 			draw();
+			setSelection([]);
 		}
 	}
 
@@ -1611,6 +1613,7 @@ function GeneralDrawingTest(docTag)
 
 		var str = "";
 
+		str += "scene.name = \"" + scene.name + "\";\n";
 		str += camera.saveAsJavascript();
 		str += "\n\n";
 		str += scene.saveAsJavascript();
@@ -1767,17 +1770,19 @@ function GeneralDrawingTest(docTag)
 				deleteIcon.style.backgroundColor = "#FF0000";
 				deleteIcon.onmouseup = function ()
 					{
+						var sceneName = this;
+
 						if (confirm("Are you sure you want to delete '" + sceneName + "'") == true)
 						{
-							var sceneName = this;
+							
 							localStorage.removeItem("savedScene:" + sceneName);
 							localStorage.removeItem("sceneCode:" + sceneName);
 							localStorage.removeItem("sceneDate:" + sceneName);
 							localStorage.removeItem("sceneThumbnail:" + sceneName);
 						}
 
-						fileManagerDock.style.display = "none";
-						showingModal = false;
+						//fileManagerDock.style.display = "none";
+						//showingModal = false;
 
 					}.bind(sceneList[i]);
 
