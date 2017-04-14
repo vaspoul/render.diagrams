@@ -110,7 +110,7 @@ function GeneralDrawingTest(docTag)
 			propertyGridDock.style.right = "5";
 			propertyGridDock.style.top = "5";
 			propertyGridDock.style.width  = 400;
-			propertyGridDock.style.height = 200;
+			propertyGridDock.style.height = 250;
 			propertyGridDock.style.fontFamily = "Verdana,sans-serif";
 			propertyGridDock.style.fontSize = "large";
 			propertyGridDock.style.overflow = "auto";
@@ -128,9 +128,9 @@ function GeneralDrawingTest(docTag)
 			objectListDock.style.backgroundColor = "white";
 			objectListDock.style.position = "fixed";
 			objectListDock.style.right = "5";
-			objectListDock.style.top = "215";
+			objectListDock.style.top = "265";
 			objectListDock.style.width  = 400;
-			objectListDock.style.height = 500;
+			objectListDock.style.height = 450;
 
 
 			var objectListDockScrollable = document.createElement('div');
@@ -139,7 +139,7 @@ function GeneralDrawingTest(docTag)
 			objectListDockScrollable.style.backgroundColor = "white";
 			objectListDockScrollable.style.position = "fixed";
 			objectListDockScrollable.style.width  = 400;
-			objectListDockScrollable.style.height = 470;
+			objectListDockScrollable.style.height = 420;
 			objectListDockScrollable.style.fontFamily = "Verdana,sans-serif";
 			objectListDockScrollable.style.fontSize = "large";
 
