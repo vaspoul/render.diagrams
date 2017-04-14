@@ -1160,6 +1160,19 @@ function GeneralDrawingTest(docTag)
 					if (objectBeingMade !== undefined)
 					{
 						objectBeingMade.points[objectBeingMade.points.length - 1] = newPoint;
+
+						{
+							var p0 = objectBeingMade.points[objectBeingMade.points.length - 2].copy();
+							var p1 = objectBeingMade.points[objectBeingMade.points.length - 1].copy();
+
+							var delta = sub(p1, p0);
+
+							var p = p1.copy();
+							p.x += ((p1.x < p0.x) ? +1 : -1) * camera.invScale(10);
+							p.y += camera.invScale(10);
+
+							camera.drawText(p, "dx: " + delta.x.toFixed(1) + " dy: " + delta.y.toFixed(1) + " L: " + delta.length().toFixed(1), "#000000", (p1.x < p0.x) ? "left" : "right", 0, "12px Arial");
+						}
 					}
 				}
 				else if (tool == "addArcWall")
@@ -1181,6 +1194,19 @@ function GeneralDrawingTest(docTag)
 					if (objectBeingMade !== undefined)
 					{
 						objectBeingMade.setDragPointPos(2, newPoint);
+
+						{
+							var p0 = objectBeingMade.points[0].copy();
+							var p1 = objectBeingMade.points[2].copy();
+
+							var delta = sub(p1, p0);
+
+							var p = p1.copy();
+							p.x += ((p1.x < p0.x) ? +1 : -1) * camera.invScale(10);
+							p.y += camera.invScale(10);
+
+							camera.drawText(p, "dx: " + delta.x.toFixed(1) + " dy: " + delta.y.toFixed(1), "#000000", (p1.x < p0.x) ? "left" : "right", 0, "12px Arial");
+						}
 					}
 				}
 				else if (tool == "addNGon")
@@ -1188,6 +1214,14 @@ function GeneralDrawingTest(docTag)
 					if (objectBeingMade !== undefined)
 					{
 						objectBeingMade.setDragPointPos(-1, newPoint);
+
+						{
+							var p = newPoint.copy();
+							p.x += ((newPoint.x < objectBeingMade.center.x) ? +1 : -1) * camera.invScale(10);
+							p.y += camera.invScale(10);
+
+							camera.drawText(p, "R: " + objectBeingMade.radius.toFixed(1), "#000000", (newPoint.x < objectBeingMade.center.x) ? "left" : "right", 0, "12px Arial");
+						}
 					}
 				}
 				else if (tool == "addHemisphere")
@@ -1260,7 +1294,20 @@ function GeneralDrawingTest(docTag)
 			{
 				if (mode == "marquee") // marquee
 				{
-					camera.drawRectangle(dragStartMousePos, lastMousePos, "#000000", 1, [5,5]);
+					camera.drawRectangle(dragStartMousePos, lastMousePos, "#000000", 1, [5, 5]);
+					
+					{
+						var p0 = dragStartMousePos.copy();
+						var p1 = lastMousePos.copy();
+
+						var delta = sub(p1, p0);
+
+						var p = p1.copy();
+						p.x += ((p1.x < p0.x) ? +1 : -1) * camera.invScale(10);
+						p.y += camera.invScale(10);
+
+						camera.drawText(p, "dx: " + delta.x.toFixed(1) + " dy: " + delta.y.toFixed(1), "#000000", (p1.x < p0.x) ? "left" : "right", 0, "12px Arial");
+					}
 				}
 				else if (mode == "selection" || mode == "move" ) // object move
 				{
