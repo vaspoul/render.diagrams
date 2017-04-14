@@ -1311,7 +1311,24 @@ function GeneralDrawing(docTag)
 					else
 						ignoreList = [dragPoint.object];
 
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), ignoreList, enableSnap);
+					var previousMousePos = undefined;
+
+					if (tool == "modify" && !dragPoint.local)
+					{
+						if (dragPoint.object instanceof Wall || dragPoint.object instanceof Line)
+						{
+							if (dragPoint.index>0)
+							{
+								previousMousePos = dragPoint.object.points[dragPoint.index - 1];
+							}
+							else
+							{
+								previousMousePos = dragPoint.object.points[1];
+							}
+						}
+					}
+
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos, previousMousePos), camera.invScale(30), ignoreList, enableSnap);
 
 					if (snapPoint !== null)
 					{
