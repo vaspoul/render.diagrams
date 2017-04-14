@@ -1,4 +1,4 @@
-function GeneralDrawingTest(docTag)
+function GeneralDrawing(docTag)
 {
 	var canvas;
 	var propertyGrid;
@@ -168,7 +168,7 @@ function GeneralDrawingTest(docTag)
 			//buttonArea.style.display = "block";
 			//buttonArea.style.margin = "auto";
 			buttonArea.style.textAlign = "center";
-			buttonArea.style.top = 470;
+			buttonArea.style.top = 420;
 			buttonArea.style.bottom = 0;
 
 			groupButton = document.createElement("button");
@@ -249,7 +249,7 @@ function GeneralDrawingTest(docTag)
 			buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
 			buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
 			buttonList.addProperty(undefined, new Divider());
-			buttonList.addProperty(undefined, new Button("Save as Image", function () { saveAsImage(); }));
+			buttonList.addProperty(undefined, new Button("Save as Image", function () { setTool("takeScreenshot"); }));
 			buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { saveAsJavascript(); }));
 			buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { loadFromJavascript(); }));
 			buttonList.addProperty(undefined, new Button("Save to LocalStorage", function () { saveToLocalStorage(); }));
@@ -383,7 +383,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart")
+			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot")
 			{
 				if (objectBeingMade !== undefined)
 				{
@@ -394,6 +394,18 @@ function GeneralDrawingTest(docTag)
 			}
 
 			newTool = "select";
+		}
+
+		if (newTool == "takeScreenshot")
+		{
+			for (var i = 0; i != scene.objects.length; ++i)
+			{
+				if (scene.objects[i] instanceof ScreenshotArea)
+				{
+					newTool = "select";
+					break;
+				}
+			}
 		}
 
 		objectBeingMade = undefined;
@@ -461,7 +473,7 @@ function GeneralDrawingTest(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addRect" || newTool == "addHemisphere" || newTool == "addNGon" || newTool == "addDimension" || newTool == "addBarChart")
+		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addRect" || newTool == "addHemisphere" || newTool == "addNGon" || newTool == "addDimension" || newTool == "addBarChart" || newTool == "takeScreenshot")
 		{
 			if (tool != newTool)
 			{
@@ -511,6 +523,10 @@ function GeneralDrawingTest(docTag)
 			if (mode=="move" || mode=="selection" || mode=="marquee")
 			{
 				mode = null;
+			}
+			else if (selectionList[0] instanceof ScreenshotArea)
+			{
+				cancelScreenshot();
 			}
 			else
 			{
@@ -834,7 +850,7 @@ function GeneralDrawingTest(docTag)
 				backup();
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot")
 			{
 				if (evt.altKey == 0)
 				{
@@ -1009,6 +1025,20 @@ function GeneralDrawingTest(docTag)
 						setSelection([scene.objects[scene.objects.length-1]]);
 					}
 				}
+				else if (tool == "takeScreenshot")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new ScreenshotArea(newPoint.copy(), saveAsImage, cancelScreenshot );
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(2, newPoint);
+						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
+					}
+				}
 				else if (tool == "addNGon")
 				{
 					if (objectBeingMade === undefined)
@@ -1110,7 +1140,7 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot")
 			{
 				var newPoint = lastMousePos;
 				var snapPoint = null;
@@ -1190,6 +1220,26 @@ function GeneralDrawingTest(docTag)
 					}
 				}
 				else if (tool == "addRect")
+				{
+					if (objectBeingMade !== undefined)
+					{
+						objectBeingMade.setDragPointPos(2, newPoint);
+
+						{
+							var p0 = objectBeingMade.points[0].copy();
+							var p1 = objectBeingMade.points[2].copy();
+
+							var delta = sub(p1, p0);
+
+							var p = p1.copy();
+							p.x += ((p1.x < p0.x) ? +1 : -1) * camera.invScale(10);
+							p.y += camera.invScale(10);
+
+							camera.drawText(p, "dx: " + delta.x.toFixed(1) + " dy: " + delta.y.toFixed(1), "#000000", (p1.x < p0.x) ? "left" : "right", 0, "12px Arial");
+						}
+					}
+				}
+				else if (tool == "takeScreenshot")
 				{
 					if (objectBeingMade !== undefined)
 					{
@@ -1297,7 +1347,7 @@ function GeneralDrawingTest(docTag)
 					camera.drawRectangle(dragStartMousePos, lastMousePos, "#000000", 1, [5, 5]);
 					
 					{
-						var p0 = dragStartMousePos.copy();
+						var p0 = dragStartMousePos;
 						var p1 = lastMousePos.copy();
 
 						var delta = sub(p1, p0);
@@ -1576,48 +1626,82 @@ function GeneralDrawingTest(docTag)
 
 	function saveAsImage()
 	{
-		mouseCursor.hide = true;
-		draw();
-		var img = canvas.toDataURL("image/png");
-		mouseCursor.hide = false;
+		var screenshotObj = undefined;
+
+		for (var i = 0; i != scene.objects.length; ++i)
+		{
+			if (scene.objects[i] instanceof ScreenshotArea)
+			{
+				screenshotObj = scene.objects[i];
+				break;
+			}
+		}
+
+		if (screenshotObj == undefined)
+		{
+			cancelScreenshot();
+			return;
+		}
+
+		cancelScreenshot();
+
+		var imgWidthUnits = Math.abs(screenshotObj.points[2].x - screenshotObj.points[0].x);
+		var imgHeightUnits = Math.abs(screenshotObj.points[2].y - screenshotObj.points[0].y);
+
+		var unitToCm = screenshotObj.CMperUnit;
+		var cmToInches = 1.0 / 2.54;
+		var DPI = screenshotObj.DPI;
+
+		var imgWidthPixels = imgWidthUnits * unitToCm * cmToInches * DPI+1;
+		var imgHeightPixels = imgHeightUnits * unitToCm * cmToInches * DPI+1;
+
+		var cameraPos = avg(screenshotObj.points[0], screenshotObj.points[2]);
+
+		var popoutCanvas1 = document.createElement('canvas');
+		popoutCanvas1.width = imgWidthPixels;
+		popoutCanvas1.height = imgHeightPixels;
+		
+		var popoutGrid = new Grid()
+		popoutGrid.spacing = grid.spacing;
+
+		var popoutCamera = new Camera(popoutCanvas1);
+		popoutCamera.setViewPosition(cameraPos.x, cameraPos.y);
+		popoutCamera.setUnitScale(unitToCm * cmToInches * DPI);
+
+		// draw
+		{
+			popoutCamera.clear();
+
+			if (showGrid)
+			{
+				popoutGrid.draw(popoutCamera);
+			}
+
+			scene.draw(popoutCamera);
+		}
+
+		var popoutCanvas = popoutCanvas1;
+
+		if (screenshotObj.copiesRows > 1 || screenshotObj.copiesColumns > 1)
+		{
+			popoutCanvas = document.createElement('canvas');
+			popoutCanvas.width = imgWidthPixels * screenshotObj.copiesColumns;
+			popoutCanvas.height = imgHeightPixels * screenshotObj.copiesRows;
+
+			var popoutCanvasContext = popoutCanvas.getContext('2d');
+
+			for (var i = 0; i < screenshotObj.copiesRows; ++i)
+			{
+				for (var j = 0; j < screenshotObj.copiesColumns; ++j)
+				{
+					popoutCanvasContext.drawImage(popoutCanvas1, j * imgWidthPixels, i * imgHeightPixels);
+				}
+			}
+		}
+
+		var img = popoutCanvas.toDataURL("image/png");
 		var popup = window.open();
 		popup.document.write('<img src="' + img + '"/>');
-
-		////var popup = window.open("", "", "width=512, height=512, resizable=0, menubar=0, scrollbars=0, status=0, titlebar=0, toolbar=0, location=0", false);
-		//var popup = window.open();
-
-		//popup.blur();
-		//window.focus();
-
-		//popup.document.write('<body><div id=\"drawingImage\"/></body>');
-
-		//var popupRoot = popup.document.getElementById("drawingImage");
-
-		//var popoutCanvas = popup.document.createElement('canvas');
-		//popoutCanvas.width = popup.innerWidth;
-		//popoutCanvas.height = popup.innerHeight;
-		//popoutCanvas.style.position = "fixed";
-		//popoutCanvas.style.left = "0";
-		//popoutCanvas.style.top = "0";
-		//popupRoot.appendChild(popoutCanvas);
-		
-		//var popoutGrid = new Grid()
-		//popoutGrid.spacing = grid.spacing;
-
-		//var popoutCamera = new Camera(popoutCanvas);
-		//popoutCamera.setViewPosition(0, 0);
-
-		//// draw
-		//{
-		//	popoutCamera.clear();
-
-		//	if (showGrid)
-		//	{
-		//		popoutGrid.draw(popoutCamera);
-		//	}
-
-		//	scene.draw(popoutCamera);
-		//}
 	}
 
 	function saveAsJavascript()
@@ -2173,6 +2257,20 @@ function GeneralDrawingTest(docTag)
 				{
 					scene.setObjectIndex(obj, index+1);
 				}
+			}
+		}
+	}
+
+	function cancelScreenshot()
+	{
+		setSelection([]);
+
+		for (var i = 0; i != scene.objects.length; ++i)
+		{
+			if (scene.objects[i] instanceof ScreenshotArea)
+			{
+				scene.deleteObjects([scene.objects[i]]);
+				break;
 			}
 		}
 	}
