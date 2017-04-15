@@ -1630,8 +1630,8 @@ function GeneralDrawing(docTag)
 		// Selection bounding box
 		if (selectionList.length>0)
 		{
-			var boundsMin = new Vector(100000,100000);
-			var boundsMax = new Vector(-100000,-100000);
+			var boundsMin = new Vector(Number.MAX_VALUE,Number.MAX_VALUE);
+			var boundsMax = new Vector(-Number.MAX_VALUE,-Number.MAX_VALUE);
 
 			for (var i=0; i<selectionList.length; ++i)
 			{
