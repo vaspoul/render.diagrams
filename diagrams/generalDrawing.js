@@ -2091,9 +2091,8 @@ function GeneralDrawing(docTag)
 
 			}.bind(scene.objects[i]);
 
-
-			visibilityCell.onmouseup = function() { this.toggleVisibility(); }.bind(scene.objects[i]);
-			frozenCell.onmouseup = function() { this.toggleFrozen(); }.bind(scene.objects[i]);
+			visibilityCell.onmouseup = function() { setSelectionVisible(!this.isVisible()); }.bind(scene.objects[i]);
+			frozenCell.onmouseup = function() { setSelectionFrozen(!this.isFrozen()) }.bind(scene.objects[i]);
 
 			var str = scene.objects[i].constructor.name;
 
@@ -2299,6 +2298,24 @@ function GeneralDrawing(docTag)
 					scene.setObjectIndex(obj, index+1);
 				}
 			}
+		}
+	}
+
+	function setSelectionVisible(vis)
+	{
+		for (var i = 0; i != selectionList.length; ++i)
+		{
+			var obj = selectionList[i];
+			obj.toggleVisibility(vis);
+		}
+	}
+
+	function setSelectionFrozen(freeze)
+	{
+		for (var i = 0; i != selectionList.length; ++i)
+		{
+			var obj = selectionList[i];
+			obj.toggleFrozen(freeze);
 		}
 	}
 
