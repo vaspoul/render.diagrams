@@ -1206,11 +1206,18 @@ function GeneralDrawing(docTag)
 
 							var delta = sub(p1, p0);
 
-							var p = p1.copy();
-							p.x += ((p1.x < p0.x) ? +1 : -1) * camera.invScale(10);
-							p.y += camera.invScale(10);
+							var lx = delta.unit();
+							var ly = transpose(lx).neg();
 
-							camera.drawText(p, "dx: " + delta.x.toFixed(1) + " dy: " + delta.y.toFixed(1) + " L: " + delta.length().toFixed(1), "#000000", (p1.x < p0.x) ? "left" : "right", 0, "12px Arial");
+							var p = mad(lx, ((p1.x < p0.x) ? +1 : -1) * camera.invScale(10), newPoint);
+							p = mad(ly, ((p1.x < p0.x) ? -1 : +1) * camera.invScale(10), p);
+
+							var angle = toAngle(delta);
+
+							if (p1.x < p0.x)
+								angle += Math.PI;
+
+							camera.drawText(p, "dx: " + delta.x.toFixed(1) + " dy: " + delta.y.toFixed(1) + " L: " + delta.length().toFixed(1), "#000000", (p1.x < p0.x) ? "left" : "right", angle, "12px Arial");
 						}
 					}
 				}
@@ -1428,6 +1435,9 @@ function GeneralDrawing(docTag)
 							var delta = sub(p1, p0);
 							var lx = delta.unit();
 							var ly = transpose(lx).neg();
+
+							var p = mad(lx, ((p1.x < p0.x) ? +1 : -1) * camera.invScale(10), lastMousePos);
+							p = mad(ly, ((p1.x < p0.x) ? -1 : +1) * camera.invScale(10), p);
 
 							var angle = toAngle(delta);
 
