@@ -1417,6 +1417,49 @@ function GeneralDrawing(docTag)
 				if (mode === "move")
 				{
 					dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos, evt.ctrlKey);
+
+					if (dragPoint.object instanceof Wall || dragPoint.object instanceof Line)
+					{
+						if (!dragPoint.local && dragPoint.index>0)
+						{
+							var p0 = dragPoint.object.points[dragPoint.index-1].copy();
+							var p1 = dragPoint.object.points[dragPoint.index].copy();
+
+							var delta = sub(p1, p0);
+							var lx = delta.unit();
+							var ly = transpose(lx).neg();
+
+							var angle = toAngle(delta);
+
+							if (p1.x < p0.x)
+								angle += Math.PI;
+
+							camera.drawText(p, "dx: " + delta.x.toFixed(1) + " dy: " + delta.y.toFixed(1) + " L: " + delta.length().toFixed(1), "#000000", (p1.x < p0.x) ? "left" : "right", angle, "12px Arial");
+						}
+					}
+					else if (dragPoint.object instanceof Rectangle)
+					{
+						var p0 = dragPoint.object.points[0].copy();
+						var p1 = dragPoint.object.points[2].copy();
+
+						var delta = sub(p1, p0);
+						var lx = delta.unit();
+						var ly = transpose(lx).neg();
+
+						var p = lastMousePos.copy();
+						p.x += ((p1.x < p0.x) ? +1 : -1) * camera.invScale(10);
+						p.y += camera.invScale(10);
+
+						camera.drawText(p, "dx: " + delta.x.toFixed(1) + " dy: " + delta.y.toFixed(1), "#000000", (p1.x < p0.x) ? "left" : "right", 0, "12px Arial");
+					}
+					else if (dragPoint.object instanceof NGon && dragPoint.index>0)
+					{
+						var p = lastMousePos.copy();
+						p.x += ((lastMousePos.x < dragPoint.object.center.x) ? +1 : -1) * camera.invScale(10);
+						p.y += camera.invScale(10);
+
+						camera.drawText(p, "R: " + dragPoint.object.radius.toFixed(1), "#000000", (lastMousePos.x < dragPoint.object.center.x) ? "left" : "right", 0, "12px Arial");
+					}
 				}
 			}
 		}
