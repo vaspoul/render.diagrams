@@ -343,6 +343,8 @@ function GeneralDrawing(docTag)
 		backup();
 
 		setTool("select");
+
+		setInterval(function(){ saveToLocalStorage("autosave"); }, 5000);
 	}
 	
 	function getCanvasProperties()
@@ -1846,7 +1848,7 @@ function GeneralDrawing(docTag)
 		}
 	}
 
-	function saveToLocalStorage()
+	function saveToLocalStorage(nameOverride)
 	{
 		if (typeof (Storage) === "undefined")
 			return;
@@ -1855,7 +1857,9 @@ function GeneralDrawing(docTag)
 
 		var str = "";
 
-		str += "scene.name = \"" + scene.name + "\";\n";
+		var sceneName = (nameOverride == undefined) ? scene.name : nameOverride;
+
+		str += "scene.name = \"" + sceneName + "\";\n";
 		str += camera.saveAsJavascript();
 		str += "\n\n";
 		str += scene.saveAsJavascript();
@@ -1898,10 +1902,10 @@ function GeneralDrawing(docTag)
 			thumbnailData = popoutCanvas.toDataURL("image/png");
 		}
 
-		localStorage.setItem("savedScene:" + scene.name, scene.name);
-		localStorage.setItem("sceneCode:" + scene.name, str);
-		localStorage.setItem("sceneDate:" + scene.name, (new Date()).toString());
-		localStorage.setItem("sceneThumbnail:" + scene.name, thumbnailData);
+		localStorage.setItem("savedScene:" + sceneName, sceneName);
+		localStorage.setItem("sceneCode:" + sceneName, str);
+		localStorage.setItem("sceneDate:" + sceneName, (new Date()).toString());
+		localStorage.setItem("sceneThumbnail:" + sceneName, thumbnailData);
 	}
 
 	function loadFromLocalStorage()
