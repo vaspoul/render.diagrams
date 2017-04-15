@@ -538,6 +538,15 @@ function GeneralDrawing(docTag)
 			setTool("cancel");
 			draw();
 		}
+		else if (evt.keyCode==13) // Enter
+		{
+			if (selectionList[0] instanceof ScreenshotArea)
+			{
+				saveAsImage();
+				setTool("cancel");
+				draw();
+			}
+		}
 		else if (evt.ctrlKey && evt.keyCode==65) // Ctrl+A
 		{
 			evt.preventDefault();
