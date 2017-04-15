@@ -321,7 +321,8 @@ function GeneralDrawing(docTag)
 		enableSnap["intersection"] = true;
 		enableSnap["coincident"] = false;
 		enableSnap["perpendicular"] = false;
-
+		enableSnap["extendTo"] = false;
+		
 		scene = new Scene();
 		camera = new Camera(canvas);
 		
@@ -357,7 +358,8 @@ function GeneralDrawing(docTag)
 			{name: "Snap: Intersection", control: new TickBox(enableSnap["intersection"], function (value) { enableSnap["intersection"] = value; }) },
 			{name: "Snap: Midpoint", control: new TickBox(enableSnap["midpoint"], function (value) { enableSnap["midpoint"] = value; }) },
 			{name: "Snap: Coincident (O)", control: new TickBox(enableSnap["coincident"], function (value) { enableSnap["coincident"] = value; }) },
-			{name: "Snap: Perpendicular (P)", control: new TickBox(enableSnap["perpendicular"], function (value) { enableSnap["perpendicular"] = value; }) }
+			{name: "Snap: Perpendicular (P)", control: new TickBox(enableSnap["perpendicular"], function (value) { enableSnap["perpendicular"] = value; }) },
+			{name: "Snap: Extend To (E)", control: new TickBox(enableSnap["extendTo"], function (value) { enableSnap["extendTo"] = value; }) }
 		];
 
 		return canvasProperties;
@@ -595,6 +597,11 @@ function GeneralDrawing(docTag)
 		else if (evt.keyCode==80) // P
 		{
 			enableSnap["perpendicular"] = !enableSnap["perpendicular"];
+			propertyGrid.setProperties(getCanvasProperties());
+		}
+		else if (evt.keyCode==69) // E
+		{
+			enableSnap["extendTo"] = !enableSnap["extendTo"];
 			propertyGrid.setProperties(getCanvasProperties());
 		}
 		else if (evt.keyCode==82) // R
@@ -1342,6 +1349,7 @@ function GeneralDrawing(docTag)
 						ignoreList = [dragPoint.object];
 
 					var previousMousePos = undefined;
+					var mouseDir = undefined;
 
 					if (tool == "modify" && !dragPoint.local)
 					{
@@ -1350,6 +1358,7 @@ function GeneralDrawing(docTag)
 							if (dragPoint.index>0)
 							{
 								previousMousePos = dragPoint.object.points[dragPoint.index - 1];
+								mouseDir = sub(dragStartMousePos, previousMousePos).unit();
 							}
 							else
 							{
@@ -1358,7 +1367,7 @@ function GeneralDrawing(docTag)
 						}
 					}
 
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos, previousMousePos), camera.invScale(30), ignoreList, enableSnap);
+					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos, previousMousePos, mouseDir), camera.invScale(30), ignoreList, enableSnap);
 
 					if (snapPoint !== null)
 					{
