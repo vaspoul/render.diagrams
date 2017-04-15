@@ -44,10 +44,25 @@ function GeneralDrawing(docTag)
 	var undoRedoBackupPos		= 0;
 	var undoRedoUndoPos			= 0;
 	var undoRedoSuspendBackup	= false;
+	var undoRedoLastSavePos		= 0;
 
 	var clipboardText			= "";
 
 	window.addEventListener("resize", onResize);
+
+	window.addEventListener("beforeunload", function (evt)
+	{
+		var dirty = (undoRedoLastSavePos != undoRedoBackupPos);
+
+		if (!dirty)
+			return undefined;
+
+			var confirmationMessage = "You have unsaved changes! Are you sure you want to leave?";
+
+			(evt || window.event).returnValue = confirmationMessage;
+
+			return confirmationMessage;
+		});
 
 	function onResize()
 	{
@@ -344,7 +359,7 @@ function GeneralDrawing(docTag)
 
 		setTool("select");
 
-		setInterval(function(){ saveToLocalStorage("autosave"); }, 5000);
+		setInterval(function () { saveToLocalStorage("autosave"); }, 5000);
 	}
 	
 	function getCanvasProperties()
@@ -1906,6 +1921,11 @@ function GeneralDrawing(docTag)
 		localStorage.setItem("sceneCode:" + sceneName, str);
 		localStorage.setItem("sceneDate:" + sceneName, (new Date()).toString());
 		localStorage.setItem("sceneThumbnail:" + sceneName, thumbnailData);
+
+		if (nameOverride == undefined)
+		{
+			undoRedoLastSavePos	= undoRedoBackupPos;
+		}
 	}
 
 	function loadFromLocalStorage()
