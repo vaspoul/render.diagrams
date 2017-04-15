@@ -264,11 +264,12 @@ function GeneralDrawing(docTag)
 			buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
 			buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
 			buttonList.addProperty(undefined, new Divider());
-			buttonList.addProperty(undefined, new Button("Save as Image", function () { setTool("takeScreenshot"); }));
-			buttonList.addProperty(undefined, new Button("Save as JavaScript", function () { saveAsJavascript(); }));
-			buttonList.addProperty(undefined, new Button("Load from JavaScript", function () { loadFromJavascript(); }));
 			buttonList.addProperty(undefined, new Button("Save to LocalStorage", function () { saveToLocalStorage(); }));
 			buttonList.addProperty(undefined, new Button("Load from LocalStorage", function () { loadFromLocalStorage(); }));
+			buttonList.addProperty(undefined, new Divider());
+			buttonList.addProperty(undefined, new Button("Save as Image", function () { setTool("takeScreenshot"); }));
+			buttonList.addProperty(undefined, new Button("Export as JavaScript", function () { saveAsJavascript(); }));
+			buttonList.addProperty(undefined, new Button("Import from JavaScript", function () { loadFromJavascript(); }));
 		}
 
 		// File manager
