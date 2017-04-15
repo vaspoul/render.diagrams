@@ -1057,14 +1057,23 @@ function GeneralDrawing(docTag)
 				{
 					if (objectBeingMade === undefined)
 					{
-						objectBeingMade = new Dimension(newPoint.copy(), newPoint.copy());
+						objectBeingMade = new Dimension(newPoint.copy(), undefined);
 						scene.addObject(objectBeingMade);
+						objectBeingMade.pointCount = 1;
 					}
 					else
 					{
-						objectBeingMade.setDragPointPos(1, newPoint);
-						setTool("select");
-						setSelection([scene.objects[scene.objects.length-1]]);
+						if (objectBeingMade.pointCount == 1)
+						{
+							objectBeingMade.setDragPointPos(1, newPoint);
+							objectBeingMade.pointCount = 2;
+						}
+						else
+						{
+							objectBeingMade.setDragPointPos(2, newPoint);
+							setTool("select");
+							setSelection([scene.objects[scene.objects.length-1]]);
+						}
 					}
 				}
 				else if (tool == "addBarChart")
@@ -1212,11 +1221,25 @@ function GeneralDrawing(docTag)
 						objectBeingMade.setDragPointPos(0, newPoint);
 					}
 				}
-				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addDimension" || tool == "addBarChart")
+				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addBarChart")
 				{
 					if (objectBeingMade !== undefined)
 					{
 						objectBeingMade.setDragPointPos(1, newPoint);
+					}
+				}
+				else if (tool == "addDimension")
+				{
+					if (objectBeingMade !== undefined)
+					{
+						if (objectBeingMade.pointCount == 1)
+						{
+							objectBeingMade.setDragPointPos(1, newPoint);
+						}
+						else
+						{
+							objectBeingMade.setDragPointPos(2, newPoint);
+						}
 					}
 				}
 				else if (tool == "addRect")
