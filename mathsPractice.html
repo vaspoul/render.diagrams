@@ -1,0 +1,50 @@
+<html>
+<head>
+
+<style>
+
+#ExerciseArea 
+{
+    background-color: white;
+    position: fixed;
+    width: 18cm;
+    height: 26.5cm;
+    border: 1px solid grey;
+    text-align: center;
+}
+
+@media print {
+
+  @page { margin: 0; }
+
+    #propertyGrid {
+        visibility:hidden;
+    }
+
+    #ExerciseArea 
+    {
+        background-color: white;
+        width: 18cm;
+        height: 26.5cm;
+        position: fixed;
+        top: 0;
+        left: 0;
+        margin: 1.6cm;
+        border: none;
+    }
+}
+</style>
+
+<script type="text/javascript" src="lib/maths.js"></script>
+<script type="text/javascript" src="lib/graphics.js"></script>
+<script type="text/javascript" src="lib/camera.js"></script>
+<script type="text/javascript" src="lib/scene.js"></script>
+<script type="text/javascript" src="lib/ui.js"></script>
+<script type="text/javascript" src="diagrams/MathsPractice.js"></script>
+
+</head>
+
+
+<body onLoad="onLoad()"/>
+
+</html>
