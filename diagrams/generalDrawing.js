@@ -360,7 +360,7 @@ function GeneralDrawing(docTag)
 
 		setTool("select");
 
-		setInterval(function () { saveToLocalStorage("autosave"); }, 5000);
+		setInterval(function () { saveToLocalStorage(true); }, 5000);
 	}
 	
 	function getCanvasProperties()
@@ -1136,6 +1136,13 @@ function GeneralDrawing(docTag)
 
 	function onMouseMove(evt)
 	{
+		var newMousePos = getMousePos(evt, canvas);
+
+		if (lastMousePosPixels.x == newMousePos.x && lastMousePosPixels.y == newMousePos.y)
+		{
+			return;
+		}
+
 		if (showingModal)
 		{
 			canvas.style.cursor = "default";
@@ -1864,16 +1871,24 @@ function GeneralDrawing(docTag)
 		}
 	}
 
-	function saveToLocalStorage(nameOverride)
+	function saveToLocalStorage(autoSave)
 	{
 		if (typeof (Storage) === "undefined")
 			return;
 
-		setSelection([]);
+		var sceneName = scene.name;
+
+		if (autoSave !== undefined && autoSave == true)
+		{
+			sceneName = "auto save";
+		}
+		else
+		{
+			//setSelection([]);
+		}
 
 		var str = "";
 
-		var sceneName = (nameOverride == undefined) ? scene.name : nameOverride;
 
 		str += "scene.name = \"" + sceneName + "\";\n";
 		str += camera.saveAsJavascript();
