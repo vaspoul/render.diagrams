@@ -1882,9 +1882,12 @@ function GeneralDrawing(docTag)
 		if (typeof (Storage) === "undefined")
 			return;
 
+		if (autoSave === undefined)
+			autoSave = false;
+
 		var sceneName = scene.name;
 
-		if (autoSave !== undefined && autoSave == true)
+		if (autoSave)
 		{
 			sceneName = "auto save";
 		}
@@ -1944,7 +1947,7 @@ function GeneralDrawing(docTag)
 		localStorage.setItem("sceneDate:" + sceneName, (new Date()).toString());
 		localStorage.setItem("sceneThumbnail:" + sceneName, thumbnailData);
 
-		if (nameOverride == undefined)
+		if (!autoSave)
 		{
 			undoRedoLastSavePos	= undoRedoBackupPos;
 		}
