@@ -1490,7 +1490,7 @@ function GeneralDrawing(docTag)
 							camera.drawText(p, "dx: " + delta.x.toFixed(1) + " dy: " + delta.y.toFixed(1) + " L: " + delta.length().toFixed(1), "#000000", (p1.x < p0.x) ? "left" : "right", angle, "12px Arial");
 						}
 					}
-					else if (dragPoint.object instanceof Rectangle)
+					else if (dragPoint.object instanceof Rectangle || dragPoint.object instanceof ScreenshotArea)
 					{
 						var p0 = dragPoint.object.points[0].copy();
 						var p1 = dragPoint.object.points[2].copy();
@@ -1788,14 +1788,18 @@ function GeneralDrawing(docTag)
 		var cmToInches = 1.0 / 2.54;
 		var DPI = screenshotObj.DPI;
 
-		var imgWidthPixels = imgWidthUnits * unitToCm * cmToInches * DPI+1;
-		var imgHeightPixels = imgHeightUnits * unitToCm * cmToInches * DPI+1;
+		var imgWidthPixels = Math.round(imgWidthUnits * unitToCm * cmToInches * DPI);
+		var imgHeightPixels = Math.round(imgHeightUnits * unitToCm * cmToInches * DPI);
+		var imgWidthCm = imgWidthUnits * unitToCm;
+		var imgHeightCm = imgHeightUnits * unitToCm;
 
 		var cameraPos = avg(screenshotObj.points[0], screenshotObj.points[2]);
 
 		var popoutCanvas1 = document.createElement('canvas');
 		popoutCanvas1.width = imgWidthPixels;
 		popoutCanvas1.height = imgHeightPixels;
+		//popoutCanvas1.style.width = imgWidthCm + "cm";
+		//popoutCanvas1.style.height = imgHeightCm + "cm";
 		
 		var popoutGrid = new Grid()
 		popoutGrid.spacing = grid.spacing;
@@ -1837,7 +1841,8 @@ function GeneralDrawing(docTag)
 
 		var img = popoutCanvas.toDataURL("image/png");
 		var popup = window.open();
-		popup.document.write('<img src="' + img + '"/>');
+		popup.document.write("<style>@media print { @page { margin: 0; } #CaptureArea { margin: 2cm auto auto auto; width: " + imgWidthCm * screenshotObj.copiesColumns + "cm; height: " + imgHeightCm * screenshotObj.copiesRows + "cm}</style>");
+		popup.document.write('<div id = \"CaptureArea\"><img src="' + img + '"/></div>');
 	}
 
 	function saveAsJavascript()
