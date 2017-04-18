@@ -774,6 +774,7 @@ function GeneralDrawing(docTag)
 				{
 					mode = "move";
 					dragStartMousePos = dragPoint.point;
+					setSelection([dragPoint.object]);
 				}
 			}
 		}
