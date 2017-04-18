@@ -3,14 +3,20 @@
 
 <style>
 
+* {
+    font-family: Verdana,sans-serif;
+}
+
 #ExerciseArea 
 {
     background-color: white;
-    position: fixed;
+    float:left;
     width: 18cm;
     height: 26.5cm;
     border: 1px solid grey;
     text-align: center;
+    overflow:hidden;
+    margin-bottom:2cm;
 }
 
 @media print {
@@ -31,6 +37,7 @@
         left: 0;
         margin: 1.6cm;
         border: none;
+        margin-bottom:0;
     }
 }
 </style>
@@ -45,6 +52,8 @@
 </head>
 
 
-<body onLoad="onLoad()"/>
+<body onLoad="onLoad()">
+
+</body>
 
 </html>
