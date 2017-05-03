@@ -2211,8 +2211,29 @@ function GeneralDrawing(docTag)
 
 			}.bind(scene.objects[i]);
 
-			visibilityCell.onmouseup = function() { setSelectionVisible(!this.isVisible()); }.bind(scene.objects[i]);
-			frozenCell.onmouseup = function() { setSelectionFrozen(!this.isFrozen()) }.bind(scene.objects[i]);
+			visibilityCell.onmouseup =	function ()
+										{
+											if (selectionList.indexOf(this) > 0)
+											{
+												setSelectionVisible(!this.isVisible());
+											}
+											else
+											{
+												this.toggleVisibility();
+											}
+										}.bind(scene.objects[i]);
+
+			frozenCell.onmouseup =	function ()
+									{
+										if (selectionList.indexOf(this) > 0)
+										{
+											setSelectionFrozen(!this.isFrozen())
+										}
+										else
+										{
+											this.toggleFrozen();
+										}
+									}.bind(scene.objects[i]);
 
 			var str = scene.objects[i].constructor.name;
 
