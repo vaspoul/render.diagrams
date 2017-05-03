@@ -1842,8 +1842,12 @@ function GeneralDrawing(docTag)
 
 		var img = popoutCanvas.toDataURL("image/png");
 		var popup = window.open();
-		popup.document.write("<style>@media print { @page { margin: 0; } #CaptureArea { margin: 2cm auto auto auto; width: " + imgWidthCm * screenshotObj.copiesColumns + "cm; height: " + imgHeightCm * screenshotObj.copiesRows + "cm}</style>");
-		popup.document.write('<div id = \"CaptureArea\"><img src="' + img + '"/></div>');
+		popup.document.write("<style>@media print { @page { margin: 0; } }</style>");
+		popup.document.write("<div style=\"text-align: center; margin: 2cm auto auto auto\">");
+		popup.document.write("<div style=\"display: inline-block;\">");
+		popup.document.write("<img style=\"width: " + imgWidthCm * screenshotObj.copiesColumns + "cm; height: " + imgHeightCm * screenshotObj.copiesRows + "cm\" src=\"" + img + "\"/>");
+		popup.document.write("</div>");
+		popup.document.write("</div>");
 	}
 
 	function saveAsJavascript()
