@@ -48,6 +48,8 @@ function GeneralDrawing(docTag)
 
 	var clipboardText			= "";
 
+	var previousCoincidentEnabled;
+
 	window.addEventListener("resize", onResize);
 
 	window.addEventListener("beforeunload", function (evt)
@@ -244,7 +246,7 @@ function GeneralDrawing(docTag)
 			root.appendChild(buttonListdDock);
 
 			buttonList = new PropertyGrid(buttonListdDock);
-			buttonList.addProperty(undefined, new Button("Select (Q)", function(){setTool("select");}));
+			buttonList.addProperty(undefined, new Button("Select/Move (Q)", function(){setTool("select");}));
 			buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
 			buttonList.addProperty(undefined, new Button("Zoom Extents (F4)", function(){zoomExtents();}));
 			buttonList.addProperty(undefined, new Divider());
@@ -254,11 +256,11 @@ function GeneralDrawing(docTag)
 			buttonList.addProperty(undefined, new Button("Add Point Light", function () { setTool("addPointLight"); }));
 			buttonList.addProperty(undefined, new Button("Add Spot Light", function () { setTool("addSpotLight"); }));
 			buttonList.addProperty(undefined, new Button("Add Parallel Light", function () { setTool("addParallelLight"); }));
-			buttonList.addProperty(undefined, new Button("Add Camera", function () { setTool("addCamera"); }));
+			buttonList.addProperty(undefined, new Button("Add Camera (C)", function () { setTool("addCamera"); }));
 			buttonList.addProperty(undefined, new Button("Add Hemisphere", function () { setTool("addHemisphere"); }));
 			buttonList.addProperty(undefined, new Button("Add Line (L)", function () { setTool("addLine"); }));
 			buttonList.addProperty(undefined, new Button("Add Rectangle (R)", function () { setTool("addRect"); }));
-			buttonList.addProperty(undefined, new Button("Add Circle / NGon (C)", function () { setTool("addNGon"); }));
+			buttonList.addProperty(undefined, new Button("Add Circle / NGon (N)", function () { setTool("addNGon"); }));
 			buttonList.addProperty(undefined, new Button("Add Bar Chart", function () { setTool("addBarChart"); }));
 			buttonList.addProperty(undefined, new Button("Add Dimension (D)", function () { setTool("addDimension"); }));
 			buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
@@ -411,6 +413,11 @@ function GeneralDrawing(docTag)
 					delete objectBeingMade;
 					setSelection([]);
 				}
+
+				if (tool == "addHemisphere")
+				{
+					enableSnap["coincident"] = previousCoincidentEnabled;
+				}
 			}
 
 			newTool = "select";
@@ -507,6 +514,8 @@ function GeneralDrawing(docTag)
 
 			if (newTool == "addHemisphere")
 			{
+				previousCoincidentEnabled = enableSnap["coincident"];
+				enableSnap["coincident"] = true;
 				undoRedoSuspendBackup = true;
 				objectBeingMade = new Hemisphere(new Vector(1000, 1000), 5, new Vector(0,1));
 				scene.addObject(objectBeingMade);
@@ -637,6 +646,10 @@ function GeneralDrawing(docTag)
 		}
 		else if (evt.keyCode==67) // C
 		{
+			setTool("addCamera");
+		}
+		else if (evt.keyCode==78) // N
+		{
 			setTool("addNGon");
 		}
 		else if (evt.keyCode==87) // W
@@ -721,6 +734,16 @@ function GeneralDrawing(docTag)
 			if (tool == "select")
 			{
 				var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
+
+				if (s.length == 0)
+				{
+					var snapPoint = scene.getSnapPoint(lastMousePos, [], camera.invScale(30), [objectBeingMade], enableSnap);
+
+					if (snapPoint !== null && snapPoint.object != undefined)
+					{
+						s.push(snapPoint.object);
+					}
+				}
 
 				if (s.length == 0)
 				{
@@ -811,6 +834,16 @@ function GeneralDrawing(docTag)
 					if ((sub(dragStartMousePos, lastMousePos)).length() < threshold)
 					{
 						s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
+
+						if (s.length == 0)
+						{
+							var snapPoint = scene.getSnapPoint(lastMousePos, [], camera.invScale(30), [objectBeingMade], enableSnap);
+
+							if (snapPoint !== null && snapPoint.object != undefined)
+							{
+								s.push(snapPoint.object);
+							}
+						}
 					}
 					else
 					{
@@ -1001,6 +1034,8 @@ function GeneralDrawing(docTag)
 				}
 				else if (tool == "addHemisphere")
 				{
+					enableSnap["coincident"] = previousCoincidentEnabled;
+
 					setTool("select");
 					setSelection([scene.objects[scene.objects.length-1]]);
 				}
