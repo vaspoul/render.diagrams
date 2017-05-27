@@ -798,6 +798,12 @@ function GeneralDrawing(docTag)
 					mode = "move";
 					dragStartMousePos = dragPoint.point;
 					setSelection([dragPoint.object]);
+
+					if (dragPoint.object instanceof Hemisphere && dragPoint.index==0)
+					{
+						previousCoincidentEnabled = enableSnap["coincident"];
+						enableSnap["coincident"] = true;
+					}
 				}
 			}
 		}
@@ -912,6 +918,13 @@ function GeneralDrawing(docTag)
 
 							draw();
 						}
+					}
+				}
+				else
+				{
+					if (dragPoint.point !== null && dragPoint.object instanceof Hemisphere && dragPoint.index==0)
+					{
+						enableSnap["coincident"] = previousCoincidentEnabled;
 					}
 				}
 
@@ -1409,6 +1422,8 @@ function GeneralDrawing(docTag)
 		{
 			if (mode == "move")
 			{
+				var snapPoint = null;
+
 				if (evt.altKey == 0)
 				{
 					var ignoreList;
@@ -1437,7 +1452,7 @@ function GeneralDrawing(docTag)
 						}
 					}
 
-					var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos, previousMousePos, mouseDir), camera.invScale(30), ignoreList, enableSnap);
+					snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos, previousMousePos, mouseDir), camera.invScale(30), ignoreList, enableSnap);
 
 					if (snapPoint !== null)
 					{
@@ -1548,6 +1563,23 @@ function GeneralDrawing(docTag)
 						p.y += camera.invScale(10);
 
 						camera.drawText(p, "R: " + dragPoint.object.radius.toFixed(1), "#000000", (lastMousePos.x < dragPoint.object.center.x) ? "left" : "right", 0, "12px Arial");
+					}
+					else if (dragPoint.object instanceof Hemisphere && dragPoint.index==0)
+					{
+						if (snapPoint !== null)
+						{
+							if (snapPoint.N != undefined)
+							{
+								if (dot(sub(camera.getMousePos(evt), snapPoint.p), snapPoint.N) > 0)
+								{
+									dragPoint.object.normal = snapPoint.N;
+								}
+								else
+								{
+									dragPoint.object.normal = snapPoint.N.neg();
+								}
+							}
+						}
 					}
 				}
 			}
