@@ -920,6 +920,10 @@ function GeneralDrawing(docTag)
 						}
 					}
 				}
+				else if (evt.altKey && dragPoint.point !== null && dragPoint.object instanceof Line)
+				{
+					dragPoint.object.toggleDragPoint(dragPoint.index);
+				}
 				else
 				{
 					if (dragPoint.point !== null && dragPoint.object instanceof Hemisphere && dragPoint.index==0)
