@@ -30,6 +30,7 @@ function GeneralDrawing(docTag)
 	var mode					= "";
 		
 	var selectionList			= [];
+	var transformRect;
 	var moveOffsets				= [];
 	var dragPoint				= null;
 	var objectBeingMade			= undefined;
@@ -247,6 +248,7 @@ function GeneralDrawing(docTag)
 
 			buttonList = new PropertyGrid(buttonListdDock);
 			buttonList.addProperty(undefined, new Button("Select/Move (Q)", function(){setTool("select");}));
+			buttonList.addProperty(undefined, new Button("Transform (T)", function(){setTool("transform");}));
 			buttonList.addProperty(undefined, new Button("Modify (V)", function(){setTool("modify");}));
 			buttonList.addProperty(undefined, new Button("Zoom Extents (F4)", function(){zoomExtents();}));
 			buttonList.addProperty(undefined, new Divider());
@@ -435,6 +437,12 @@ function GeneralDrawing(docTag)
 			}
 		}
 
+		if (tool == "transform" && transformRect != undefined)
+		{
+			scene.deleteObjects([transformRect]);
+			transformRect = undefined;
+		}
+
 		objectBeingMade = undefined;
 
 		if (newTool == "select")
@@ -447,6 +455,19 @@ function GeneralDrawing(docTag)
 			tool = "select";
 			mouseCursor.shape = "cross";
 			statusBar.innerHTML = "SELECT: Click to select and move objects. Ctrl restricts movement to X/Y axis. Snaps are ON by default. Use Alt to move freely.";
+			draw();
+		}
+		else if (newTool == "transform")
+		{
+			if (tool != "transform")
+			{
+				mode = null;
+			}
+
+			tool = "transform";
+			mouseCursor.shape = "angle";
+			statusBar.innerHTML = "TRANSFORM: ......";
+			updateTransformTool();
 			draw();
 		}
 		else if (newTool == "modify")
@@ -613,6 +634,10 @@ function GeneralDrawing(docTag)
 		{
 			setTool("select");
 		}
+		else if (evt.keyCode==84) // t
+		{
+			setTool("transform");
+		}
 		else if (evt.keyCode==86) // v
 		{
 			setTool("modify");
@@ -662,7 +687,7 @@ function GeneralDrawing(docTag)
 		}
 		else if (evt.keyCode==46) // del
 		{
-			if (tool == "select")
+			if (tool == "select" || tool == "transform")
 			{
 				scene.deleteObjects(selectionList);
 				setSelection([]);
@@ -787,6 +812,46 @@ function GeneralDrawing(docTag)
 		    		}
 				}
 			}
+			else if (tool == "transform")
+			{
+				dragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
+
+				mode = null;
+
+				if (dragPoint.point !== null)
+				{
+					mode = "move";
+					dragStartMousePos = dragPoint.point;
+				}
+				else
+				{
+					var s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
+
+					if (s.length == 0)
+					{
+						var snapPoint = scene.getSnapPoint(lastMousePos, [], camera.invScale(30), [objectBeingMade], enableSnap);
+
+						if (snapPoint !== null && snapPoint.object != undefined)
+						{
+							s.push(snapPoint.object);
+						}
+					}
+
+					if (s.length == 0)
+					{
+						mode = "marquee";
+					}
+					else
+					{
+		    			mode = "selection";
+
+		    			if (selectionList.indexOf(s[0])==-1 && evt.ctrlKey==0)
+						{
+							setSelection(s);
+		    			}
+					}
+				}
+			}
 			else if (tool == "modify")
 			{
 				dragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
@@ -830,6 +895,73 @@ function GeneralDrawing(docTag)
 		if (evt.button == 0) // object move or marquee
 		{
 			if (tool == "select")
+			{
+				if (mode == "marquee" || mode == "selection") // marquee
+				{
+					var threshold = 10 / camera.getUnitScale();
+
+					var s = [];
+
+					if ((sub(dragStartMousePos, lastMousePos)).length() < threshold)
+					{
+						s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
+
+						if (s.length == 0)
+						{
+							var snapPoint = scene.getSnapPoint(lastMousePos, [], camera.invScale(30), [objectBeingMade], enableSnap);
+
+							if (snapPoint !== null && snapPoint.object != undefined)
+							{
+								s.push(snapPoint.object);
+							}
+						}
+					}
+					else
+					{
+						var pMin = new Vector(Math.min(dragStartMousePos.x, lastMousePos.x), Math.min(dragStartMousePos.y, lastMousePos.y));
+						var pMax = new Vector(Math.max(dragStartMousePos.x, lastMousePos.x), Math.max(dragStartMousePos.y, lastMousePos.y));
+
+						pMin = sub(pMin, threshold);
+						pMax = add(pMax, threshold);
+
+						s = scene.hitTest(pMin, pMax);
+					}
+				
+					if (evt.ctrlKey)
+					{
+						s = selectionList.concat(s);
+					}
+					else if (evt.shiftKey)
+					{
+						var copy = selectionList.concat([]);
+
+						for (var i = 0; i < copy.length; ++i)
+						{
+							for (var j = 0; j < s.length; ++j)
+							{
+								index = copy.indexOf(s[j]);
+
+								if (index >= 0)
+								{
+									copy.splice(index, 1);
+									break;
+								}
+							}
+						}
+
+						s = copy;
+					}
+
+					setSelection(s);
+				}
+				else if (mode == "move")
+				{
+					backup();
+				}
+
+				mode = null;
+			}
+			else if (tool == "transform")
 			{
 				if (mode == "marquee" || mode == "selection") // marquee
 				{
@@ -1223,6 +1355,25 @@ function GeneralDrawing(docTag)
 					drawSnapPoint(snapPoint);
 				}
 			}
+			else if (tool == "transform")
+			{
+				if (transformRect != undefined)
+				{
+					var newDragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
+
+					if (newDragPoint.point !== null && newDragPoint.object == transformRect)
+					{
+						if (newDragPoint.object.drawDragPoint !== undefined)
+						{
+							newDragPoint.object.drawDragPoint(camera, newDragPoint.index, evt.ctrlKey);
+						}
+						else
+						{
+							camera.drawRectangle(newDragPoint.point, camera.invScale(10), "#ff0000", 2);
+						}
+					}
+				}
+			}
 			else if (tool == "modify")
 			{
 				var newDragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
@@ -1513,6 +1664,30 @@ function GeneralDrawing(docTag)
 					}
 				}
 			}
+			else if (tool == "transform")
+			{
+				if (mode == "marquee") // marquee
+				{
+					camera.drawRectangle(dragStartMousePos, lastMousePos, "#000000", 1, [5, 5]);
+					
+					{
+						var p0 = dragStartMousePos;
+						var p1 = lastMousePos.copy();
+
+						var delta = sub(p1, p0);
+
+						var p = p1.copy();
+						p.x += ((p1.x < p0.x) ? +1 : -1) * camera.invScale(10);
+						p.y += camera.invScale(10);
+
+						camera.drawText(p, "dx: " + delta.x.toFixed(1) + " dy: " + delta.y.toFixed(1), "#000000", (p1.x < p0.x) ? "left" : "right", 0, "12px Arial");
+					}
+				}
+				else if (mode === "move")
+				{
+					dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos, evt.ctrlKey);
+				}
+			}
 			else if (tool == "modify")
 			{
 				if (mode === "move")
@@ -1648,6 +1823,11 @@ function GeneralDrawing(docTag)
 
 	function setSelection(s)
 	{
+		if (s.length == 1 && s[0] instanceof TransformRect)
+		{
+			return;
+		}
+
 		for (var i=0; i<selectionList.length; ++i)
 		{
 			if (selectionList[i].selected !== undefined)
@@ -1711,6 +1891,11 @@ function GeneralDrawing(docTag)
 			propertyGrid.setProperties(getCanvasProperties());
 		}
 
+		if (tool == "transform")
+		{
+			updateTransformTool();
+		}
+
 		updateObjectList();
 		draw();
 	}
@@ -1730,7 +1915,7 @@ function GeneralDrawing(docTag)
 		mouseCursor.draw(camera);
 
 		// Selection bounding box
-		if (selectionList.length>0)
+		if (tool != "transform" && selectionList.length>0)
 		{
 			var boundsMin = new Vector(Number.MAX_VALUE,Number.MAX_VALUE);
 			var boundsMax = new Vector(-Number.MAX_VALUE,-Number.MAX_VALUE);
@@ -1793,9 +1978,8 @@ function GeneralDrawing(docTag)
 			points.push( mad(T, camera.invScale(5), mad(N, camera.invScale(-5), p)) );
 			points.push( mad(T, camera.invScale(-5), mad(N, camera.invScale(-5), p)) );
 			points.push( mad(T, camera.invScale(-5), mad(N, camera.invScale(5), p)) );
-			points.push( points[0] );
 
-			camera.drawLineStrip(points, "#0084e0", 2);
+			camera.drawLineStrip(points, true, "#0084e0", 2);
 			camera.drawRectangle(p, camera.invScale(1), "#0084e0", 1);
 		}
 		else if (snapPoint.type == "extendTo")
@@ -1817,9 +2001,8 @@ function GeneralDrawing(docTag)
 			//points.push( mad(T, camera.invScale(5), mad(N, camera.invScale(-5), p)) );
 			//points.push( mad(T, camera.invScale(-5), mad(N, camera.invScale(-5), p)) );
 			//points.push( mad(T, camera.invScale(-5), mad(N, camera.invScale(5), p)) );
-			//points.push( points[0] );
 
-			//camera.drawLineStrip(points, "#0084e0", 2);
+			//camera.drawLineStrip(points, true, "#0084e0", 2);
 			//camera.drawRectangle(p, camera.invScale(1), "#0084e0", 1);
 		}
 		else
@@ -2222,6 +2405,9 @@ function GeneralDrawing(docTag)
 
 		for (var i=0; i!=scene.objects.length; ++i)
 		{
+			if (scene.objects[i] instanceof TransformRect)
+				continue;
+
 			var row = objectList.insertRow();
 			var nameCell = row.insertCell();
 			var visibilityCell = row.insertCell();
@@ -2312,6 +2498,30 @@ function GeneralDrawing(docTag)
 				str = str.bold();
 
 			nameCell.innerHTML = str;
+		}
+	}
+
+	function updateTransformTool()
+	{
+		if (selectionList.length>0)
+		{
+			if (transformRect == undefined)
+			{
+				transformRect = new TransformRect(selectionList);
+				scene.addObject(transformRect);
+			}
+			else
+			{
+				transformRect.SetObjects(selectionList);
+			}
+		}
+		else
+		{
+			if (transformRect != undefined)
+			{
+				scene.deleteObjects([transformRect]);
+				transformRect = undefined;
+			}
 		}
 	}
 
