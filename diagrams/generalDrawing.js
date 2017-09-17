@@ -112,6 +112,7 @@ function GeneralDrawing(docTag)
 			canvas.addEventListener('mouseup', onMouseUp, false);
 			canvas.addEventListener('keydown', onKeyDown, false);
 			canvas.addEventListener('keyup', onKeyUp, false);
+			canvas.oncontextmenu = onContextMenu;
 			canvas.onwheel = onMouseWheel;
 			canvas.tabIndex = -1;
 			canvas.focus();
@@ -710,6 +711,14 @@ function GeneralDrawing(docTag)
 		lastKeyPress = evt.keyCode;
 	}
 	
+	function onContextMenu(evt)
+	{
+		//if (tool == "transform")
+		//	return false;
+
+		return true;
+	}
+
 	function onKeyUp(evt)
 	{
 		if (evt.keyCode == 16 && tool == "modify") // shift
@@ -814,7 +823,7 @@ function GeneralDrawing(docTag)
 			}
 			else if (tool == "transform")
 			{
-				dragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
+				dragPoint = scene.getDragPoint(lastMousePos, camera, evt.ctrlKey);
 
 				mode = null;
 
@@ -854,7 +863,7 @@ function GeneralDrawing(docTag)
 			}
 			else if (tool == "modify")
 			{
-				dragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
+				dragPoint = scene.getDragPoint(lastMousePos, camera, evt.ctrlKey);
 
 				mode = null;
 
@@ -872,6 +881,17 @@ function GeneralDrawing(docTag)
 				}
 			}
 		}
+		//else if (evt.buttons & 2) 
+		//{
+		//	if (tool == "transform")
+		//	{
+		//		if (transformRect != undefined)
+		//		{
+		//			transformRect.setOrigin(lastMousePos);
+		//		}
+		//	}
+		//}
+
 
 		draw();
 	}
@@ -1032,7 +1052,7 @@ function GeneralDrawing(docTag)
 			{
 				if (evt.shiftKey)
 				{
-					dragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
+					dragPoint = scene.getDragPoint(lastMousePos, camera, evt.ctrlKey);
 
 					if (dragPoint.point !== null)
 					{
@@ -1359,7 +1379,7 @@ function GeneralDrawing(docTag)
 			{
 				if (transformRect != undefined)
 				{
-					var newDragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
+					var newDragPoint = scene.getDragPoint(lastMousePos, camera, evt.ctrlKey);
 
 					if (newDragPoint.point !== null && newDragPoint.object == transformRect)
 					{
@@ -1376,7 +1396,7 @@ function GeneralDrawing(docTag)
 			}
 			else if (tool == "modify")
 			{
-				var newDragPoint = scene.getDragPoint(lastMousePos, camera.invScale(30), evt.ctrlKey);
+				var newDragPoint = scene.getDragPoint(lastMousePos, camera, evt.ctrlKey);
 
 				if (newDragPoint.point !== null)
 				{
@@ -1759,6 +1779,59 @@ function GeneralDrawing(docTag)
 				}
 			}
 		}
+		//else if (evt.buttons & 2) 
+		//{
+		//	var snapPoint = null;
+
+		//	if (evt.altKey == 0)
+		//	{
+		//		var ignoreList;
+
+		//		if (tool == "select")
+		//			ignoreList = selectionList.concat([]);
+		//		else
+		//			ignoreList = [dragPoint.object];
+
+		//		var previousMousePos = undefined;
+		//		var mouseDir = undefined;
+
+		//		if (tool == "modify" && !dragPoint.local)
+		//		{
+		//			if (dragPoint.object instanceof Wall || dragPoint.object instanceof Line)
+		//			{
+		//				if (dragPoint.index>0)
+		//				{
+		//					previousMousePos = dragPoint.object.points[dragPoint.index - 1];
+		//					mouseDir = sub(dragStartMousePos, previousMousePos).unit();
+		//				}
+		//				else
+		//				{
+		//					previousMousePos = dragPoint.object.points[1];
+		//				}
+		//			}
+		//		}
+
+		//		snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos, previousMousePos, mouseDir), camera.invScale(30), ignoreList, enableSnap);
+
+		//		if (snapPoint !== null)
+		//		{
+		//			drawSnapPoint(snapPoint);
+		//			lastMousePos = snapPoint.p.copy();
+		//		}
+		//		else
+		//		{
+		//			lastMousePos = grid.getSnapPoint(lastMousePos);
+		//		}
+		//	}
+
+		//	if (tool == "transform")
+		//	{
+		//		if (transformRect != undefined)
+		//		{
+		//			transformRect.setOrigin(lastMousePos);
+		//		}
+		//	}
+		//}
 		else if (evt.buttons & 4) // camera pan
 		{
 			var delta = div(sub(lastMousePosPixels, dragStartMousePosPixels), new Vector(-camera.getUnitScale(), camera.getUnitScale()));
@@ -2512,7 +2585,7 @@ function GeneralDrawing(docTag)
 			}
 			else
 			{
-				transformRect.SetObjects(selectionList);
+				transformRect.setObjects(selectionList);
 			}
 		}
 		else
