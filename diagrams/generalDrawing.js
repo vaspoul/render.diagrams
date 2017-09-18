@@ -827,7 +827,7 @@ function GeneralDrawing(docTag)
 
 				mode = null;
 
-				if (dragPoint.point !== null)
+				if (dragPoint.point !== null && dragPoint.object == transformRect)
 				{
 					mode = "move";
 					dragStartMousePos = dragPoint.point;
@@ -1601,7 +1601,7 @@ function GeneralDrawing(docTag)
 
 					if (tool == "select")
 						ignoreList = selectionList.concat([]);
-					else
+					else if (tool == "modify")
 						ignoreList = [dragPoint.object];
 
 					var previousMousePos = undefined;
@@ -1686,7 +1686,7 @@ function GeneralDrawing(docTag)
 			}
 			else if (tool == "transform")
 			{
-				if (mode == "marquee") // marquee
+				if (mode == "marquee")
 				{
 					camera.drawRectangle(dragStartMousePos, lastMousePos, "#000000", 1, [5, 5]);
 					
@@ -1705,7 +1705,10 @@ function GeneralDrawing(docTag)
 				}
 				else if (mode === "move")
 				{
-					dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos, evt.ctrlKey);
+					if (dragPoint.object == transformRect)
+					{
+						dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos, evt.ctrlKey);
+					}
 				}
 			}
 			else if (tool == "modify")
