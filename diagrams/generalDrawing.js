@@ -31,6 +31,7 @@ function GeneralDrawing(docTag)
 		
 	var selectionList			= [];
 	var transformRect;
+	var transformRect_DragStartRect;
 	var moveOffsets				= [];
 	var dragPoint				= null;
 	var objectBeingMade			= undefined;
@@ -700,6 +701,9 @@ function GeneralDrawing(docTag)
 			mouseCursor.shape = "cross";
 			draw();
 		}
+		//else if ( (evt.keyCode == 16 || evt.keyCode == 17 || evt.keyCode == 18) && tool == "transform") // shift/ctrl/alt
+		//{
+		//}
 		else
 		{
 			handled = false;
@@ -823,7 +827,10 @@ function GeneralDrawing(docTag)
 			}
 			else if (tool == "transform")
 			{
-				dragPoint = scene.getDragPoint(lastMousePos, camera, evt.ctrlKey);
+				if (transformRect == undefined)
+					dragPoint = scene.getDragPoint(lastMousePos, camera, evt.ctrlKey);
+				else
+					dragPoint = scene.getDragPoint(lastMousePos, camera, evt.ctrlKey, transformRect.objects);
 
 				mode = null;
 
@@ -831,6 +838,7 @@ function GeneralDrawing(docTag)
 				{
 					mode = "move";
 					dragStartMousePos = dragPoint.point;
+					transformRect.startDrag();
 				}
 				else
 				{
@@ -1379,7 +1387,7 @@ function GeneralDrawing(docTag)
 			{
 				if (transformRect != undefined)
 				{
-					var newDragPoint = scene.getDragPoint(lastMousePos, camera, evt.ctrlKey);
+					var newDragPoint = scene.getDragPoint(lastMousePos, camera, evt.ctrlKey, transformRect.objects);
 
 					if (newDragPoint.point !== null && newDragPoint.object == transformRect)
 					{
@@ -1595,7 +1603,7 @@ function GeneralDrawing(docTag)
 			{
 				var snapPoint = null;
 
-				if (evt.altKey == 0)
+				if (evt.altKey == 0 || tool == "transform")
 				{
 					var ignoreList;
 
@@ -1707,7 +1715,7 @@ function GeneralDrawing(docTag)
 				{
 					if (dragPoint.object == transformRect)
 					{
-						dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos, evt.ctrlKey);
+						dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos, evt.ctrlKey, evt.altKey, evt.ctrlKey, evt.shiftKey);
 					}
 				}
 			}
