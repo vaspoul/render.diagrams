@@ -31,7 +31,6 @@ function GeneralDrawing(docTag)
 		
 	var selectionList			= [];
 	var transformRect;
-	var transformRect_DragStartRect;
 	var moveOffsets				= [];
 	var dragPoint				= null;
 	var objectBeingMade			= undefined;
@@ -468,7 +467,7 @@ function GeneralDrawing(docTag)
 
 			tool = "transform";
 			mouseCursor.shape = "angle";
-			statusBar.innerHTML = "TRANSFORM: ......";
+			statusBar.innerHTML = "TRANSFORM: Ctrl: rotates, Shift: Symmetrical, Alt: No aspect ratio lock.";
 			updateTransformTool();
 			draw();
 		}
