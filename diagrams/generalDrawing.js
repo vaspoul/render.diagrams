@@ -146,10 +146,10 @@ function GeneralDrawing(docTag)
 			objectListDock.style.border = "2px solid black";
 			objectListDock.style.backgroundColor = "white";
 			objectListDock.style.position = "fixed";
-			objectListDock.style.right = "5";
-			objectListDock.style.top = "265";
+			objectListDock.style.right = 5;
+			objectListDock.style.top = 265;
 			objectListDock.style.width  = 400;
-			objectListDock.style.height = 450;
+			objectListDock.style.height = 520;
 
 
 			var objectListDockScrollable = document.createElement('div');
@@ -187,7 +187,7 @@ function GeneralDrawing(docTag)
 			//buttonArea.style.display = "block";
 			//buttonArea.style.margin = "auto";
 			buttonArea.style.textAlign = "center";
-			buttonArea.style.top = 420;
+			buttonArea.style.top = 490;
 			buttonArea.style.bottom = 0;
 
 			groupButton = document.createElement("button");
@@ -226,7 +226,7 @@ function GeneralDrawing(docTag)
 			codeBox.style.right = 5;
 			codeBox.style.bottom = 5;
 			codeBox.style.width  = 404;
-			codeBox.style.height = 250;
+			codeBox.style.height = 175;
 			codeBox.style.fontFamily = "Verdana,sans-serif";
 			codeBox.style.fontSize = "small";
 			root.appendChild(codeBox);
@@ -372,7 +372,7 @@ function GeneralDrawing(docTag)
 	{
 		var canvasProperties =
 		[
-			{name: "Scene Name", control: new TextBox(scene.name, function (value) { scene.name = value; }) },
+			{name: "Scene Name", control: new TextBox(scene.name, true, function (value) { scene.name = value; }) },
 			{name: "Show Grid", control: new TickBox(showGrid, function (value) { showGrid = value; draw(); }) },
 			{name: "Grid Type", control: new Dropdown(["cartesian", "isometric", "radial"], "cartesian", function (value) { grid.type = value; draw(); }) },
 			{name: "", control: new Divider() },
