@@ -603,7 +603,7 @@ function GeneralDrawing(docTag)
 
 			for (var i = 0; i != scene.objects.length; ++i)
 			{
-				if (!scene.objects[i].isFrozen())
+				if (!scene.objects[i].isFrozen() && scene.objects[i].isVisible())
 				{
 					s.push(scene.objects[i]);
 				}
@@ -778,7 +778,7 @@ function GeneralDrawing(docTag)
 
 					if (snapPoint !== null && snapPoint.object != undefined)
 					{
-						if (!snapPoint.object.isFrozen == undefined || !snapPoint.object.isFrozen())
+						if (!snapPoint.object.isFrozen() && snapPoint.object.isVisible())
 						{
 							s.push(snapPoint.object);
 						}
@@ -942,7 +942,7 @@ function GeneralDrawing(docTag)
 
 							if (snapPoint !== null && snapPoint.object != undefined)
 							{
-								if (!snapPoint.object.isFrozen == undefined || !snapPoint.object.isFrozen())
+								if (!snapPoint.object.isFrozen() && snapPoint.object.isVisible())
 								{
 									s.push(snapPoint.object);
 								}
