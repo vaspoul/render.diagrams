@@ -942,7 +942,10 @@ function GeneralDrawing(docTag)
 
 							if (snapPoint !== null && snapPoint.object != undefined)
 							{
-								s.push(snapPoint.object);
+								if (!snapPoint.object.isFrozen == undefined || !snapPoint.object.isFrozen())
+								{
+									s.push(snapPoint.object);
+								}
 							}
 						}
 					}
