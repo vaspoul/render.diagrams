@@ -49,6 +49,8 @@ function GeneralDrawing(docTag)
 
 	var clipboardText			= "";
 
+	var layerDirty				= [true, true, true];
+
 	var previousCoincidentEnabled;
 
 	window.addEventListener("resize", onResize);
@@ -88,6 +90,10 @@ function GeneralDrawing(docTag)
 				grid.spacing *= 10;
 			else if (camera.scale(grid.spacing) > 100)
 				grid.spacing /= 10;
+
+			layerDirty[0] = true;
+			layerDirty[1] = true;
+			layerDirty[2] = true;
 
 			draw();
 		}
@@ -754,6 +760,8 @@ function GeneralDrawing(docTag)
 		if (showingModal)
 			return;
 
+		layerDirty[2] = true;
+
 		lastMousePos = camera.getMousePos(evt);
 		lastMousePosPixels = getMousePos(evt, canvas);
 		
@@ -918,6 +926,8 @@ function GeneralDrawing(docTag)
 
 			return;
 		}
+
+		layerDirty[2] = true;
 
 		lastMousePos = camera.getMousePos(evt);
 		lastMousePosPixels = getMousePos(evt, canvas);
@@ -1367,6 +1377,9 @@ function GeneralDrawing(docTag)
 			canvas.style.cursor = "none";
 		}
 
+
+		layerDirty[2] = true;
+
 		canvas.focus();
 		undoRedoSuspendBackup = true;
 
@@ -1425,6 +1438,8 @@ function GeneralDrawing(docTag)
 			}
 			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot")
 			{
+				layerDirty[1] = true;
+
 				var newPoint = lastMousePos;
 				var snapPoint = null;
 
@@ -1692,6 +1707,7 @@ function GeneralDrawing(docTag)
 		    		{
 		    			if (selectionList[i].getOrigin !== undefined)
 		    			{
+							layerDirty[1] = true;
 		    				selectionList[i].setOrigin(add(lastMousePos, moveOffsets[i]));
 		    			}
 					}
@@ -1720,6 +1736,7 @@ function GeneralDrawing(docTag)
 				{
 					if (dragPoint.object == transformRect)
 					{
+						layerDirty[1] = true;
 						dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos, evt.ctrlKey, evt.altKey, evt.ctrlKey, evt.shiftKey);
 					}
 				}
@@ -1728,6 +1745,8 @@ function GeneralDrawing(docTag)
 			{
 				if (mode === "move")
 				{
+					layerDirty[1] = true;
+
 					dragPoint.object.setDragPointPos(dragPoint.index, lastMousePos, evt.ctrlKey);
 
 					if (dragPoint.object instanceof Wall || dragPoint.object instanceof Line)
@@ -1850,6 +1869,9 @@ function GeneralDrawing(docTag)
 		//}
 		else if (evt.buttons & 4) // camera pan
 		{
+			layerDirty[0] = true;
+			layerDirty[1] = true;
+			layerDirty[2] = true;
 			var delta = div(sub(lastMousePosPixels, dragStartMousePosPixels), new Vector(-camera.getUnitScale(), camera.getUnitScale()));
 			var P = add(dragStartCamPos, delta);
 			camera.setViewPosition(P.x, P.y);
@@ -1861,6 +1883,10 @@ function GeneralDrawing(docTag)
 	function onMouseWheel(evt)
 	{
 		lastMousePosPixels = camera.getMousePos(evt);
+
+		layerDirty[0] = true;
+		layerDirty[1] = true;
+		layerDirty[2] = true;
 
 		var zoomCenter = lastMousePosPixels;
 
@@ -1893,6 +1919,10 @@ function GeneralDrawing(docTag)
 
 	function zoomExtents()
 	{
+		layerDirty[0] = true;
+		layerDirty[1] = true;
+		layerDirty[2] = true;
+
 		var center = avg(scene.getBoundsMin(), scene.getBoundsMax());
 		var extents = sub(scene.getBoundsMax(), scene.getBoundsMin());
 
@@ -1912,6 +1942,9 @@ function GeneralDrawing(docTag)
 
 	function setSelection(s)
 	{
+		layerDirty[1] = true;
+		layerDirty[2] = true;
+
 		if (s.length == 1 && s[0] instanceof TransformRect)
 		{
 			return;
@@ -1993,36 +2026,56 @@ function GeneralDrawing(docTag)
 	{
 		var t0 = performance.now();
 
-		camera.clear();
-
-		if (showGrid)
+		if (layerDirty[0] && showGrid)
 		{
+			camera.setLayer(0);
+			camera.clear("rgba(255,255,255,1)");
+
 			grid.draw(camera);
+
+			layerDirty[0] = false;
 		}
 
-		scene.draw(camera);
-		mouseCursor.draw(camera);
-
-		// Selection bounding box
-		if (tool != "transform" && selectionList.length>0)
+		if (layerDirty[1])
 		{
-			var boundsMin = new Vector(Number.MAX_VALUE,Number.MAX_VALUE);
-			var boundsMax = new Vector(-Number.MAX_VALUE,-Number.MAX_VALUE);
+			camera.setLayer(1);
+			camera.clear("rgba(255,255,255,0)");
+			scene.draw(camera);
 
-			for (var i=0; i<selectionList.length; ++i)
-			{
-				if (selectionList[i].getBoundsMin !== undefined)
-				{
-					boundsMin = min(boundsMin, selectionList[i].getBoundsMin());
-					boundsMax = max(boundsMax, selectionList[i].getBoundsMax());
-				}
-			}
-			
-			boundsMin = sub(boundsMin, camera.invScale(5));
-			boundsMax = add(boundsMax, camera.invScale(5));
-
-			camera.drawRectangle(boundsMin, boundsMax, "#0084e0", 1, [5,5]);
+			layerDirty[1] = false;
 		}
+
+		if (layerDirty[2])
+		{
+			camera.setLayer(2);
+			camera.clear("rgba(255,255,0,0)");
+			mouseCursor.draw(camera);
+
+			// Selection bounding box
+			if (tool != "transform" && selectionList.length>0)
+			{
+				var boundsMin = new Vector(Number.MAX_VALUE,Number.MAX_VALUE);
+				var boundsMax = new Vector(-Number.MAX_VALUE,-Number.MAX_VALUE);
+
+				for (var i=0; i<selectionList.length; ++i)
+				{
+					if (selectionList[i].getBoundsMin !== undefined)
+					{
+						boundsMin = min(boundsMin, selectionList[i].getBoundsMin());
+						boundsMax = max(boundsMax, selectionList[i].getBoundsMax());
+					}
+				}
+			
+				boundsMin = sub(boundsMin, camera.invScale(5));
+				boundsMax = add(boundsMax, camera.invScale(5));
+
+				camera.drawRectangle(boundsMin, boundsMax, "#0084e0", 1, [5,5]);
+			}
+
+			layerDirty[2] = false;
+		}
+
+		camera.setLayer(2);
 
 		var t1 = performance.now();
 
@@ -2479,6 +2532,9 @@ function GeneralDrawing(docTag)
 	{
 		if ( (tool != "modify" || mode != "move") && tool != "addHemisphere" && !undoRedoSuspendBackup)
 		{
+			layerDirty[1] = true;
+			layerDirty[2] = true;
+
 			//var s = selectionList.concat([]);
 			//setSelection(s);
 			draw();
