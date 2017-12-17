@@ -250,7 +250,7 @@ function GeneralDrawing(docTag)
 			buttonListdDock.style.left = "5";
 			buttonListdDock.style.top = "5";
 			buttonListdDock.style.width  = 180;
-			buttonListdDock.style.height = 850;
+			buttonListdDock.style.height = 855;
 			root.appendChild(buttonListdDock);
 
 			buttonList = new PropertyGrid(buttonListdDock);
@@ -281,6 +281,7 @@ function GeneralDrawing(docTag)
 			buttonList.addProperty(undefined, new Divider());
 			buttonList.addProperty(undefined, new Button("Save as Image", function () { setTool("takeScreenshot"); }));
 			buttonList.addProperty(undefined, new Button("Export as JavaScript", function () { saveAsJavascript(); }));
+			buttonList.addProperty(undefined, new Button("Export Embeddable", function () { saveAsEmbeddableJavascript(); }));
 			buttonList.addProperty(undefined, new Button("Import from JavaScript", function () { loadFromJavascript(); }));
 		}
 
@@ -2264,6 +2265,42 @@ function GeneralDrawing(docTag)
 		popup.document.write("<img style=\"width: " + imgWidthCm * screenshotObj.copiesColumns + "cm; height: " + imgHeightCm * screenshotObj.copiesRows + "cm\" src=\"" + img + "\"/>");
 		popup.document.write("</div>");
 		popup.document.write("</div>");
+	}
+
+	function saveAsEmbeddableJavascript()
+	{
+		var popup = window.open();
+
+		var center = avg(scene.getBoundsMin(), scene.getBoundsMax());
+		var extents = sub(scene.getBoundsMax(), scene.getBoundsMin());
+
+		var divWidth = 800;
+		var divHeight = 800 * extents.y / extents.x;
+
+		popup.document.write("<body>\n");
+		popup.document.write("\n");
+		popup.document.write("<script type=\"text/javascript\" src=\"lib/maths.js\"></script>\n");
+		popup.document.write("<script type=\"text/javascript\" src=\"lib/graphics.js\"></script>\n");
+		popup.document.write("<script type=\"text/javascript\" src=\"lib/camera.js\"></script>\n");
+		popup.document.write("<script type=\"text/javascript\" src=\"lib/scene.js\"></script>\n");
+		popup.document.write("<script type=\"text/javascript\" src=\"lib/sceneObjects.js\"></script>\n");
+		popup.document.write("<script type=\"text/javascript\" src=\"lib/brdf.js\"></script>\n");
+		popup.document.write("<script type=\"text/javascript\" src=\"lib/ui.js\"></script>\n");
+		popup.document.write("\n");
+		popup.document.write("<script type=\"text/javascript\" src=\"diagrams/embeddedDrawing.js\"></script>\n");
+		popup.document.write("\n");
+		popup.document.write("<div id=\"embeddedDrawing\" style=\"width: " + divWidth + "px; height: " + divHeight + "px; margin:0 auto; border:1px solid black;\"/>\n");
+		popup.document.write("\n");
+		popup.document.write("<script>\n");
+		popup.document.write("var embeddedObj = new EmbeddedDrawing(\"embeddedDrawing\");\n");
+		popup.document.write("\n");
+		popup.document.write("var scene = embeddedObj.getScene();\n");
+		popup.document.write("\n");
+		popup.document.write(scene.saveAsJavascript());
+		popup.document.write("embeddedObj.zoomExtents();\n");
+		popup.document.write("</script>\n");
+		popup.document.write("\n");
+		popup.document.write("</body>\n");
 	}
 
 	function saveAsJavascript()
