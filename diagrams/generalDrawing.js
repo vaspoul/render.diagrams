@@ -272,6 +272,7 @@ function GeneralDrawing(docTag)
 			buttonList.addProperty(undefined, new Button("Add Circle / NGon (N)", function () { setTool("addNGon"); }));
 			buttonList.addProperty(undefined, new Button("Add Bar Chart", function () { setTool("addBarChart"); }));
 			buttonList.addProperty(undefined, new Button("Add Dimension (D)", function () { setTool("addDimension"); }));
+			buttonList.addProperty(undefined, new Button("Add Text (X)", function(){setTool("addText");}));
 			buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
 			buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
 			buttonList.addProperty(undefined, new Divider());
@@ -414,7 +415,7 @@ function GeneralDrawing(docTag)
 					}
 				}
 			}
-			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot")
+			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot" || tool == "addText")
 			{
 				if (objectBeingMade !== undefined)
 				{
@@ -502,6 +503,19 @@ function GeneralDrawing(docTag)
 			setSelection([]);
 			draw();
 		}
+		else if (newTool == "addRay" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addBarChart" || newTool == "addText")
+		{
+			if (tool != newTool)
+			{
+				mode = null;
+			}
+
+			tool = newTool;
+			mouseCursor.shape = "cross";
+			statusBar.innerHTML = newTool + ": Click to set direction. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
+			setSelection([]);
+			draw();
+		}
 		else if (newTool == "addArcWall")
 		{
 			if (tool != "addArcWall")
@@ -515,20 +529,7 @@ function GeneralDrawing(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addRay")
-		{
-			if (tool != "addRay")
-			{
-				mode = null;
-			}
-
-			tool = "addRay";
-			mouseCursor.shape = "cross";
-			statusBar.innerHTML = "Add Ray: Click to add points. ESC to terminate. Snaps are ON by default. Use Alt to move freely.";
-			setSelection([]);
-			draw();
-		}
-		else if (newTool == "addPointLight" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addRect" || newTool == "addHemisphere" || newTool == "addNGon" || newTool == "addDimension" || newTool == "addBarChart" || newTool == "takeScreenshot")
+		else if (newTool == "addPointLight"  || newTool == "addRect" || newTool == "addHemisphere" || newTool == "addNGon" || newTool == "addDimension" || newTool == "takeScreenshot")
 		{
 			if (tool != newTool)
 			{
@@ -687,6 +688,10 @@ function GeneralDrawing(docTag)
 		else if (evt.keyCode==87) // W
 		{
 			setTool("addWall");
+		}
+		else if (evt.keyCode==88) // W
+		{
+			setTool("addText");
 		}
 		else if (evt.keyCode==66) // B
 		{
@@ -1106,7 +1111,7 @@ function GeneralDrawing(docTag)
 				backup();
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot" || tool == "addText")
 			{
 				if (evt.altKey == 0)
 				{
@@ -1204,6 +1209,20 @@ function GeneralDrawing(docTag)
 					if (objectBeingMade === undefined)
 					{
 						objectBeingMade = new BRDFRay(newPoint.copy(), new Vector(0,1));
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(1, newPoint);
+						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
+					}
+				}
+				else if (tool == "addText")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new Text(newPoint.copy(), "Sample Text");
 						scene.addObject(objectBeingMade);
 					}
 					else
@@ -1351,6 +1370,12 @@ function GeneralDrawing(docTag)
 
 				undoRedoSuspendBackup = false;
 
+
+				if (objectBeingMade !== undefined)
+				{
+					setSelection([objectBeingMade]);
+				}
+
 				backup();
 			}
 		}
@@ -1436,7 +1461,7 @@ function GeneralDrawing(docTag)
 					}
 				}
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot" || tool == "addText")
 			{
 				layerDirty[1] = true;
 
@@ -1517,7 +1542,7 @@ function GeneralDrawing(docTag)
 						objectBeingMade.setDragPointPos(0, newPoint);
 					}
 				}
-				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addBarChart")
+				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addBarChart" || tool == "addText")
 				{
 					if (objectBeingMade !== undefined)
 					{
@@ -2081,7 +2106,6 @@ function GeneralDrawing(docTag)
 
 		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 50), (1000 / (t1 - t0)).toFixed(0) + " FPS", "#909090", "left");
 		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 75), "xy: " + lastMousePos.x.toFixed(2) + ", " + lastMousePos.y.toFixed(2), "#909090", "left");
-		//camera.getGraphics().drawText(new Vector(5, window.innerHeight - 100), "UndoPos: " + undoRedoUndoPos + ", BackupPos: " + undoRedoBackupPos, "#909090", "left");
 	}
 	
 	function drawSnapPoint(snapPoint)
