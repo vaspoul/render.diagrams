@@ -2052,12 +2052,15 @@ function GeneralDrawing(docTag)
 	{
 		var t0 = performance.now();
 
-		if (layerDirty[0] && showGrid)
+		if (layerDirty[0])
 		{
 			camera.setLayer(0);
 			camera.clear("rgba(255,255,255,1)");
 
-			grid.draw(camera);
+			if (showGrid)
+			{
+				grid.draw(camera);
+			}
 
 			layerDirty[0] = false;
 		}
