@@ -731,7 +731,7 @@ function GeneralDrawing(docTag)
 		//if (tool == "transform")
 		//	return false;
 
-		return true;
+		return false;
 	}
 
 	function onKeyUp(evt)
@@ -1893,7 +1893,7 @@ function GeneralDrawing(docTag)
 		//		}
 		//	}
 		//}
-		else if (evt.buttons & 4) // camera pan
+		else if (evt.buttons & 2) // camera pan
 		{
 			layerDirty[0] = true;
 			layerDirty[1] = true;
@@ -2108,8 +2108,8 @@ function GeneralDrawing(docTag)
 
 		var t1 = performance.now();
 
-		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 50), (1000 / (t1 - t0)).toFixed(0) + " FPS", "#909090", "left");
-		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 75), "xy: " + lastMousePos.x.toFixed(2) + ", " + lastMousePos.y.toFixed(2), "#909090", "left");
+		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 40), (1000 / (t1 - t0)).toFixed(0) + " FPS", "#909090", "left");
+		camera.getGraphics().drawText(new Vector(5, window.innerHeight - 65), "xy: " + lastMousePos.x.toFixed(2) + ", " + lastMousePos.y.toFixed(2), "#909090", "left");
 	}
 	
 	function drawSnapPoint(snapPoint)
@@ -2262,12 +2262,15 @@ function GeneralDrawing(docTag)
 
 		var img = popoutCanvas.toDataURL("image/png");
 		var popup = window.open();
+
+		popup.document.open();
 		popup.document.write("<style>@media print { @page { margin: 0; } }</style>");
 		popup.document.write("<div style=\"text-align: center; margin: 2cm auto auto auto\">");
 		popup.document.write("<div style=\"display: inline-block;\">");
 		popup.document.write("<img style=\"width: " + imgWidthCm * screenshotObj.copiesColumns + "cm; height: " + imgHeightCm * screenshotObj.copiesRows + "cm\" src=\"" + img + "\"/>");
 		popup.document.write("</div>");
 		popup.document.write("</div>");
+		popup.document.close();
 	}
 
 	function saveAsEmbeddableJavascript()
@@ -2280,30 +2283,38 @@ function GeneralDrawing(docTag)
 		var divWidth = 800;
 		var divHeight = 800 * extents.y / extents.x;
 
+		var popupJS = "";
+
+		popupJS += "<script type=\"text/javascript\" src=\"lib/maths.js\"></script>\n";
+		popupJS += "<script type=\"text/javascript\" src=\"lib/graphics.js\"></script>\n";
+		popupJS += "<script type=\"text/javascript\" src=\"lib/camera.js\"></script>\n";
+		popupJS += "<script type=\"text/javascript\" src=\"lib/scene.js\"></script>\n";
+		popupJS += "<script type=\"text/javascript\" src=\"lib/sceneObjects.js\"></script>\n";
+		popupJS += "<script type=\"text/javascript\" src=\"lib/brdf.js\"></script>\n";
+		popupJS += "<script type=\"text/javascript\" src=\"lib/ui.js\"></script>\n";
+		popupJS += "\n";
+		popupJS += "<script type=\"text/javascript\" src=\"diagrams/embeddedDrawing.js\"></script>\n";
+		popupJS += "\n";
+		popupJS += "<div id=\"embeddedDrawing\" style=\"width: " + divWidth + "px; height: " + divHeight + "px; margin:0 auto; border:1px solid black;\"></div>\n";
+		popupJS += "\n";
+		popupJS += "<script>\n";
+		popupJS += "var embeddedObj = new EmbeddedDrawing(\"embeddedDrawing\");\n";
+		popupJS += "\n";
+		popupJS += "var scene = embeddedObj.getScene();\n";
+		popupJS += "\n";
+		popupJS += scene.saveAsJavascript();
+		popupJS += "embeddedObj.zoomExtents();\n";
+		popupJS += "</script>\n";
+
+		popup.document.open();
 		popup.document.write("<body>\n");
-		popup.document.write("\n");
-		popup.document.write("<script type=\"text/javascript\" src=\"lib/maths.js\"></script>\n");
-		popup.document.write("<script type=\"text/javascript\" src=\"lib/graphics.js\"></script>\n");
-		popup.document.write("<script type=\"text/javascript\" src=\"lib/camera.js\"></script>\n");
-		popup.document.write("<script type=\"text/javascript\" src=\"lib/scene.js\"></script>\n");
-		popup.document.write("<script type=\"text/javascript\" src=\"lib/sceneObjects.js\"></script>\n");
-		popup.document.write("<script type=\"text/javascript\" src=\"lib/brdf.js\"></script>\n");
-		popup.document.write("<script type=\"text/javascript\" src=\"lib/ui.js\"></script>\n");
-		popup.document.write("\n");
-		popup.document.write("<script type=\"text/javascript\" src=\"diagrams/embeddedDrawing.js\"></script>\n");
-		popup.document.write("\n");
-		popup.document.write("<div id=\"embeddedDrawing\" style=\"width: " + divWidth + "px; height: " + divHeight + "px; margin:0 auto; border:1px solid black;\"/>\n");
-		popup.document.write("\n");
-		popup.document.write("<script>\n");
-		popup.document.write("var embeddedObj = new EmbeddedDrawing(\"embeddedDrawing\");\n");
-		popup.document.write("\n");
-		popup.document.write("var scene = embeddedObj.getScene();\n");
-		popup.document.write("\n");
-		popup.document.write(scene.saveAsJavascript());
-		popup.document.write("embeddedObj.zoomExtents();\n");
-		popup.document.write("</script>\n");
-		popup.document.write("\n");
+		popup.document.write(popupJS);
+		popup.document.write("<p></p>\n");
+		popup.document.write("<textarea rows=\"" + popupJS.split("\n").length + "\" style=\"width: " + divWidth + "px; display: block; margin:auto auto; border:1px solid black;\">\n");
+		popup.document.write(popupJS);
+		popup.document.write("</textarea>\n");
 		popup.document.write("</body>\n");
+		popup.document.close();
 	}
 
 	function saveAsJavascript()

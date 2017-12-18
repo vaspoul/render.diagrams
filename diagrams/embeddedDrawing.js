@@ -12,20 +12,57 @@ function EmbeddedDrawing(docTag)
 	var lastMousePosPixels 		= {x:0, y:0}
 	var lastMousePos	 		= {x:0, y:0}
 	var lastMouseUpPos	 		= {x:0, y:0}
-		
+
 	var grid 					= new Grid()
 
 	var dragPoint				= null;
 	var lastKeyPress;
 
-	window.addEventListener("resize", onResize);
+	var onScreen				= true;
 
+	function setup()
+	{
+		parent = document.getElementById(docTag);
+
+		// Main canvas
+		{
+			canvas = document.createElement('canvas');
+			parent.appendChild(canvas);
+
+			canvas.width  = parent.clientWidth;
+			canvas.height = parent.clientHeight;
+			canvas.style.position = "absolute";
+
+			canvas.addEventListener('dblclick', zoomExtents, false);
+			canvas.addEventListener('mousemove', onMouseMove, false);
+			canvas.addEventListener('mousedown', onMouseDown, false);
+			canvas.addEventListener('mouseup', onMouseUp, false);
+			canvas.addEventListener('keydown', onKeyDown, false);
+			canvas.addEventListener('keyup', onKeyUp, false);
+			window.addEventListener('scroll', onScroll, false);
+			window.addEventListener("resize", onResize);
+
+			canvas.oncontextmenu = onContextMenu;
+			canvas.onwheel = onMouseWheel;
+
+			canvas.tabIndex = -1;
+			//canvas.focus();
+		}
+
+		scene = new Scene();
+		camera = new Camera(canvas);
+
+		grid.spacing = 1;
+
+		camera.setViewPosition(0, 0);
+	}
+	
 	function onResize()
 	{
 		if (camera != undefined)
 		{
-			canvas.width = parent.offsetWidth;
-			canvas.height = parent.offsetHeight;
+			canvas.width  = parent.clientWidth;
+			canvas.height = parent.clientHeight;
 
 			camera.onResize();
 
@@ -46,39 +83,20 @@ function EmbeddedDrawing(docTag)
 		}
 	}
 
-	function setup()
+
+	function onScroll(evt)
 	{
-		parent = document.getElementById(docTag);
+		var visibleRect = canvas.getBoundingClientRect();
 
-		// Main canvas
+		onScreen = (visibleRect.bottom >= 0) && (visibleRect.top <= window.innerHeight);
+
+		//if (onScreen)
 		{
-			canvas = document.createElement('canvas');
-			parent.appendChild(canvas);
-
-			canvas.style.width ='100%';
-			canvas.style.height='100%';
-			canvas.width  = canvas.offsetWidth;
-			canvas.height = canvas.offsetHeight;
-
-			canvas.addEventListener('mousemove', onMouseMove, false);
-			canvas.addEventListener('mousedown', onMouseDown, false);
-			canvas.addEventListener('mouseup', onMouseUp, false);
-			canvas.addEventListener('keydown', onKeyDown, false);
-			canvas.addEventListener('keyup', onKeyUp, false);
-			canvas.oncontextmenu = onContextMenu;
-			canvas.onwheel = onMouseWheel;
-			canvas.tabIndex = -1;
-			canvas.focus();
+			//onResize();
+			draw();
 		}
-
-		scene = new Scene();
-		camera = new Camera(canvas);
-		
-		grid.spacing = 1;
-
-		camera.setViewPosition(0, 0);
 	}
-	
+
 	function onKeyDown(evt)
 	{
 		if (evt.keyCode == lastKeyPress)
@@ -149,14 +167,14 @@ function EmbeddedDrawing(docTag)
 		}
 
 		canvas.style.cursor = "default";
-		canvas.focus();
+		//canvas.focus();
 
 		draw();
 
 		lastMousePos = camera.getMousePos(evt);
 		lastMousePosPixels = getMousePos(evt, canvas);
 
-		if (evt.buttons & 4) // camera pan
+		if (evt.buttons & 1) // camera pan
 		{
 			var delta = div(sub(lastMousePosPixels, dragStartMousePosPixels), new Vector(-camera.getUnitScale(), camera.getUnitScale()));
 			var P = add(dragStartCamPos, delta);
@@ -217,16 +235,13 @@ function EmbeddedDrawing(docTag)
 
 	function draw()
 	{
+		if (onScreen)
 		{
-			camera.setLayer(0);
+			// Set the topmost layer so that image can be copied		
+			camera.setLayer(2);
+
 			camera.clear("rgba(255,255,255,1)");
-
 			grid.draw(camera);
-		}
-
-		{
-			camera.setLayer(1);
-			camera.clear("rgba(255,255,255,0)");
 			scene.draw(camera);
 		}
 	}

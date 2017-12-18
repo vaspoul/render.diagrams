@@ -15,12 +15,57 @@
 
 <body>
 
-<div id="embeddedDrawing" style="width:700px; height:400px; border:1px solid; margin:0 auto"></div>
 
-<script>
-var obj = new EmbeddedDrawing("embeddedDrawing");
-</script>
+    <div id="embeddedDrawing" style="width: 800px; height: 800px; margin:0 auto; border:1px solid black;"></div>
 
+    <script>
+        var embeddedObj = new EmbeddedDrawing("embeddedDrawing");
+
+        var scene = embeddedObj.getScene();
+
+        var w = new Wall([new Vector(-10, 10), new Vector(-10, 0), new Vector(10, 0), new Vector(10, 10)]);
+        w.closed = false;
+        w.roughness = 0;
+        w.metalness = 0;
+        w.color = "#000000";
+        w.visible = true;
+        w.frozen = false;
+        scene.addObject(w);
+
+        var aw = new ArcWall(new Vector(0, 10), 10, 0.00 * Math.PI/180, 180.00 * Math.PI/180);
+        aw.convex = true;
+        aw.roughness = 0;
+        aw.metalness = 0;
+        aw.color = "#000000";
+        aw.visible = true;
+        aw.frozen = false;
+        scene.addObject(aw);
+
+        var ray = new BRDFRay(new Vector(0, 10), new Vector(-3, -5));
+        ray.showBRDF = true;
+        ray.bounceCount = 3;
+        ray.color = "#000000";
+        ray.visible = true;
+        ray.frozen = false;
+        scene.addObject(ray);
+
+        var light = new SpotLight(new Vector(0, 10), new Vector(10, 0), 10);
+        light.nearWidth = 3;
+        light.farWidth = 11.917996468649394;
+        light.collisionOutline = true;
+        light.color = "#10FF00";
+        light.visible = true;
+        light.frozen = false;
+        light.onChange();
+        scene.addObject(light);
+
+        embeddedObj.zoomExtents();
+    </script>
+
+    <p></p>
+    <p></p>
+
+    <textarea style="width:800px; height: 3000px;">Hello</textarea>
 
 </body>
 </html>
