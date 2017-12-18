@@ -2231,6 +2231,7 @@ function GeneralDrawing(docTag)
 
 		// draw
 		{
+			popoutCamera.setLayer(2);
 			popoutCamera.clear();
 
 			if (showGrid)
@@ -2427,6 +2428,8 @@ function GeneralDrawing(docTag)
 
 			// draw
 			{
+				popoutCamera.setLayer(2);
+
 				popoutCamera.clear();
 
 				if (showGrid)
