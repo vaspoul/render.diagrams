@@ -381,8 +381,8 @@ function GeneralDrawing(docTag)
 		var canvasProperties =
 		[
 			{name: "Scene Name", control: new TextBox(scene.name, true, function (value) { scene.name = value; }) },
-			{name: "Show Grid", control: new TickBox(showGrid, function (value) { showGrid = value; draw(); }) },
-			{name: "Grid Type", control: new Dropdown(["cartesian", "isometric", "radial"], "cartesian", function (value) { grid.type = value; draw(); }) },
+			{name: "Show Grid", control: new TickBox(showGrid, function (value) { showGrid = value; layerDirty[0] = true; draw(); }) },
+			{name: "Grid Type", control: new Dropdown(["cartesian", "isometric", "radial"], "cartesian", function (value) { grid.type = value; layerDirty[0] = true; draw(); }) },
 			{name: "", control: new Divider() },
 			{name: "Snap: Grid", control: new TickBox(enableSnap["grid"], function (value) { enableSnap["grid"] = value; }) },
 			{name: "Snap: Node", control: new TickBox(enableSnap["node"], function (value) { enableSnap["node"] = value; }) },
