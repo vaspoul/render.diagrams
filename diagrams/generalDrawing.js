@@ -2280,25 +2280,28 @@ function GeneralDrawing(docTag)
 		var center = avg(scene.getBoundsMin(), scene.getBoundsMax());
 		var extents = sub(scene.getBoundsMax(), scene.getBoundsMin());
 
-		var divWidth = 800;
-		var divHeight = 800 * extents.y / extents.x;
+		var divWidth = 750;
+		var divHeight = divWidth * extents.y / extents.x;
 
+		var popupHeader = "";
+		var popupHTML = "";
 		var popupJS = "";
 
-		popupJS += "<script type=\"text/javascript\" src=\"lib/maths.js\"></script>\n";
-		popupJS += "<script type=\"text/javascript\" src=\"lib/graphics.js\"></script>\n";
-		popupJS += "<script type=\"text/javascript\" src=\"lib/camera.js\"></script>\n";
-		popupJS += "<script type=\"text/javascript\" src=\"lib/scene.js\"></script>\n";
-		popupJS += "<script type=\"text/javascript\" src=\"lib/sceneObjects.js\"></script>\n";
-		popupJS += "<script type=\"text/javascript\" src=\"lib/brdf.js\"></script>\n";
-		popupJS += "<script type=\"text/javascript\" src=\"lib/ui.js\"></script>\n";
-		popupJS += "\n";
-		popupJS += "<script type=\"text/javascript\" src=\"diagrams/embeddedDrawing.js\"></script>\n";
-		popupJS += "\n";
-		popupJS += "<div id=\"embeddedDrawing\" style=\"width: " + divWidth + "px; height: " + divHeight + "px; margin:0 auto; border:1px solid black;\"></div>\n";
-		popupJS += "\n";
+		popupHeader += "<script type=\"text/javascript\" src=\"lib/maths.js\"></script>\n";
+		popupHeader += "<script type=\"text/javascript\" src=\"lib/graphics.js\"></script>\n";
+		popupHeader += "<script type=\"text/javascript\" src=\"lib/camera.js\"></script>\n";
+		popupHeader += "<script type=\"text/javascript\" src=\"lib/scene.js\"></script>\n";
+		popupHeader += "<script type=\"text/javascript\" src=\"lib/sceneObjects.js\"></script>\n";
+		popupHeader += "<script type=\"text/javascript\" src=\"lib/brdf.js\"></script>\n";
+		popupHeader += "<script type=\"text/javascript\" src=\"lib/ui.js\"></script>\n";
+		popupHeader += "\n";
+		popupHeader += "<script type=\"text/javascript\" src=\"diagrams/embeddedDrawing.js\"></script>\n";
+
+		var randomVal = Math.floor(Math.random() * 16777216);
+		popupHTML += "<div id=\"embeddedDrawing_" + randomVal + "\" style=\"width: " + divWidth + "px; height: " + divHeight + "px; margin:0 auto; border:1px solid black;\"></div>\n";
+
 		popupJS += "<script>\n";
-		popupJS += "var embeddedObj = new EmbeddedDrawing(\"embeddedDrawing\");\n";
+		popupJS += "var embeddedObj = new EmbeddedDrawing(\"embeddedDrawing_" + randomVal + "\");\n";
 		popupJS += "\n";
 		popupJS += "var scene = embeddedObj.getScene();\n";
 		popupJS += "\n";
@@ -2308,11 +2311,35 @@ function GeneralDrawing(docTag)
 
 		popup.document.open();
 		popup.document.write("<body>\n");
+		popup.document.write(popupHeader);
+		popup.document.write(popupHTML);
 		popup.document.write(popupJS);
-		popup.document.write("<p></p>\n");
-		popup.document.write("<textarea rows=\"" + popupJS.split("\n").length + "\" style=\"width: " + divWidth + "px; display: block; margin:auto auto; border:1px solid black;\">\n");
+
+		popup.document.write("<div style=\"width: " + divWidth + "px; display: block; margin:auto auto;\">\n");
+
+		popup.document.write("<p>Includes</p>\n");
+		popup.document.write("<textarea rows=\"" + popupHeader.split("\n").length + "\" style=\"width: 100%; display: block; margin:auto auto; border:1px solid black;\">\n");
+		popup.document.write(popupHeader);
+		popup.document.write("</textarea>\n");
+
+		popup.document.write("<p>HTML</p>\n");
+		popup.document.write("<textarea rows=\"" + popupHTML.split("\n").length + "\" style=\"width: 100%; display: block; margin:auto auto; border:1px solid black;\">\n");
+		popup.document.write(popupHTML);
+		popup.document.write("</textarea>\n");
+
+		popup.document.write("<p>Minified JS</p>\n");
+		var popupJSMin = popupJS.replace(/\n/g, " ");
+		popup.document.write("<textarea rows=\"" + popupJSMin.split("\n").length + "\" style=\"width: 100%; display: block; margin:auto auto; border:1px solid black;\">\n");
+		popup.document.write(popupJSMin);
+		popup.document.write("</textarea>\n");
+
+		popup.document.write("<p>Pretty JS</p>\n");
+		popup.document.write("<textarea rows=\"" + popupJS.split("\n").length + "\" style=\"width: 100%; display: block; margin:auto auto; border:1px solid black;\">\n");
 		popup.document.write(popupJS);
 		popup.document.write("</textarea>\n");
+
+		popup.document.write("</div>\n");
+
 		popup.document.write("</body>\n");
 		popup.document.close();
 	}
