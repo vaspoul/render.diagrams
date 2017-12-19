@@ -807,17 +807,18 @@ function GeneralDrawing(docTag)
 				{
 		    		mode = "selection";
 
+					var snappedDragStartMousePos
 					if (evt.altKey == 0)
 					{
 						var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [], enableSnap);
 
 						if (snapPoint !== null)
 						{
-							dragStartMousePos = snapPoint.p.copy();
+							snappedDragStartMousePos = snapPoint.p.copy();
 						}
 						else
 						{
-							dragStartMousePos = grid.getSnapPoint(dragStartMousePos);
+							snappedDragStartMousePos = grid.getSnapPoint(dragStartMousePos);
 						}
 					}
 
@@ -832,7 +833,7 @@ function GeneralDrawing(docTag)
 		    		{
 		    			if (selectionList[i].getOrigin !== undefined)
 						{
-		    				moveOffsets.push(sub(selectionList[i].getOrigin(), dragStartMousePos));
+		    				moveOffsets.push(sub(selectionList[i].getOrigin(), snappedDragStartMousePos));
 		    			}
 		    			else
 		    			{
