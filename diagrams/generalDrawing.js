@@ -145,6 +145,22 @@ function GeneralDrawing(docTag)
 			propertyGrid = new PropertyGrid(propertyGridDock);
 		}
 
+		// Code box
+		{
+			codeBox = document.createElement('textarea');
+			codeBox.id = "codeBox";
+			codeBox.style.border = "2px solid black";
+			codeBox.style.backgroundColor = "white";
+			codeBox.style.position = "fixed";
+			codeBox.style.right = 5;
+			codeBox.style.bottom = 5;
+			codeBox.style.width  = 404;
+			codeBox.style.height = 175;
+			codeBox.style.fontFamily = "Verdana,sans-serif";
+			codeBox.style.fontSize = "small";
+			root.appendChild(codeBox);
+		}
+
 		// Object list
 		{
 			var objectListDock = document.createElement('div');
@@ -153,10 +169,9 @@ function GeneralDrawing(docTag)
 			objectListDock.style.backgroundColor = "white";
 			objectListDock.style.position = "fixed";
 			objectListDock.style.right = 5;
-			objectListDock.style.top = 265;
+			objectListDock.style.top = propertyGridDock.offsetTop + propertyGridDock.offsetHeight + 5;
 			objectListDock.style.width  = 400;
-			objectListDock.style.height = 520;
-
+			objectListDock.style.height = codeBox.offsetTop - 5 - (propertyGridDock.offsetTop + propertyGridDock.offsetHeight + 10);
 
 			var objectListDockScrollable = document.createElement('div');
 			objectListDockScrollable.style.position = "fixed";
@@ -164,7 +179,7 @@ function GeneralDrawing(docTag)
 			objectListDockScrollable.style.backgroundColor = "white";
 			objectListDockScrollable.style.position = "fixed";
 			objectListDockScrollable.style.width  = 400;
-			objectListDockScrollable.style.height = 420;
+			objectListDockScrollable.style.height = codeBox.offsetTop - 5 - (propertyGridDock.offsetTop + propertyGridDock.offsetHeight + 10) - 40;
 			objectListDockScrollable.style.fontFamily = "Verdana,sans-serif";
 			objectListDockScrollable.style.fontSize = "large";
 
@@ -189,12 +204,10 @@ function GeneralDrawing(docTag)
 			objectListDockScrollable.appendChild(objectList);
 
 			var buttonArea = document.createElement("div");
-			buttonArea.style.position = "relative";
-			//buttonArea.style.display = "block";
-			//buttonArea.style.margin = "auto";
+			buttonArea.style.position = "absolute";
+			buttonArea.style.width = "100%";
 			buttonArea.style.textAlign = "center";
-			buttonArea.style.top = 490;
-			buttonArea.style.bottom = 0;
+			buttonArea.style.bottom = 5;
 
 			groupButton = document.createElement("button");
 			groupButton.appendChild(document.createTextNode("Group"));
@@ -216,26 +229,10 @@ function GeneralDrawing(docTag)
 			moveDownButton.appendChild(document.createTextNode("Down"));
 			moveDownButton.onclick = moveDownSelection;
 			buttonArea.appendChild(moveDownButton);
-
+			
 			objectListDock.appendChild(buttonArea);
 
 			root.appendChild(objectListDock);
-		}
-
-		// Code box
-		{
-			codeBox = document.createElement('textarea');
-			codeBox.id = "codeBox";
-			codeBox.style.border = "2px solid black";
-			codeBox.style.backgroundColor = "white";
-			codeBox.style.position = "fixed";
-			codeBox.style.right = 5;
-			codeBox.style.bottom = 5;
-			codeBox.style.width  = 404;
-			codeBox.style.height = 175;
-			codeBox.style.fontFamily = "Verdana,sans-serif";
-			codeBox.style.fontSize = "small";
-			root.appendChild(codeBox);
 		}
 
 		// Button list
