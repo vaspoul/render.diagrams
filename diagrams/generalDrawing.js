@@ -798,6 +798,20 @@ function GeneralDrawing(docTag)
 						}
 					}
 				}
+				else if (selectionList.length == 1) // deep selection
+				{
+					var index = s.indexOf(selectionList[0]);
+
+					if (index>=0)
+					{
+						index = (index + 1) % s.length;
+						s = [s[index]];
+					}
+				}
+				else if (selectionList.length == 0) // deep selection
+				{
+					s = [s[0]];
+				}
 
 				if (s.length == 0)
 				{
@@ -807,7 +821,8 @@ function GeneralDrawing(docTag)
 				{
 		    		mode = "selection";
 
-					var snappedDragStartMousePos
+					var snappedDragStartMousePos;
+
 					if (evt.altKey == 0)
 					{
 						var snapPoint = scene.getSnapPoint(lastMousePos, camera.getSnapPoints(lastMousePos), camera.invScale(30), [], enableSnap);
@@ -949,21 +964,15 @@ function GeneralDrawing(docTag)
 
 					var s = [];
 
-					if ((sub(dragStartMousePos, lastMousePos)).length() < threshold)
+					if ((sub(dragStartMousePos, lastMousePos)).length() < threshold) // no movement
 					{
-						s = scene.hitTest(sub(lastMousePos, threshold), add(lastMousePos, threshold));
-
-						if (s.length == 0)
+						if (mode == "marquee") // nothing was hit on mouse down, clear selection
 						{
-							var snapPoint = scene.getSnapPoint(lastMousePos, [], camera.invScale(30), [objectBeingMade], enableSnap);
-
-							if (snapPoint !== null && snapPoint.object != undefined)
-							{
-								if (!snapPoint.object.isFrozen() && snapPoint.object.isVisible())
-								{
-									s.push(snapPoint.object);
-								}
-							}
+							s = [];
+						}
+						else if (mode == "selection") // deep selection, logic ran on mouse down
+						{
+							s = selectionList.concat([]);
 						}
 					}
 					else
