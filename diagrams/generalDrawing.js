@@ -769,6 +769,32 @@ function GeneralDrawing(docTag)
 		{
 			zoomExtents();
 		}
+		else if (evt.keyCode >= 37 && evt.keyCode <= 40) // Arrow keys
+		{
+			if (tool == "select")// && mode == "move")
+			{
+				if (selectionList.length>0)
+				{
+					var offset;
+
+						 if (evt.keyCode == 37)		offset = new Vector(-1,  0);
+					else if (evt.keyCode == 38)		offset = new Vector( 0, +1);
+					else if (evt.keyCode == 39)		offset = new Vector(+1,  0);
+					else if (evt.keyCode == 40)		offset = new Vector( 0, -1);
+
+		    		for (var i = 0; i < selectionList.length; ++i)
+		    		{
+		    			if (selectionList[i].getOrigin !== undefined)
+		    			{
+							layerDirty[1] = true;
+		    				selectionList[i].setOrigin(mad(offset, grid.spacing, selectionList[i].getOrigin()));
+		    			}
+					}
+
+					backup();
+				}
+			}
+		}
 	
 		lastKeyPress = undefined;
 	}
