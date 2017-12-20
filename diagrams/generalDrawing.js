@@ -782,12 +782,23 @@ function GeneralDrawing(docTag)
 					else if (evt.keyCode == 39)		offset = new Vector(+1,  0);
 					else if (evt.keyCode == 40)		offset = new Vector( 0, -1);
 
+					var scale = grid.spacing;
+
+					if (evt.ctrlKey)
+					{
+						scale *= 10;
+					}
+					else if (evt.shiftKey)
+					{
+						scale /= 10;
+					}
+
 		    		for (var i = 0; i < selectionList.length; ++i)
 		    		{
 		    			if (selectionList[i].getOrigin !== undefined)
 		    			{
 							layerDirty[1] = true;
-		    				selectionList[i].setOrigin(mad(offset, grid.spacing, selectionList[i].getOrigin()));
+		    				selectionList[i].setOrigin(mad(offset, scale, selectionList[i].getOrigin()));
 		    			}
 					}
 
