@@ -328,18 +328,33 @@ function GeneralDrawing(docTag)
 		}
 
 		// Status bar
-		statusBar = document.createElement('div');
-		statusBar.id = "statusBar";
-		statusBar.style.position = "fixed";
-		statusBar.style.left = "0";
-		statusBar.style.bottom = "5";
-		statusBar.style.width  = window.innerWidth;
-		statusBar.style.height = 30;
-		statusBar.style.fontFamily = "Verdana,sans-serif";
-		statusBar.style.fontSize = "small";
-		statusBar.style.padding = "4px";
-		statusBar.style.pointerEvents = "none";
-		root.appendChild(statusBar);
+		{
+			statusBar = document.createElement('div');
+			statusBar.id = "statusBar";
+			statusBar.style.position = "fixed";
+			statusBar.style.left = "0";
+			statusBar.style.bottom = "5";
+			statusBar.style.width  = window.innerWidth;
+			statusBar.style.height = 30;
+			statusBar.style.fontFamily = "Verdana,sans-serif";
+			statusBar.style.fontSize = "small";
+			statusBar.style.padding = "4px";
+			statusBar.style.pointerEvents = "none";
+			root.appendChild(statusBar);
+		}
+
+		{
+			var reportIssue = document.createElement('div');
+			reportIssue.style.position = "fixed";
+			reportIssue.style.left = "0";
+			reportIssue.style.bottom = "0";
+			reportIssue.style.height = 15;
+			reportIssue.style.fontFamily = "Verdana,sans-serif";
+			reportIssue.style.fontSize = "small";
+			reportIssue.style.padding = "4px";
+			reportIssue.innerHTML = "<a href = \"https://github.com/vaspoul/render.diagrams/issues\" target=\"_blank\">Report Issue</a>";
+			root.appendChild(reportIssue);
+		}
 
 		enableSnap["grid"] = true;
 		enableSnap["node"] = true;
