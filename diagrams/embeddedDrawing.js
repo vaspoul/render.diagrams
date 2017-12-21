@@ -14,27 +14,28 @@ function EmbeddedDrawing(docTag)
 	var lastMouseUpPos	 		= {x:0, y:0}
 
 	var grid 					= new Grid()
+	var showGrid				= true;
 
 	var dragPoint				= null;
 	var lastKeyPress;
 
 	var onScreen				= true;
 
-	function setup()
+	function setup(_this)
 	{
 		parent = document.getElementById(docTag);
 
 		// Main canvas
 		{
 			canvas = document.createElement('canvas');
-			parent.appendChild(canvas);
 
 			canvas.width  = parent.clientWidth;
 			canvas.height = parent.clientHeight;
 			canvas.style.position = "absolute";
+			canvas.style.webkitUserSelect = "none";
 
 			canvas.addEventListener('dblclick', zoomExtents, false);
-			canvas.addEventListener('mousemove', onMouseMove, false);
+			canvas.addEventListener('mousemove', onMouseMove.bind(_this), false);
 			canvas.addEventListener('mousedown', onMouseDown, false);
 			canvas.addEventListener('mouseup', onMouseUp, false);
 			canvas.addEventListener('keydown', onKeyDown, false);
@@ -46,7 +47,8 @@ function EmbeddedDrawing(docTag)
 			canvas.onwheel = onMouseWheel;
 
 			canvas.tabIndex = -1;
-			//canvas.focus();
+
+			parent.appendChild(canvas);
 		}
 
 		scene = new Scene();
@@ -180,6 +182,11 @@ function EmbeddedDrawing(docTag)
 			var P = add(dragStartCamPos, delta);
 			camera.setViewPosition(P.x, P.y);
 		}
+
+		if (this.onMouseMove != undefined)
+		{
+			this.onMouseMove(lastMousePos);
+		}
 	}
 
 	function onMouseWheel(evt)
@@ -240,8 +247,16 @@ function EmbeddedDrawing(docTag)
 			// Set the topmost layer so that image can be copied		
 			camera.setLayer(2);
 
-			camera.clear("rgba(255,255,255,1)");
-			grid.draw(camera);
+			if (showGrid)
+			{
+				camera.clear("rgba(255,255,255,1)");
+				grid.draw(camera);
+			}
+			else
+			{
+				camera.clear("rgba(255,255,255,0)");
+			}
+
 			scene.draw(camera);
 		}
 	}
@@ -263,6 +278,12 @@ function EmbeddedDrawing(docTag)
 
 	this.zoomExtents = zoomExtents;
 
-	setup();
+	setup(this);
 	draw();
+
+	this.draw = draw;
+	this.parent = parent;
+	this.showGrid = showGrid;
+	this.onMouseMove = undefined;
+	this.camera = camera;
 }
