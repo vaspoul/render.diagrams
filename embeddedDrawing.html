@@ -16,56 +16,130 @@
 <body>
 
 
-    <div id="embeddedDrawing" style="width: 800px; height: 800px; margin:0 auto; border:1px solid black;"></div>
+    <div id="embeddedDrawing" style="width: 800px; height: 800px; margin:0 auto; border:0px solid black;"></div>
+    <p/>
+    <div id="controls" style="width: 800px; height: 100px; margin:0 auto; border:1px solid black;"></div>
 
     <script>
         var embeddedObj = new EmbeddedDrawing("embeddedDrawing");
 
+        //embeddedObj.showGrid = 0;
+
         var scene = embeddedObj.getScene();
 
-        var w = new Wall([new Vector(-10, 10), new Vector(-10, 0), new Vector(10, 0), new Vector(10, 10)]);
-        w.closed = false;
-        w.roughness = 0;
-        w.metalness = 0;
-        w.color = "#000000";
-        w.visible = true;
-        w.frozen = false;
-        scene.addObject(w);
+        var exponentBitCount = 3;
+        var mantissaBitCount = 2;
+        var mainBar = undefined;
+        var mantissaBars = [];
+        
+        function makeScene()
+        {
+            if (mainBar == undefined)
+            {
+                mainBar = new BarChart(new Vector(0, 0), new Vector(16, 0));
+                scene.addObject(mainBar);
+            }
 
-        var aw = new ArcWall(new Vector(0, 10), 10, 0.00 * Math.PI/180, 180.00 * Math.PI/180);
-        aw.convex = true;
-        aw.roughness = 0;
-        aw.metalness = 0;
-        aw.color = "#000000";
-        aw.visible = true;
-        aw.frozen = false;
-        scene.addObject(aw);
+            mainBar.color = "#900090";
+            mainBar.fillColor = "#f97171";
+            mainBar.fillAlpha = 1;
+            mainBar.valuesFunctionStr = "return Math.pow(2,index)-1;";
+            mainBar.setBarCount(Math.pow(2, exponentBitCount));
 
-        var ray = new BRDFRay(new Vector(0, 10), new Vector(-3, -5));
-        ray.showBRDF = true;
-        ray.bounceCount = 3;
-        ray.color = "#000000";
-        ray.visible = true;
-        ray.frozen = false;
-        scene.addObject(ray);
+            scene.deleteObjects(mantissaBars);
 
-        var light = new SpotLight(new Vector(0, 10), new Vector(10, 0), 10);
-        light.nearWidth = 3;
-        light.farWidth = 11.917996468649394;
-        light.collisionOutline = true;
-        light.color = "#10FF00";
-        light.visible = true;
-        light.frozen = false;
-        light.onChange();
-        scene.addObject(light);
+            for (var i=0; i<mainBar.values.length; ++i)
+            {
+                var p0 = mad(i, div(sub(mainBar.B, mainBar.A), mainBar.values.length), mainBar.A);
+                var p1 = mad(i+1, div(sub(mainBar.B, mainBar.A), mainBar.values.length), mainBar.A);
+                var v0 = mainBar.values[i];
+                var v1 = mainBar.values[i+1];
 
-        embeddedObj.zoomExtents();
+                p0.y += v0;
+                p1.y += v0;
+
+                var bar = new BarChart(p0, p1);
+                bar.color = "#900090";
+                bar.fillColor = "#2ed18f";
+                bar.valuesFunctionStr = "return index * Math.pow(2, " + i + ") / " + Math.pow(2, mantissaBitCount) + ";";
+                bar.setBarCount(Math.pow(2, mantissaBitCount));
+
+                mantissaBars.push(bar);
+
+                scene.addObject(bar);
+            }
+
+            //embeddedObj.zoomExtents();
+            embeddedObj.camera.setViewPosition(mainBar.B.x/2, 5);
+            embeddedObj.camera.setUnitScale(embeddedObj.parent.clientWidth / mainBar.B.x);
+            embeddedObj.draw();
+        }
+
+        embeddedObj.onMouseMove = function(m)
+        {
+            if (m.x<0)
+                return;
+
+            var index = m.x / (mainBar.B.x / mainBar.values.length);
+
+            var indexFloor = Math.floor(index);
+            var indexFraction = index - Math.floor(index);
+
+            var matissaSteps = Math.pow(2, mantissaBitCount);
+            var quantizedFraction = Math.floor(indexFraction * matissaSteps ) / matissaSteps;
+
+            var scale;
+            var value;
+            var bucketMin;
+            var bucketMax;
+            var stepSize;
+
+            if (indexFloor==0)
+            {
+                scale = Math.pow(2, indexFloor);
+                value = scale * quantizedFraction;
+                bucketMin = scale * 0;
+                bucketMax = scale * (1 - 1/matissaSteps);
+                stepSize = scale/matissaSteps;
+            }
+            else
+            {
+                scale = Math.pow(2, indexFloor-1);
+                value = scale * (1 + quantizedFraction);
+                bucketMin = scale * 1;
+                bucketMax = scale * (2 - 1/matissaSteps);
+                stepSize = scale/matissaSteps;
+            }
+
+            var valueFactor = Math.floor( (index - Math.floor(index)) * matissaSteps ) / matissaSteps;
+
+            var lineStep = embeddedObj.camera.invScale(20);
+
+            embeddedObj.camera.drawLine(m, new Vector(m.x, 0), "#000000", 1, [5, 5]);
+
+		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*0), "Value: " + value.toFixed(2), "#009090", "right");
+		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*1), "Bucket Range: " + bucketMin + " - " + bucketMax, "#009090", "right");
+		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*2), "Bucket Step Size: " + stepSize, "#009090", "right");
+        };
+
+        makeScene();
+
+        var exponentSlider = new Slider(1, 5, exponentBitCount, 1, function(value)
+            {
+                exponentBitCount = value;
+                makeScene();
+            });
+
+        var matissaSlider = new Slider(1, 5, mantissaBitCount, 1, function(value)
+            {
+                mantissaBitCount = value;
+                makeScene();
+            });
+
+        exponentSlider.addControls(document.getElementById("controls"));
+        matissaSlider.addControls(document.getElementById("controls"));
+
     </script>
-
-    <p></p>
-    <p></p>
-
-    <textarea style="width:800px; height: 3000px;">Hello</textarea>
 
 </body>
 </html>
