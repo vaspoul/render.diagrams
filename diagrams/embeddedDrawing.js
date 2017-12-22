@@ -185,7 +185,7 @@ function EmbeddedDrawing(docTag)
 
 		if (this.onMouseMove != undefined)
 		{
-			this.onMouseMove(lastMousePos);
+			this.onMouseMove(lastMousePos, lastMousePosPixels);
 		}
 	}
 

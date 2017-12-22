@@ -2358,7 +2358,9 @@ function GeneralDrawing(docTag)
 		popupHeader += "<script type=\"text/javascript\" src=\"diagrams/embeddedDrawing.js\"></script>\n";
 
 		var randomVal = Math.floor(Math.random() * 16777216);
-		popupHTML += "<div id=\"embeddedDrawing_" + randomVal + "\" style=\"width: " + divWidth + "px; height: " + divHeight + "px; margin:0 auto; border:1px solid black;\"></div>\n";
+		popupHTML += "<div id=\"container\" style=\"width: " + divWidth + "px; height: " + divHeight + "px; margin:0 auto; border:1px solid black;\">\n";
+		popupHTML += "<div id=\"embeddedDrawing_" + randomVal + "\" style=\"width: 100%; padding-bottom: " + ((divHeight/divWidth)*100).toFixed(0) + "%;\"></div>\n";
+		popupHTML += "</div>\n";
 
 		popupJS += "<script>\n";
 		popupJS += "var embeddedObj = new EmbeddedDrawing(\"embeddedDrawing_" + randomVal + "\");\n";

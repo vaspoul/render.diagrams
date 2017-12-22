@@ -69,15 +69,14 @@
                 scene.addObject(bar);
             }
 
-            //embeddedObj.zoomExtents();
             embeddedObj.camera.setViewPosition(mainBar.B.x/2, 5);
             embeddedObj.camera.setUnitScale(embeddedObj.parent.clientWidth / mainBar.B.x);
             embeddedObj.draw();
         }
 
-        embeddedObj.onMouseMove = function(m)
+        embeddedObj.onMouseMove = function(m, mp)
         {
-            if (m.x<0)
+            if (m.x<mainBar.A.x || m.x>mainBar.B.x)
                 return;
 
             var index = m.x / (mainBar.B.x / mainBar.values.length);
@@ -117,9 +116,14 @@
 
             embeddedObj.camera.drawLine(m, new Vector(m.x, 0), "#000000", 1, [5, 5]);
 
-		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*0), "Value: " + value.toFixed(2), "#009090", "right");
-		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*1), "Bucket Range: " + bucketMin + " - " + bucketMax, "#009090", "right");
-		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*2), "Bucket Step Size: " + stepSize, "#009090", "right");
+            var textAlign = "right";
+
+            if (mp.x<175)
+                textAlign = "left";
+
+		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*0), "Value: " + value.toFixed(2), "#000000", textAlign);
+		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*1), "Bucket Range: " + bucketMin + " - " + bucketMax, "#000000", textAlign);
+		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*2), "Bucket Step Size: " + stepSize, "#000000", textAlign);
         };
 
         makeScene();
@@ -136,8 +140,9 @@
                 makeScene();
             });
 
-        exponentSlider.addControls(document.getElementById("controls"));
-        matissaSlider.addControls(document.getElementById("controls"));
+		var controls = new PropertyGrid(document.getElementById("controls"));
+		controls.addProperty("Exponent Bits", exponentSlider);
+		controls.addProperty("Matissa Bits", matissaSlider);
 
     </script>
 
