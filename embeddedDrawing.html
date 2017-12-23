@@ -172,8 +172,12 @@
 					scene.addObject(bar);
 				}
 
-				embeddedObj.camera.setViewPosition(mainBar.B.x / 2, 5);
-				embeddedObj.camera.setUnitScale(embeddedObj.parent.clientWidth / mainBar.B.x);
+				var axis = new Axis(new Vector(0,0));
+				axis.setDragPointPos(1, new Vector(0, bucketInfo[bucketInfo.length-1].bucketMax));
+				scene.addObject(axis);
+
+				embeddedObj.camera.setViewPosition(mainBar.B.x / 2, 8);
+				embeddedObj.camera.setUnitScale(embeddedObj.parent.clientWidth / (mainBar.B.x + 2));
 				embeddedObj.draw();
 			}
 		}
@@ -208,6 +212,7 @@
 			var lineStep = embeddedObj.camera.invScale(20);
 
 			embeddedObj.camera.drawLine(m, new Vector(m.x, 0), "#000000", 1, [5, 5]);
+			embeddedObj.camera.drawLine(new Vector(m.x, value), new Vector(0, value), "#000000", 1, [5, 5]);
 
 			var textAlign = "right";
 
