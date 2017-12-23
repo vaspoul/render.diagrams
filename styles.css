@@ -1,0 +1,21 @@
+table.foo, table.foo tr, table.foo tr td 
+{
+	border: none;
+}
+
+table.foo tr th
+{
+	border: none;
+	border-bottom: 2px solid black;
+}
+
+table.propertyGrid, table.propertyGrid tr, table.propertyGrid tr td 
+{
+	border: none;
+}
+
+table.propertyGrid tr th
+{
+	border: none;
+	border-bottom: 2px solid black;
+}
