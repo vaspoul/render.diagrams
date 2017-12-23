@@ -247,7 +247,7 @@ function GeneralDrawing(docTag)
 			buttonListdDock.style.left = "5";
 			buttonListdDock.style.top = "5";
 			buttonListdDock.style.width  = 180;
-			buttonListdDock.style.height = 855;
+			buttonListdDock.style.height = 860;
 			root.appendChild(buttonListdDock);
 
 			buttonList = new PropertyGrid(buttonListdDock);
@@ -270,6 +270,7 @@ function GeneralDrawing(docTag)
 			buttonList.addProperty(undefined, new Button("Add Bar Chart", function () { setTool("addBarChart"); }));
 			buttonList.addProperty(undefined, new Button("Add Dimension (D)", function () { setTool("addDimension"); }));
 			buttonList.addProperty(undefined, new Button("Add Text (X)", function(){setTool("addText");}));
+			buttonList.addProperty(undefined, new Button("Add Axis", function () { setTool("addAxis"); }));
 			buttonList.addProperty(undefined, new Button("Add Tree", function () { addTree(); }));
 			buttonList.addProperty(undefined, new Button("Add Person", function () { addPerson(); }));
 			buttonList.addProperty(undefined, new Divider());
@@ -428,7 +429,7 @@ function GeneralDrawing(docTag)
 					}
 				}
 			}
-			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot" || tool == "addText")
+			else if (tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot" || tool == "addText" || tool == "addAxis")
 			{
 				if (objectBeingMade !== undefined)
 				{
@@ -516,7 +517,7 @@ function GeneralDrawing(docTag)
 			setSelection([]);
 			draw();
 		}
-		else if (newTool == "addRay" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addBarChart" || newTool == "addText")
+		else if (newTool == "addRay" || newTool == "addSpotLight" || newTool == "addParallelLight" || newTool == "addCamera" || newTool == "addBarChart" || newTool == "addText" || newTool == "addAxis")
 		{
 			if (tool != newTool)
 			{
@@ -1171,7 +1172,7 @@ function GeneralDrawing(docTag)
 				backup();
 				mode = null;
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot" || tool == "addText")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addPointLight" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot" || tool == "addText" || tool == "addAxis")
 			{
 				if (evt.altKey == 0)
 				{
@@ -1283,6 +1284,20 @@ function GeneralDrawing(docTag)
 					if (objectBeingMade === undefined)
 					{
 						objectBeingMade = new Text(newPoint.copy(), "Sample Text");
+						scene.addObject(objectBeingMade);
+					}
+					else
+					{
+						objectBeingMade.setDragPointPos(1, newPoint);
+						setTool("select");
+						setSelection([scene.objects[scene.objects.length-1]]);
+					}
+				}
+				else if (tool == "addAxis")
+				{
+					if (objectBeingMade === undefined)
+					{
+						objectBeingMade = new Axis(newPoint.copy());
 						scene.addObject(objectBeingMade);
 					}
 					else
@@ -1521,7 +1536,7 @@ function GeneralDrawing(docTag)
 					}
 				}
 			}
-			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot" || tool == "addText")
+			else if (tool == "addWall" || tool == "addArcWall" || tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addLine" || tool == "addRect" || tool == "addHemisphere" || tool == "addNGon" || tool == "addDimension" || tool == "addBarChart" || tool == "takeScreenshot" || tool == "addText" || tool == "addAxis")
 			{
 				layerDirty[1] = true;
 
@@ -1602,7 +1617,7 @@ function GeneralDrawing(docTag)
 						objectBeingMade.setDragPointPos(0, newPoint);
 					}
 				}
-				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addBarChart" || tool == "addText")
+				else if (tool == "addRay" || tool == "addSpotLight" || tool == "addParallelLight" || tool == "addCamera" || tool == "addBarChart" || tool == "addText" || tool == "addAxis")
 				{
 					if (objectBeingMade !== undefined)
 					{
