@@ -35,46 +35,47 @@
 		</table> 
 	</div>
 
+	<pre style="display:none;">
 	<script>
 	(function ()
 	{
-		var embeddedObj			= new EmbeddedDrawing("embeddedDrawing_floats");
-		var scene				= embeddedObj.getScene();
-		var mainBar				= undefined;
-		var mantissaBars		= [];
+		var embeddedObj = new EmbeddedDrawing("embeddedDrawing_floats");
+		var scene = embeddedObj.getScene();
+		var mainBar = undefined;
+		var mantissaBars = [];
 
-		var exponentSlider		= undefined;
-		var exponentBiasSlider	= undefined;
-		var matissaSlider		= undefined;
+		var exponentSlider = undefined;
+		var exponentBiasSlider = undefined;
+		var matissaSlider = undefined;
 
-		var exponentBitCount	= 3;
-		var mantissaBitCount	= 2;
-		var mantissaStepCount	= Math.pow(2, mantissaBitCount);
-		var exponentBias		= 0;
-		var bucketInfo			= [];
+		var exponentBitCount = 3;
+		var mantissaBitCount = 2;
+		var mantissaStepCount = Math.pow(2, mantissaBitCount);
+		var exponentBias = 0;
+		var bucketInfo = [];
 
 		function init()
 		{
-			exponentSlider = new Slider(1, 4, exponentBitCount, 1, function(value)
-				{
-					exponentBitCount = value;
-					exponentBias = Math.min(exponentBias, Math.pow(2,exponentBitCount));
-					update();
-				});
+			exponentSlider = new Slider(1, 4, exponentBitCount, 1, function (value)
+			{
+				exponentBitCount = value;
+				exponentBias = Math.min(exponentBias, Math.pow(2, exponentBitCount));
+				update();
+			});
 
-			exponentBiasSlider = new Slider(0, 128, exponentBias, 1, function(value)
-				{
-					exponentBias = value;
-					exponentBias = Math.min(exponentBias, Math.pow(2,exponentBitCount));
-					update();
-				});
+			exponentBiasSlider = new Slider(0, 128, exponentBias, 1, function (value)
+			{
+				exponentBias = value;
+				exponentBias = Math.min(exponentBias, Math.pow(2, exponentBitCount));
+				update();
+			});
 
-			matissaSlider = new Slider(1, 8, mantissaBitCount, 1, function(value)
-				{
-					mantissaBitCount = value;
-					mantissaStepCount	= Math.pow(2, mantissaBitCount);
-					update();
-				});
+			matissaSlider = new Slider(1, 8, mantissaBitCount, 1, function (value)
+			{
+				mantissaBitCount = value;
+				mantissaStepCount = Math.pow(2, mantissaBitCount);
+				update();
+			});
 
 			var controls = new PropertyGrid(document.getElementById("controls_floats"));
 			controls.addProperty("Exponent Bits", exponentSlider);
@@ -90,12 +91,12 @@
 				var table = document.getElementById("table_floats");
 				if (table != null)
 				{
-					while (table.rows.length>1)
+					while (table.rows.length > 1)
 					{
 						table.deleteRow(1);
 					}
 
-					for (var exponent=0; exponent!=Math.pow(2,exponentBitCount); ++exponent)
+					for (var exponent = 0; exponent != Math.pow(2, exponentBitCount) ; ++exponent)
 					{
 						var scale;
 						var value;
@@ -103,22 +104,22 @@
 						var bucketMax;
 						var stepSize;
 
-						if (exponent==0)
+						if (exponent == 0)
 						{
-							scale = Math.pow(2, 1-exponentBias);
+							scale = Math.pow(2, 1 - exponentBias);
 							bucketMin = scale * 0;
-							bucketMax = scale * (1 - 1/mantissaStepCount);
-							stepSize = scale/mantissaStepCount;
+							bucketMax = scale * (1 - 1 / mantissaStepCount);
+							stepSize = scale / mantissaStepCount;
 						}
 						else
 						{
-							scale = Math.pow(2, exponent-exponentBias);
+							scale = Math.pow(2, exponent - exponentBias);
 							bucketMin = scale * 1;
-							bucketMax = scale * (2 - 1/mantissaStepCount);
-							stepSize = scale/mantissaStepCount;
+							bucketMax = scale * (2 - 1 / mantissaStepCount);
+							stepSize = scale / mantissaStepCount;
 						}
 
-						bucketInfo[exponent] = {scale:scale, bucketMin:bucketMin, bucketMax:bucketMax, stepSize:stepSize };
+						bucketInfo[exponent] = { scale: scale, bucketMin: bucketMin, bucketMax: bucketMax, stepSize: stepSize };
 
 
 						var row = table.insertRow(-1);
@@ -141,7 +142,7 @@
 				mainBar.fillColor = "#f97171";
 				mainBar.fillAlpha = 1;
 				mainBar.userValues = [];
-				for (var i=0; i!=bucketInfo.length; ++i)
+				for (var i = 0; i != bucketInfo.length; ++i)
 				{
 					mainBar.userValues.push(bucketInfo[i].bucketMin);
 				}
@@ -149,10 +150,10 @@
 
 				scene.deleteObjects(mantissaBars);
 
-				for (var i=0; i<mainBar.values.length; ++i)
+				for (var i = 0; i < mainBar.values.length; ++i)
 				{
 					var p0 = mad(i, div(sub(mainBar.B, mainBar.A), bucketInfo.length), mainBar.A);
-					var p1 = mad(i+1, div(sub(mainBar.B, mainBar.A), bucketInfo.length), mainBar.A);
+					var p1 = mad(i + 1, div(sub(mainBar.B, mainBar.A), bucketInfo.length), mainBar.A);
 					p0.y += bucketInfo[i].bucketMin;
 					p1.y += bucketInfo[i].bucketMin;
 
@@ -160,7 +161,7 @@
 					bar.color = "#900090";
 					bar.fillColor = "#2ed18f";
 					bar.userValues = [];
-					for (var j=0; j!=mantissaStepCount; ++j)
+					for (var j = 0; j != mantissaStepCount; ++j)
 					{
 						bar.userValues.push(j * bucketInfo[i].scale / mantissaStepCount);
 					}
@@ -171,18 +172,18 @@
 					scene.addObject(bar);
 				}
 
-				embeddedObj.camera.setViewPosition(mainBar.B.x/2, 5);
+				embeddedObj.camera.setViewPosition(mainBar.B.x / 2, 5);
 				embeddedObj.camera.setUnitScale(embeddedObj.parent.clientWidth / mainBar.B.x);
 				embeddedObj.draw();
 			}
 		}
 
-		embeddedObj.onMouseMove = function(m, mp)
+		embeddedObj.onMouseMove = function (m, mp)
 		{
 			if (mainBar == undefined)
 				return;
 
-			if (m.x<mainBar.A.x || m.x>mainBar.B.x)
+			if (m.x < mainBar.A.x || m.x > mainBar.B.x)
 				return;
 
 			var index = m.x / (mainBar.B.x / mainBar.values.length);
@@ -191,11 +192,11 @@
 			var indexFraction = index - Math.floor(index);
 
 			var mantissaStepCount = Math.pow(2, mantissaBitCount);
-			var quantizedFraction = Math.floor(indexFraction * mantissaStepCount ) / mantissaStepCount;
+			var quantizedFraction = Math.floor(indexFraction * mantissaStepCount) / mantissaStepCount;
 
 			var value;
 
-			if (indexFloor==0)
+			if (indexFloor == 0)
 			{
 				value = bucketInfo[indexFloor].scale * quantizedFraction;
 			}
@@ -210,12 +211,12 @@
 
 			var textAlign = "right";
 
-			if (mp.x<175)
+			if (mp.x < 175)
 				textAlign = "left";
 
-			embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*0), "Value: " + value.toFixed(2), "#000000", textAlign);
-			embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*1), "Bucket Range: " + bucketInfo[indexFloor].bucketMin + " - " + bucketInfo[indexFloor].bucketMax, "#000000", textAlign);
-			embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*2), "Bucket Step Size: " + bucketInfo[indexFloor].stepSize, "#000000", textAlign);
+			embeddedObj.camera.drawText(new Vector(m.x, m.y + lineStep * 0), "Value: " + value.toFixed(2), "#000000", textAlign);
+			embeddedObj.camera.drawText(new Vector(m.x, m.y + lineStep * 1), "Bucket Range: " + bucketInfo[indexFloor].bucketMin + " - " + bucketInfo[indexFloor].bucketMax, "#000000", textAlign);
+			embeddedObj.camera.drawText(new Vector(m.x, m.y + lineStep * 2), "Bucket Step Size: " + bucketInfo[indexFloor].stepSize, "#000000", textAlign);
 		};
 
 		init();
@@ -223,6 +224,7 @@
 
 	})();
 	</script>
+	</pre>
 
 </body>
 </html>
