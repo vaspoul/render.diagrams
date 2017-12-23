@@ -1,9 +1,9 @@
-table.foo, table.foo tr, table.foo tr td 
+table.valuesTable, table.valuesTable tr, table.valuesTable tr td 
 {
 	border: none;
 }
 
-table.foo tr th
+table.valuesTable tr th
 {
 	border: none;
 	border-bottom: 2px solid black;

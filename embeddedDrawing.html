@@ -10,141 +10,219 @@
 <script type="text/javascript" src="lib/ui.js"></script>
 <script type="text/javascript" src="diagrams/embeddedDrawing.js"></script>
 
+	<link rel='stylesheet' id='dashicons-css' href='http://renderdiagrams.org/wp-includes/css/dashicons.min.css' type='text/css' media='all' />
+	<link rel='stylesheet' id='admin-bar-css' href='http://renderdiagrams.org/wp-includes/css/admin-bar.min.css' type='text/css' media='all' />
+	<link rel='stylesheet' id='genericons-css' href='http://renderdiagrams.org/wp-content/themes/genius/genericons/genericons.css' type='text/css' media='all' />
+	<link rel='stylesheet' id='genius-style-css' href='http://renderdiagrams.org/wp-content/themes/genius/style.css' type='text/css' media='all' />
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="styles.css">
 </head>
 
 
-<body>
+<body style="width:750px; margin:0 auto">
+
+	<div id="embeddedDrawing_floats" style="width: 100%; padding-bottom: 100%;"></div>
+	<p/>
+	<div id="controls_floats" style="width: 100%;"></div>
+	<p/>
+	<div id="tableContainer" style="width: 100%; margin:0 auto;">
+		<table id="table_floats" class="valuesTable w3-striped" align="center" style="text-align: center;">
+			<tr>
+				<th width="20%">Exponent</th>
+				<th>Range</th>
+				<th width="20%">Step</th>
+			</tr>
+		</table> 
+	</div>
+
+	<script>
+	(function ()
+	{
+		var embeddedObj			= new EmbeddedDrawing("embeddedDrawing_floats");
+		var scene				= embeddedObj.getScene();
+		var mainBar				= undefined;
+		var mantissaBars		= [];
+
+		var exponentSlider		= undefined;
+		var exponentBiasSlider	= undefined;
+		var matissaSlider		= undefined;
+
+		var exponentBitCount	= 3;
+		var mantissaBitCount	= 2;
+		var mantissaStepCount	= Math.pow(2, mantissaBitCount);
+		var exponentBias		= 0;
+		var bucketInfo			= [];
+
+		function init()
+		{
+			exponentSlider = new Slider(1, 4, exponentBitCount, 1, function(value)
+				{
+					exponentBitCount = value;
+					exponentBias = Math.min(exponentBias, Math.pow(2,exponentBitCount));
+					update();
+				});
+
+			exponentBiasSlider = new Slider(0, 128, exponentBias, 1, function(value)
+				{
+					exponentBias = value;
+					exponentBias = Math.min(exponentBias, Math.pow(2,exponentBitCount));
+					update();
+				});
+
+			matissaSlider = new Slider(1, 8, mantissaBitCount, 1, function(value)
+				{
+					mantissaBitCount = value;
+					mantissaStepCount	= Math.pow(2, mantissaBitCount);
+					update();
+				});
+
+			var controls = new PropertyGrid(document.getElementById("controls_floats"));
+			controls.addProperty("Exponent Bits", exponentSlider);
+			controls.addProperty("Exponent Bias", exponentBiasSlider);
+			controls.addProperty("Matissa Bits", matissaSlider);
+		}
+
+		function update()
+		{
+			// Update table
+			{
+				bucketInfo = [];
+				var table = document.getElementById("table_floats");
+				if (table != null)
+				{
+					while (table.rows.length>1)
+					{
+						table.deleteRow(1);
+					}
+
+					for (var exponent=0; exponent!=Math.pow(2,exponentBitCount); ++exponent)
+					{
+						var scale;
+						var value;
+						var bucketMin;
+						var bucketMax;
+						var stepSize;
+
+						if (exponent==0)
+						{
+							scale = Math.pow(2, 1-exponentBias);
+							bucketMin = scale * 0;
+							bucketMax = scale * (1 - 1/mantissaStepCount);
+							stepSize = scale/mantissaStepCount;
+						}
+						else
+						{
+							scale = Math.pow(2, exponent-exponentBias);
+							bucketMin = scale * 1;
+							bucketMax = scale * (2 - 1/mantissaStepCount);
+							stepSize = scale/mantissaStepCount;
+						}
+
+						bucketInfo[exponent] = {scale:scale, bucketMin:bucketMin, bucketMax:bucketMax, stepSize:stepSize };
 
 
-    <div id="embeddedDrawing" style="width: 800px; height: 800px; margin:0 auto; border:0px solid black;"></div>
-    <p/>
-    <div id="controls" style="width: 800px; height: 100px; margin:0 auto; border:1px solid black;"></div>
+						var row = table.insertRow(-1);
+						row.insertCell(-1).innerHTML = exponent;
+						row.insertCell(-1).innerHTML = bucketInfo[exponent].bucketMin + " - " + bucketInfo[exponent].bucketMax;
+						row.insertCell(-1).innerHTML = bucketInfo[exponent].stepSize;
+					}
+				}
+			}
 
-    <script>
-        var embeddedObj = new EmbeddedDrawing("embeddedDrawing");
+			// Diagram elements
+			{
+				if (mainBar == undefined)
+				{
+					mainBar = new BarChart(new Vector(0, 0), new Vector(16, 0));
+					scene.addObject(mainBar);
+				}
 
-        //embeddedObj.showGrid = 0;
+				mainBar.color = "#900090";
+				mainBar.fillColor = "#f97171";
+				mainBar.fillAlpha = 1;
+				mainBar.userValues = [];
+				for (var i=0; i!=bucketInfo.length; ++i)
+				{
+					mainBar.userValues.push(bucketInfo[i].bucketMin);
+				}
+				mainBar.setBarCount(bucketInfo.length);
 
-        var scene = embeddedObj.getScene();
+				scene.deleteObjects(mantissaBars);
 
-        var exponentBitCount = 3;
-        var mantissaBitCount = 2;
-        var mainBar = undefined;
-        var mantissaBars = [];
-        
-        function makeScene()
-        {
-            if (mainBar == undefined)
-            {
-                mainBar = new BarChart(new Vector(0, 0), new Vector(16, 0));
-                scene.addObject(mainBar);
-            }
+				for (var i=0; i<mainBar.values.length; ++i)
+				{
+					var p0 = mad(i, div(sub(mainBar.B, mainBar.A), bucketInfo.length), mainBar.A);
+					var p1 = mad(i+1, div(sub(mainBar.B, mainBar.A), bucketInfo.length), mainBar.A);
+					p0.y += bucketInfo[i].bucketMin;
+					p1.y += bucketInfo[i].bucketMin;
 
-            mainBar.color = "#900090";
-            mainBar.fillColor = "#f97171";
-            mainBar.fillAlpha = 1;
-            mainBar.valuesFunctionStr = "return Math.pow(2,index)-1;";
-            mainBar.setBarCount(Math.pow(2, exponentBitCount));
+					var bar = new BarChart(p0, p1);
+					bar.color = "#900090";
+					bar.fillColor = "#2ed18f";
+					bar.userValues = [];
+					for (var j=0; j!=mantissaStepCount; ++j)
+					{
+						bar.userValues.push(j * bucketInfo[i].scale / mantissaStepCount);
+					}
+					bar.setBarCount(mantissaStepCount);
 
-            scene.deleteObjects(mantissaBars);
+					mantissaBars.push(bar);
 
-            for (var i=0; i<mainBar.values.length; ++i)
-            {
-                var p0 = mad(i, div(sub(mainBar.B, mainBar.A), mainBar.values.length), mainBar.A);
-                var p1 = mad(i+1, div(sub(mainBar.B, mainBar.A), mainBar.values.length), mainBar.A);
-                var v0 = mainBar.values[i];
-                var v1 = mainBar.values[i+1];
+					scene.addObject(bar);
+				}
 
-                p0.y += v0;
-                p1.y += v0;
+				embeddedObj.camera.setViewPosition(mainBar.B.x/2, 5);
+				embeddedObj.camera.setUnitScale(embeddedObj.parent.clientWidth / mainBar.B.x);
+				embeddedObj.draw();
+			}
+		}
 
-                var bar = new BarChart(p0, p1);
-                bar.color = "#900090";
-                bar.fillColor = "#2ed18f";
-                bar.valuesFunctionStr = "return index * Math.pow(2, " + i + ") / " + Math.pow(2, mantissaBitCount) + ";";
-                bar.setBarCount(Math.pow(2, mantissaBitCount));
+		embeddedObj.onMouseMove = function(m, mp)
+		{
+			if (mainBar == undefined)
+				return;
 
-                mantissaBars.push(bar);
+			if (m.x<mainBar.A.x || m.x>mainBar.B.x)
+				return;
 
-                scene.addObject(bar);
-            }
+			var index = m.x / (mainBar.B.x / mainBar.values.length);
 
-            embeddedObj.camera.setViewPosition(mainBar.B.x/2, 5);
-            embeddedObj.camera.setUnitScale(embeddedObj.parent.clientWidth / mainBar.B.x);
-            embeddedObj.draw();
-        }
+			var indexFloor = Math.floor(index);
+			var indexFraction = index - Math.floor(index);
 
-        embeddedObj.onMouseMove = function(m, mp)
-        {
-            if (m.x<mainBar.A.x || m.x>mainBar.B.x)
-                return;
+			var mantissaStepCount = Math.pow(2, mantissaBitCount);
+			var quantizedFraction = Math.floor(indexFraction * mantissaStepCount ) / mantissaStepCount;
 
-            var index = m.x / (mainBar.B.x / mainBar.values.length);
+			var value;
 
-            var indexFloor = Math.floor(index);
-            var indexFraction = index - Math.floor(index);
+			if (indexFloor==0)
+			{
+				value = bucketInfo[indexFloor].scale * quantizedFraction;
+			}
+			else
+			{
+				value = bucketInfo[indexFloor].scale * (1 + quantizedFraction);
+			}
 
-            var matissaSteps = Math.pow(2, mantissaBitCount);
-            var quantizedFraction = Math.floor(indexFraction * matissaSteps ) / matissaSteps;
+			var lineStep = embeddedObj.camera.invScale(20);
 
-            var scale;
-            var value;
-            var bucketMin;
-            var bucketMax;
-            var stepSize;
+			embeddedObj.camera.drawLine(m, new Vector(m.x, 0), "#000000", 1, [5, 5]);
 
-            if (indexFloor==0)
-            {
-                scale = Math.pow(2, indexFloor);
-                value = scale * quantizedFraction;
-                bucketMin = scale * 0;
-                bucketMax = scale * (1 - 1/matissaSteps);
-                stepSize = scale/matissaSteps;
-            }
-            else
-            {
-                scale = Math.pow(2, indexFloor-1);
-                value = scale * (1 + quantizedFraction);
-                bucketMin = scale * 1;
-                bucketMax = scale * (2 - 1/matissaSteps);
-                stepSize = scale/matissaSteps;
-            }
+			var textAlign = "right";
 
-            var valueFactor = Math.floor( (index - Math.floor(index)) * matissaSteps ) / matissaSteps;
+			if (mp.x<175)
+				textAlign = "left";
 
-            var lineStep = embeddedObj.camera.invScale(20);
+			embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*0), "Value: " + value.toFixed(2), "#000000", textAlign);
+			embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*1), "Bucket Range: " + bucketInfo[indexFloor].bucketMin + " - " + bucketInfo[indexFloor].bucketMax, "#000000", textAlign);
+			embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*2), "Bucket Step Size: " + bucketInfo[indexFloor].stepSize, "#000000", textAlign);
+		};
 
-            embeddedObj.camera.drawLine(m, new Vector(m.x, 0), "#000000", 1, [5, 5]);
+		init();
+		update();
 
-            var textAlign = "right";
-
-            if (mp.x<175)
-                textAlign = "left";
-
-		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*0), "Value: " + value.toFixed(2), "#000000", textAlign);
-		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*1), "Bucket Range: " + bucketMin + " - " + bucketMax, "#000000", textAlign);
-		    embeddedObj.camera.drawText(new Vector(m.x, m.y+lineStep*2), "Bucket Step Size: " + stepSize, "#000000", textAlign);
-        };
-
-        makeScene();
-
-        var exponentSlider = new Slider(1, 5, exponentBitCount, 1, function(value)
-            {
-                exponentBitCount = value;
-                makeScene();
-            });
-
-        var matissaSlider = new Slider(1, 5, mantissaBitCount, 1, function(value)
-            {
-                mantissaBitCount = value;
-                makeScene();
-            });
-
-		var controls = new PropertyGrid(document.getElementById("controls"));
-		controls.addProperty("Exponent Bits", exponentSlider);
-		controls.addProperty("Matissa Bits", matissaSlider);
-
-    </script>
+	})();
+	</script>
 
 </body>
 </html>
