@@ -2373,23 +2373,26 @@ function GeneralDrawing(docTag)
 		popupHeader += "<script type=\"text/javascript\" src=\"diagrams/embeddedDrawing.js\"></script>\n";
 
 		var randomVal = Math.floor(Math.random() * 16777216);
-		popupHTML += "<div id=\"container\" style=\"width: " + divWidth + "px; height: " + divHeight + "px; margin:0 auto; border:1px solid black;\">\n";
 		popupHTML += "<div id=\"embeddedDrawing_" + randomVal + "\" style=\"width: 100%; padding-bottom: " + ((divHeight/divWidth)*100).toFixed(0) + "%;\"></div>\n";
-		popupHTML += "</div>\n";
 
 		popupJS += "<script>\n";
+		popupJS += "(function ()\n";
+		popupJS += "{\n";
 		popupJS += "var embeddedObj = new EmbeddedDrawing(\"embeddedDrawing_" + randomVal + "\");\n";
 		popupJS += "\n";
 		popupJS += "var scene = embeddedObj.getScene();\n";
 		popupJS += "\n";
 		popupJS += scene.saveAsJavascript();
 		popupJS += "embeddedObj.zoomExtents();\n";
+		popupJS += "})();\n";
 		popupJS += "</script>\n";
 
 		popup.document.open();
 		popup.document.write("<body>\n");
 		popup.document.write(popupHeader);
+		popup.document.write("<div id=\"container\" style=\"width: " + divWidth + "px; height: " + divHeight + "px; margin:0 auto; border:1px solid black;\">");
 		popup.document.write(popupHTML);
+		popup.document.write("</div>");
 		popup.document.write(popupJS);
 
 		popup.document.write("<div style=\"width: " + divWidth + "px; display: block; margin:auto auto;\">\n");
