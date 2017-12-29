@@ -1,0 +1,235 @@
+<html>
+<head>
+
+<script type="text/javascript" src="lib/maths.js"></script>
+<script type="text/javascript" src="lib/graphics.js"></script>
+<script type="text/javascript" src="lib/camera.js"></script>
+<script type="text/javascript" src="lib/scene.js"></script>
+<script type="text/javascript" src="lib/sceneObjects.js"></script>
+<script type="text/javascript" src="lib/brdf.js"></script>
+<script type="text/javascript" src="lib/ui.js"></script>
+<script type="text/javascript" src="diagrams/embeddedDrawing.js"></script>
+
+	<link rel='stylesheet' id='dashicons-css' href='http://renderdiagrams.org/wp-includes/css/dashicons.min.css' type='text/css' media='all' />
+	<link rel='stylesheet' id='admin-bar-css' href='http://renderdiagrams.org/wp-includes/css/admin-bar.min.css' type='text/css' media='all' />
+	<link rel='stylesheet' id='genericons-css' href='http://renderdiagrams.org/wp-content/themes/genius/genericons/genericons.css' type='text/css' media='all' />
+	<link rel='stylesheet' id='genius-style-css' href='http://renderdiagrams.org/wp-content/themes/genius/style.css' type='text/css' media='all' />
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="styles.css">
+</head>
+
+
+<body style="width:750px; margin:0 auto">
+
+	<div id="controls_floats" style="width: 100%;"></div>
+	<p />
+	<div id="embeddedDrawing_floats" style="width: 100%; padding-bottom: 100%;"></div>
+	<p/>
+	<div id="tableContainer" style="width: 100%; margin:0 auto;">
+		<table id="table_floats" class="valuesTable w3-striped" align="center" style="text-align: center;">
+			<tr>
+				<th width="20%">Exponent</th>
+				<th>Range</th>
+				<th width="20%">Step</th>
+			</tr>
+		</table> 
+	</div>
+
+	<pre style="display:none;">
+	<script>
+	(function ()
+	{
+		var embeddedObj = new EmbeddedDrawing("embeddedDrawing_floats");
+		var scene = embeddedObj.getScene();
+		var mainBar = undefined;
+		var mantissaBars = [];
+
+		var exponentSlider = undefined;
+		var exponentBiasSlider = undefined;
+		var matissaSlider = undefined;
+
+		var exponentBitCount = 2;
+		var mantissaBitCount = 2;
+		var mantissaStepCount = Math.pow(2, mantissaBitCount);
+		var exponentBias = 0;
+		var bucketInfo = [];
+
+		function init()
+		{
+			exponentSlider = new Slider(1, 4, exponentBitCount, 1, function (value)
+			{
+				exponentBitCount = value;
+				exponentBias = Math.min(exponentBias, Math.pow(2, exponentBitCount));
+				update();
+			});
+
+			exponentBiasSlider = new Slider(0, 128, exponentBias, 1, function (value)
+			{
+				exponentBias = value;
+				exponentBias = Math.min(exponentBias, Math.pow(2, exponentBitCount));
+				update();
+			});
+
+			matissaSlider = new Slider(1, 8, mantissaBitCount, 1, function (value)
+			{
+				mantissaBitCount = value;
+				mantissaStepCount = Math.pow(2, mantissaBitCount);
+				update();
+			});
+
+			var controls = new PropertyGrid(document.getElementById("controls_floats"));
+			controls.addProperty("Exponent Bits", exponentSlider);
+			controls.addProperty("Exponent Bias", exponentBiasSlider);
+			controls.addProperty("Matissa Bits", matissaSlider);
+		}
+
+		function update()
+		{
+			// Update table
+			{
+				bucketInfo = [];
+				var table = document.getElementById("table_floats");
+				if (table != null)
+				{
+					while (table.rows.length > 1)
+					{
+						table.deleteRow(1);
+					}
+
+					for (var exponent = 0; exponent != Math.pow(2, exponentBitCount) ; ++exponent)
+					{
+						var scale;
+						var value;
+						var bucketMin;
+						var bucketMax;
+						var stepSize;
+
+						if (exponent == 0)
+						{
+							scale = Math.pow(2, 1 - exponentBias);
+							bucketMin = scale * 0;
+							bucketMax = scale * (1 - 1 / mantissaStepCount);
+							stepSize = scale / mantissaStepCount;
+						}
+						else
+						{
+							scale = Math.pow(2, exponent - exponentBias);
+							bucketMin = scale * 1;
+							bucketMax = scale * (2 - 1 / mantissaStepCount);
+							stepSize = scale / mantissaStepCount;
+						}
+
+						bucketInfo[exponent] = { scale: scale, bucketMin: bucketMin, bucketMax: bucketMax, stepSize: stepSize };
+
+
+						var row = table.insertRow(-1);
+						row.insertCell(-1).innerHTML = exponent;
+						row.insertCell(-1).innerHTML = bucketInfo[exponent].bucketMin + " - " + bucketInfo[exponent].bucketMax;
+						row.insertCell(-1).innerHTML = bucketInfo[exponent].stepSize;
+					}
+				}
+			}
+
+			// Diagram elements
+			{
+				if (mainBar == undefined)
+				{
+					mainBar = new BarChart(new Vector(0, 0), new Vector(16, 0));
+					scene.addObject(mainBar);
+				}
+
+				mainBar.color = "#900090";
+				mainBar.fillColor = "#f97171";
+				mainBar.fillAlpha = 1;
+				mainBar.userValues = [];
+				for (var i = 0; i != bucketInfo.length; ++i)
+				{
+					mainBar.userValues.push(bucketInfo[i].bucketMin);
+				}
+				mainBar.setBarCount(bucketInfo.length);
+
+				scene.deleteObjects(mantissaBars);
+
+				for (var i = 0; i < mainBar.values.length; ++i)
+				{
+					var p0 = mad(i, div(sub(mainBar.B, mainBar.A), bucketInfo.length), mainBar.A);
+					var p1 = mad(i + 1, div(sub(mainBar.B, mainBar.A), bucketInfo.length), mainBar.A);
+					p0.y += bucketInfo[i].bucketMin;
+					p1.y += bucketInfo[i].bucketMin;
+
+					var bar = new BarChart(p0, p1);
+					bar.color = "#900090";
+					bar.fillColor = "#2ed18f";
+					bar.userValues = [];
+					for (var j = 0; j != mantissaStepCount; ++j)
+					{
+						bar.userValues.push(j * bucketInfo[i].scale / mantissaStepCount);
+					}
+					bar.setBarCount(mantissaStepCount);
+
+					mantissaBars.push(bar);
+
+					scene.addObject(bar);
+				}
+
+				var axis = new Axis(new Vector(0,0));
+				axis.setDragPointPos(1, new Vector(0, bucketInfo[bucketInfo.length-1].bucketMax));
+				scene.addObject(axis);
+
+				embeddedObj.camera.setViewPosition(mainBar.B.x / 2, 8);
+				embeddedObj.camera.setUnitScale(embeddedObj.parent.clientWidth / (mainBar.B.x + 2));
+				embeddedObj.draw();
+			}
+		}
+
+		embeddedObj.onMouseMove = function (m, mp)
+		{
+			if (mainBar == undefined)
+				return;
+
+			if (m.x < mainBar.A.x || m.x > mainBar.B.x)
+				return;
+
+			var index = m.x / (mainBar.B.x / mainBar.values.length);
+
+			var indexFloor = Math.floor(index);
+			var indexFraction = index - Math.floor(index);
+
+			var mantissaStepCount = Math.pow(2, mantissaBitCount);
+			var quantizedFraction = Math.floor(indexFraction * mantissaStepCount) / mantissaStepCount;
+
+			var value;
+
+			if (indexFloor == 0)
+			{
+				value = bucketInfo[indexFloor].scale * quantizedFraction;
+			}
+			else
+			{
+				value = bucketInfo[indexFloor].scale * (1 + quantizedFraction);
+			}
+
+			var lineStep = embeddedObj.camera.invScale(20);
+
+			embeddedObj.camera.drawLine(m, new Vector(m.x, 0), "#000000", 1, [5, 5]);
+			embeddedObj.camera.drawLine(new Vector(m.x, value), new Vector(0, value), "#000000", 1, [5, 5]);
+
+			var textAlign = "right";
+
+			if (mp.x < 175)
+				textAlign = "left";
+
+			embeddedObj.camera.drawText(new Vector(m.x, m.y + lineStep * 0), "Value: " + value.toFixed(2), "#000000", textAlign);
+			embeddedObj.camera.drawText(new Vector(m.x, m.y + lineStep * 1), "Bucket Range: " + bucketInfo[indexFloor].bucketMin + " - " + bucketInfo[indexFloor].bucketMax, "#000000", textAlign);
+			embeddedObj.camera.drawText(new Vector(m.x, m.y + lineStep * 2), "Bucket Step Size: " + bucketInfo[indexFloor].stepSize, "#000000", textAlign);
+		};
+
+		init();
+		update();
+
+	})();
+	</script>
+	</pre>
+
+</body>
+</html>
