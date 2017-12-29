@@ -11,7 +11,7 @@
 <script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
 
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-	<link rel="stylesheet" href="styles.css">
+	<link rel="stylesheet" href="../styles.css">
 </head>
 
 
@@ -46,7 +46,7 @@
 					update();
 				});
 
-				var thresholdSlider = new Slider(0.1, 2, threshold, 0.1, function (value)
+				var thresholdSlider = new LogSlider(-3, 2, 10, threshold, 1, function (value)
 				{
 					threshold = value;
 					update();
@@ -67,7 +67,12 @@
 				var showApproxShapeTick = new TickBox(showApproxShape, function (value)
 				{
 					if (approxShape != undefined)
-						approxShape.toggleVisibility();
+					{
+						if (approxShape.isVisible() != value)
+							approxShape.toggleVisibility();
+					}
+
+					showApproxShape = value;
 
 					embeddedObj.draw();
 				});
@@ -89,6 +94,8 @@
 
 			function makeGrid()
 			{
+				embeddedObj.setRedrawOnChange(false);
+
 				scene.deleteAllObjects();
 
 				var rectObj = new Rectangle(new Vector(0,0));
@@ -119,6 +126,7 @@
 					}
 				}
 
+				embeddedObj.setRedrawOnChange(true);
 				embeddedObj.zoomExtents();
 			}
 
@@ -126,12 +134,14 @@
 			{
 				if (shape != undefined)
 				{
+					embeddedObj.setRedrawOnChange(false);
 					scene.deleteObjects([shape]);
+					embeddedObj.setRedrawOnChange(true);
 				}
 
 				shape = new Line([new Vector(4, 4), new Vector(8, 26), new Vector(16, 30), new Vector(24, 26), new Vector(28, 4), new Vector(24, 4), new Vector(22, 16), new Vector(10, 16), new Vector(8, 4)]);
 				shape.closed = true;
-				shape.color = "rgba(38, 132, 43, " + (showInputShape ? 1 : 0.4) + ")";
+				shape.color = "rgba(38, 132, 43, " + (showInputShape ? 1 : 0) + ")";
 				shape.fillColor = "#000000";
 				shape.fillAlpha = showInputShape ? 0.2 : 0;
 				shape.dashed = showInputShape ? false : true;
@@ -181,7 +191,7 @@
 					{
 						circles[i].radius = minRadius;
 						circles[i].color = "rgba(223,149,38, " + (showBigCircles ? 1 : 0) + ")";
-						circles[i].fillAlpha = inside ? (showBigCircles ? 0.5 : 0.01) : 0;
+						circles[i].fillAlpha = inside ? (showBigCircles ? 0.5 : 0.00001) : 0;
 					}
 				}
 
@@ -191,7 +201,11 @@
 			function makeApproxShape()
 			{
 				if (approxShape != undefined)
+				{
+					embeddedObj.setRedrawOnChange(false);
 					scene.deleteObjects([approxShape]);
+					embeddedObj.setRedrawOnChange(true);
+				}
 
 				var pixelSize = embeddedObj.camera.scale(32);
 
@@ -242,7 +256,7 @@
 						}
 						else
 						{
-							value = 1;
+							value = 100;
 						}
 
 
@@ -260,6 +274,10 @@
 				approxShape.drawWidth = 32;
 				approxShape.drawHeight = 32;
 				scene.addObject(approxShape);
+
+				if (!showApproxShape)
+					approxShape.toggleVisibility();
+
 				embeddedObj.draw();
 			}
 
@@ -271,6 +289,7 @@
 				shape.setOrigin(m);
 
 				adjustCircles();
+				makeApproxShape();
 			}
 
 			function update()
