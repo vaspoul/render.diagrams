@@ -28,11 +28,12 @@
 			var embeddedObj = new EmbeddedDrawing("embeddedDrawing_sdf");
 			var scene = embeddedObj.getScene();
 			var gridSize = 16;
+			var showCircles = true;
 			var showBigCircles = false;
 			var showInputShape = true;
 			var showApproxShape = true;
 			var followMouse = false;
-			var threshold = 0.1;
+			var threshold = 0.032;
 
 			var circles = [];
 			var shape = undefined;
@@ -46,10 +47,26 @@
 					update();
 				});
 
-				var thresholdSlider = new LogSlider(-3, 2, 10, threshold, 1, function (value)
+				var thresholdSlider = new LogSlider(-3, 2, 10, threshold, 0.25, function (value)
 				{
 					threshold = value;
 					update();
+				});
+
+				var showCirclesTick = new TickBox(showCircles, function (value)
+				{
+					showCircles = value;
+
+					embeddedObj.setRedrawOnChange(false);
+
+					for (var i=0; i!=circles.length; ++i)
+					{
+						if (circles[i].isVisible() != showCircles)
+							circles[i].toggleVisibility();
+					}
+
+					embeddedObj.setRedrawOnChange(true);
+					embeddedObj.draw();
 				});
 
 				var allowBigCirclesTick = new TickBox(showBigCircles, function (value)
@@ -86,6 +103,7 @@
 				var controls = new PropertyGrid(document.getElementById("controls_sdf"));
 				controls.addProperty("Grid Size", gridSizeSlider);
 				controls.addProperty("Approximation Threshold", thresholdSlider);
+				controls.addProperty("Show Circles", showCirclesTick);
 				controls.addProperty("Show Big Circles", allowBigCirclesTick);
 				controls.addProperty("Show Input Shape", showInputShapeTick);
 				controls.addProperty("Show Approximation", showApproxShapeTick);
@@ -123,6 +141,9 @@
 						ngon.width = 2;
 						scene.addObject(ngon);
 						circles.push(ngon);
+
+						if (!showCircles)
+							ngon.toggleVisibility();
 					}
 				}
 
@@ -154,7 +175,7 @@
 				if (shape == undefined)
 					return;
 
-				var centroid = avg(shape.getBoundsMin(), shape.getBoundsMax());
+				var centroid = new Vector(1.123,2.456);//avg(shape.getBoundsMin(), shape.getBoundsMax());
 
 				for (var i=0; i!=circles.length; ++i)
 				{
@@ -209,7 +230,9 @@
 
 				var pixelSize = embeddedObj.camera.scale(32);
 
-				var pixels = [];
+				var pixels = new Array(pixelSize*pixelSize*4);
+
+				var index = 0;
 
 				for (var py=0; py<pixelSize; ++py)
 				{
@@ -235,13 +258,18 @@
 
 						var value = 0;
 
-						if (wx>0.5 && wx<gridSize-0.5 && wy>0.5 && wy<gridSize-0.5)
+						if (1)//wx>0.5 && wx<gridSize-0.5 && wy>0.5 && wy<gridSize-0.5)
 						{
 							for (var j=0; j!=2; ++j)
 							{
 								for (var i=0; i!=2; ++i)
 								{
-									var height = circles[(iy+j)*gridSize + (ix+i)].radius * (circles[(iy+j)*gridSize + (ix+i)].fillAlpha>0 ? -1 : 1);
+									var height = 100;
+									
+									if ((ix+i)>=0 && (ix+i)<gridSize && (iy+j)>=0 && (iy+j)<gridSize)
+									{
+										height = circles[(iy+j)*gridSize + (ix+i)].radius * (circles[(iy+j)*gridSize + (ix+i)].fillAlpha>0 ? -1 : 1);
+									}
 
 									var weight = 1;
 
@@ -262,13 +290,15 @@
 
 						value = 1-Math.min(1, Math.max(0, Math.abs(value/threshold)));
 
-						pixels.push(0);
-						pixels.push(0);
-						pixels.push(0);
-						pixels.push(value * 255);
+						pixels[index+0] = 0;
+						pixels[index+1] = 0;
+						pixels[index+2] = 0;
+						pixels[index+3] = value * 255;
+						index += 4;
 					}
 				}
 
+				embeddedObj.setRedrawOnChange(false);
 
 				approxShape = new Bitmap(new Vector(0,32), pixelSize, pixelSize, pixels);
 				approxShape.drawWidth = 32;
@@ -277,6 +307,8 @@
 
 				if (!showApproxShape)
 					approxShape.toggleVisibility();
+
+				embeddedObj.setRedrawOnChange(true);
 
 				embeddedObj.draw();
 			}
