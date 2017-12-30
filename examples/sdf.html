@@ -228,7 +228,7 @@
 					embeddedObj.setRedrawOnChange(true);
 				}
 
-				var pixelSize = embeddedObj.camera.scale(32);
+				var pixelSize = Math.floor(embeddedObj.camera.scale(32));
 
 				var pixels = new Array(pixelSize*pixelSize*4);
 
@@ -258,35 +258,30 @@
 
 						var value = 0;
 
-						if (1)//wx>0.5 && wx<gridSize-0.5 && wy>0.5 && wy<gridSize-0.5)
+						for (var j=0; j!=2; ++j)
 						{
-							for (var j=0; j!=2; ++j)
+							for (var i=0; i!=2; ++i)
 							{
-								for (var i=0; i!=2; ++i)
-								{
-									var height = 100;
+								var height = 100;
 									
-									if ((ix+i)>=0 && (ix+i)<gridSize && (iy+j)>=0 && (iy+j)<gridSize)
+								if ((ix+i)>=0 && (ix+i)<gridSize)
+								{
+									if ((iy+j)>=0 && (iy+j)<gridSize)
 									{
 										height = circles[(iy+j)*gridSize + (ix+i)].radius * (circles[(iy+j)*gridSize + (ix+i)].fillAlpha>0 ? -1 : 1);
 									}
-
-									var weight = 1;
-
-									weight *= (i==0) ? (1-fx) : fx;
-									weight *= (j==0) ? (1-fy) : fy;
-
-									value += weight * height;
 								}
+
+								var weight = 1;
+
+								weight *= (i==0) ? (1-fx) : fx;
+								weight *= (j==0) ? (1-fy) : fy;
+
+								value += weight * height;
 							}
-
-							value *= 0.25;
-						}
-						else
-						{
-							value = 100;
 						}
 
+						value *= 0.25;
 
 						value = 1-Math.min(1, Math.max(0, Math.abs(value/threshold)));
 
