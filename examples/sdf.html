@@ -18,7 +18,7 @@
 <body style="width:750px; margin:0 auto">
 
 	<pre style="display:none;"><script>
-	function ShowSDF(divName, controlsDivName, showGrid, showCircles, showBigCircles, showInputShape, showApproxShape, showInterpolation)
+	function ShowSDF(divName, controlsDivName, showGrid, showCircles, showBigCircles, showInputShape, showApproxShape, showInterpolation, showShapeImage)
 	{
 		var embeddedObj = new EmbeddedDrawing(divName);
 		var scene = embeddedObj.getScene();
@@ -29,13 +29,15 @@
 		var showInputShape = showInputShape;
 		var showApproxShape = showApproxShape;
 		var showInterpolation = showInterpolation;
+		var showShapeImage = showShapeImage;
 		var dragOffset = 0;
-		var threshold = 0.032;
+		var threshold = 0.100;
 
 		var grid = undefined;
 		var circles = [];
 		var shape = undefined;
 		var approxShape = undefined;
+		var shapeImage = undefined;
 
 		function init()
 		{
@@ -116,24 +118,52 @@
 				}
 			});
 
+			var showShapeImageTick = new TickBox(showShapeImage, function (value)
+			{
+				showShapeImage = value;
+
+				if (shapeImage != undefined)
+				{
+					if (shapeImage.isVisible() != value)
+						shapeImage.toggleVisibility();
+
+					embeddedObj.draw();
+				}
+				else
+				{
+					update();
+				}
+			});
+			
 			var showInterpolationTick = new TickBox(showInterpolation, function (value)
 			{
 				showInterpolation = value;
 				embeddedObj.draw();
 			});
-			
+
 
 			if (controlsDivName != undefined)
 			{
 				var controls = new PropertyGrid(document.getElementById(controlsDivName));
-				controls.addProperty("Grid Size", gridSizeSlider);
-				controls.addProperty("Approximation Threshold", thresholdSlider);
-				controls.addProperty("Show Grid", showGridTick);
-				controls.addProperty("Show Circles", showCirclesTick);
-				controls.addProperty("Show Big Circles", allowBigCirclesTick);
-				controls.addProperty("Show Input Shape", showInputShapeTick);
-				controls.addProperty("Show Approximation", showApproxShapeTick);
-				controls.addProperty("Show Interpolation", showInterpolationTick);
+
+				if (showGrid)
+					controls.addProperty("Grid Size", gridSizeSlider);
+				if (showApproxShape)
+					controls.addProperty("Approximation Threshold", thresholdSlider);
+				if (showGrid)
+					controls.addProperty("Show Grid", showGridTick);
+				if (showCircles)
+					controls.addProperty("Show Circles", showCirclesTick);
+				if (showCircles)
+					controls.addProperty("Show Big Circles", allowBigCirclesTick);
+				if (showInputShape)
+					controls.addProperty("Show Input Shape", showInputShapeTick);
+				if (showApproxShape)
+					controls.addProperty("Show SDF Approximation", showApproxShapeTick);
+				if (showInterpolation)
+					controls.addProperty("Show Interpolation", showInterpolationTick);
+				if (showShapeImage)
+					controls.addProperty("Show Shape Image", showShapeImageTick);
 			}
 		}
 
@@ -208,7 +238,7 @@
 			if (shape == undefined)
 				return;
 
-			var centroid = new Vector(1.123,2.456);//avg(shape.getBoundsMin(), shape.getBoundsMax());
+			var centroid = new Vector(1.1235678, 3.45612453446);//avg(shape.getBoundsMin(), shape.getBoundsMax());
 
 			for (var i=0; i!=circles.length; ++i)
 			{
@@ -346,14 +376,73 @@
 			embeddedObj.draw();
 		}
 
+		function makeShapeImage()
+		{
+			if (!showShapeImage)
+			{
+				if (shapeImage != undefined)
+				{
+					embeddedObj.setRedrawOnChange(false);
+					scene.deleteObjects([shapeImage]);
+					embeddedObj.setRedrawOnChange(true);
+				}
+
+				return;
+			}
+
+			var pixels = new Array(gridSize*gridSize*4);
+
+			for (var py=0; py<gridSize; ++py)
+			{
+				for (var px=0; px<gridSize; ++px)
+				{
+					var index = (gridSize-1-py)*gridSize + px;
+
+					pixels[index*4+0] = 0;
+					pixels[index*4+1] = 60;
+					pixels[index*4+2] = 0;
+					pixels[index*4+3] = (circles[py*gridSize + px].fillAlpha>0) ? 200 : 0;
+				}
+			}
+
+			embeddedObj.setRedrawOnChange(false);
+
+			if (shapeImage != undefined)
+			{
+				scene.deleteObjects([shapeImage]);
+			}
+
+			shapeImage = new Bitmap(new Vector(0,32), gridSize, gridSize, pixels);
+			shapeImage.drawWidth = 32;
+			shapeImage.drawHeight = 32;
+			scene.addObject(shapeImage);
+
+			embeddedObj.setRedrawOnChange(true);
+
+			embeddedObj.draw();
+		}
+
 		embeddedObj.onMouseMove = function (m, mp, buttons)
 		{
 			if (shape == undefined)
 				return;
 
+			var needUpdate = false;
+
+			//var pixelSize = Math.floor(embeddedObj.camera.scale(32));
+			//if (approxShape != undefined && approxShape.pixelWidth != pixelSize)
+			//{
+			//	needUpdate = true;
+			//}
+
 			if (buttons & 2)
 			{
 				shape.setOrigin(add(m, dragOffset));
+				needUpdate = true;
+			}
+
+			if (needUpdate)
+			{
 				adjustCircles();
 				makeApproxShape();
 			}
@@ -407,7 +496,7 @@
 				{
 					if (iy>=0 && iy<gridSize-1)
 					{
-						embeddedObj.camera.drawRectangle(sub(circles[(iy+0)*gridSize + (ix+0)].getOrigin(), new Vector(1,1)), add(circles[(iy+1)*gridSize + (ix+1)].getOrigin(), new Vector(1,1)), "10FF10", 2, [5,5]);
+						embeddedObj.camera.drawRectangle(sub(circles[(iy+0)*gridSize + (ix+0)].getOrigin(), new Vector(1,1)), add(circles[(iy+1)*gridSize + (ix+1)].getOrigin(), new Vector(1,1)), "#105510", 2, [5,5]);
 
 						embeddedObj.camera.drawArrow(circles[(iy+0)*gridSize + (ix+0)].getOrigin(), new Vector(m.x, circles[(iy+0)*gridSize + (ix+0)].getOrigin().y), 10, "#10FF10", 2);
 						embeddedObj.camera.drawArrow(circles[(iy+0)*gridSize + (ix+1)].getOrigin(), new Vector(m.x, circles[(iy+0)*gridSize + (ix+1)].getOrigin().y), 10, "#10FF10", 2);
@@ -438,6 +527,7 @@
 			makeShape();
 			adjustCircles();
 			makeApproxShape();
+			makeShapeImage();
 		}
 
 		init();
@@ -498,12 +588,28 @@
 		ShowSDF("embeddedDrawing_sdf_interpolation", undefined, true, true, false, false, false, true);
 	</script></pre>
 
+	We're nearly there now. We have a way of estimating the distance to the surface at any point inside the grid. All we need to do now is visualize all these estimates somehow.
+
+	We could for example paint anywhere where the distance is &le; 0 to shade the interior of the shape. In the diagram below we're drawing an approximation of the outline of the surface by painting anywhere where the absolute distance is within a threshold. The threshold value controls the 'thickness' of the approximate outline.
+
+	Have a play with the controls to see what effect it has on the approximation. Use the right mouse button to move the shape within the grid.
 
 	<div id="controls_sdf" style="width: 100%;"></div>
 	<p />
 	<div id="embeddedDrawing_sdf2" style="width: 100%; padding-bottom: 100%;"></div>
 	<pre style="display:none;"><script>
-		ShowSDF("embeddedDrawing_sdf2", "controls_sdf", true, true, false, true, true, false);
+		ShowSDF("embeddedDrawing_sdf2", "controls_sdf", true, true, false, true, true, true);
+	</script></pre>
+
+	So what's the point of all this?
+
+	Compare a low resolution SDF of a surface to a same resolution texture that stores the surface color. 	
+
+	<div id="controls_shapeImage" style="width: 100%;"></div>
+	<p />
+	<div id="embeddedDrawing_shapeImage" style="width: 100%; padding-bottom: 100%;"></div>
+	<pre style="display:none;"><script>
+		ShowSDF("embeddedDrawing_shapeImage", "controls_shapeImage", true, false, false, false, true, false, true);
 	</script></pre>
 
 	* does the surface need to be closed?
@@ -511,6 +617,7 @@
 	* cross section height diagram
 	* hardware does the interpolation for us
 	* generating is expensive, sampling is cheap
+
 
 
 </body>
