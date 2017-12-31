@@ -455,7 +455,7 @@
 	<div id="embeddedDrawing_sdf_shape" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
 	<pre style="display:none;"><script>
-		ShowSDF("embeddedDrawing_sdf_shape", undefined, false, false, false, true, false);
+		ShowSDF("embeddedDrawing_sdf_shape", undefined, false, false, false, true, false, false);
 	</script></pre>
 
 	Next, we'll overlay a regular grid over the surface. As you might expect, the size of the grid is important, the finer it is, the better the approximation will be.
@@ -463,7 +463,7 @@
 	<div id="embeddedDrawing_sdf_grid" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
 	<pre style="display:none;"><script>
-		ShowSDF("embeddedDrawing_sdf_grid", undefined, true, false, false, true, false);
+		ShowSDF("embeddedDrawing_sdf_grid", undefined, true, false, false, true, false, false);
 	</script></pre>
 
 	For each grid cell, we can calculate the distance of the cell center to the nearest point of the surface. We'll represent that with a circle. We'll also indicate whether the cell center is inside the shape or not by coloring in the circle. Note that we only store one value per cell, calculated at its center, so while a cell may overlap the surface boundary, we only care about its center.
@@ -473,7 +473,7 @@
 	<div id="embeddedDrawing_sdf_circle" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
 	<pre style="display:none;"><script>
-		ShowSDF("embeddedDrawing_sdf_circle", undefined, true, true, false, true, false);
+		ShowSDF("embeddedDrawing_sdf_circle", undefined, true, true, false, true, false, false);
 	</script></pre>
 
 	Note that for reasons of clarity I'm only showing the circles that have a diameter of about one cell. The other cells are computed as well and their values will be used later on for the approximation.
@@ -485,16 +485,25 @@
 	<div id="embeddedDrawing_sdf_circles_only" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
 	<pre style="display:none;"><script>
-		ShowSDF("embeddedDrawing_sdf_circles_only", undefined, true, true, false, false, false);
+		ShowSDF("embeddedDrawing_sdf_circles_only", undefined, true, true, false, false, false, false);
 	</script></pre>
 
 	Imagine we throw a dart onto the grid. If the dart lands exactly at the center of a cell we'll accurately know our distance to the shape outline and whether we're inside it or not. That information will only be accurate if it lands exactly at the center because that's where we evaluated the distance and sign. If the dart lands anywhere else (and chances are that it will) then we'll need to make an approximation by interpolating between the 4 nearest cells.
+
+	Let's see what that looks like!
+
+	<div id="embeddedDrawing_sdf_interpolation" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+
+	<pre style="display:none;"><script>
+		ShowSDF("embeddedDrawing_sdf_interpolation", undefined, true, true, false, false, false, true);
+	</script></pre>
+
 
 	<div id="controls_sdf" style="width: 100%;"></div>
 	<p />
 	<div id="embeddedDrawing_sdf2" style="width: 100%; padding-bottom: 100%;"></div>
 	<pre style="display:none;"><script>
-		ShowSDF("embeddedDrawing_sdf2", "controls_sdf", true, true, false, true, true);
+		ShowSDF("embeddedDrawing_sdf2", "controls_sdf", true, true, false, true, true, false);
 	</script></pre>
 
 	* does the surface need to be closed?
