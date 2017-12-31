@@ -29,6 +29,7 @@
 		var showInputShape = showInputShape;
 		var showApproxShape = showApproxShape;
 		var followMouse = moveWithMouse;
+		var dragOffset = 0;
 		var threshold = 0.032;
 
 		var grid = undefined;
@@ -334,10 +335,18 @@
 				return;
 
 			if (buttons & 2)
-				shape.setOrigin(m);
+				shape.setOrigin(add(m, dragOffset));
 
 			adjustCircles();
 			makeApproxShape();
+		}
+
+		embeddedObj.onMouseDown = function (m, mp, buttons)
+		{
+			if (shape == undefined || !followMouse)
+				return;
+
+			dragOffset = sub(shape.getOrigin(), m);
 		}
 
 		function update()
@@ -376,6 +385,10 @@
 
 	For each grid cell, we can calculate the distance of the cell center to the nearest point of the surface. We'll represent that with a circle. We'll also indicate whether the cell center is inside the shape or not by coloring in the circle. Note that we only store one value per cell, calculated at its center, so while a cell may overlap the surface boundary, we only care about its center.
 
+	Go ahead and move the shape around (right mouse drag) to see how the cell distance values change.
+
+	Note that for reasons of clarity I'm only showing the circles that have a diameter of about one cell. The other cells are computed as well and their values will be used later on for the approximation.
+
 	<div id="embeddedDrawing_sdf_circle" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
 	<pre style="display:none;"><script>
@@ -394,5 +407,6 @@
 	* cross section height diagram
 	* hardware does the interpolation for us
 	* generating is expensive, sampling is cheap
+
 </body>
 </html>
