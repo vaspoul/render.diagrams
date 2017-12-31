@@ -18,7 +18,7 @@
 <body style="width:750px; margin:0 auto">
 
 	<pre style="display:none;"><script>
-	function ShowSDF(divName, controlsDivName, showGrid, showCircles, showBigCircles, showInputShape, showApproxShape)
+	function ShowSDF(divName, controlsDivName, showGrid, showCircles, showBigCircles, showInputShape, showApproxShape, showInterpolation)
 	{
 		var embeddedObj = new EmbeddedDrawing(divName);
 		var scene = embeddedObj.getScene();
@@ -28,7 +28,7 @@
 		var showBigCircles = showBigCircles;
 		var showInputShape = showInputShape;
 		var showApproxShape = showApproxShape;
-		var followMouse = true;
+		var showInterpolation = showInterpolation;
 		var dragOffset = 0;
 		var threshold = 0.032;
 
@@ -116,6 +116,13 @@
 				}
 			});
 
+			var showInterpolationTick = new TickBox(showInterpolation, function (value)
+			{
+				showInterpolation = value;
+				embeddedObj.draw();
+			});
+			
+
 			if (controlsDivName != undefined)
 			{
 				var controls = new PropertyGrid(document.getElementById(controlsDivName));
@@ -126,6 +133,7 @@
 				controls.addProperty("Show Big Circles", allowBigCirclesTick);
 				controls.addProperty("Show Input Shape", showInputShapeTick);
 				controls.addProperty("Show Approximation", showApproxShapeTick);
+				controls.addProperty("Show Interpolation", showInterpolationTick);
 			}
 		}
 
@@ -344,7 +352,7 @@
 
 		embeddedObj.onMouseMove = function (m, mp, buttons)
 		{
-			if (shape == undefined || !followMouse)
+			if (shape == undefined)
 				return;
 
 			if (buttons & 2)
@@ -353,11 +361,78 @@
 				adjustCircles();
 				makeApproxShape();
 			}
+
+			if (showInterpolation)
+			{
+				var wx = m.x / 32 * gridSize;
+				var wy = m.y / 32 * gridSize;
+
+				var ix = Math.floor(wx);
+				var iy = Math.floor(wy);
+
+				var fx = wx - ix;
+				var fy = wy - iy;
+
+				if (fx<0.5)
+					ix -= 1;
+
+				if (fy<0.5)
+					iy -= 1;
+
+				fx = wx - ix - 0.5;
+				fy = wy - iy - 0.5;
+
+				var value = 0;
+
+				for (var j=0; j!=2; ++j)
+				{
+					for (var i=0; i!=2; ++i)
+					{
+						var height = 100;
+
+						if ((ix+i)>=0 && (ix+i)<gridSize)
+						{
+							if ((iy+j)>=0 && (iy+j)<gridSize)
+							{
+								height = circles[(iy+j)*gridSize + (ix+i)].radius * (circles[(iy+j)*gridSize + (ix+i)].fillAlpha>0 ? -1 : 1);
+							}
+						}
+
+						var weight = 1;
+
+						weight *= (i==0) ? (1-fx) : fx;
+						weight *= (j==0) ? (1-fy) : fy;
+
+						value += weight * height;
+					}
+				}
+
+				value *= 0.25;
+
+				value = 1-Math.min(1, Math.max(0, Math.abs(value/threshold)));
+
+				if (ix>=0 && ix<gridSize-1)
+				{
+					if (iy>=0 && iy<gridSize-1)
+					{
+						embeddedObj.camera.drawRectangle(sub(circles[(iy+0)*gridSize + (ix+0)].getOrigin(), new Vector(1,1)), add(circles[(iy+1)*gridSize + (ix+1)].getOrigin(), new Vector(1,1)), "10FF10", 2, [5,5]);
+
+						embeddedObj.camera.drawArrow(circles[(iy+0)*gridSize + (ix+0)].getOrigin(), new Vector(m.x, circles[(iy+0)*gridSize + (ix+0)].getOrigin().y), 10, "#10FF10", 2);
+						embeddedObj.camera.drawArrow(circles[(iy+0)*gridSize + (ix+1)].getOrigin(), new Vector(m.x, circles[(iy+0)*gridSize + (ix+1)].getOrigin().y), 10, "#10FF10", 2);
+
+						embeddedObj.camera.drawArrow(circles[(iy+1)*gridSize + (ix+0)].getOrigin(), new Vector(m.x, circles[(iy+1)*gridSize + (ix+0)].getOrigin().y), 10, "#10FF10", 2);
+						embeddedObj.camera.drawArrow(circles[(iy+1)*gridSize + (ix+1)].getOrigin(), new Vector(m.x, circles[(iy+1)*gridSize + (ix+1)].getOrigin().y), 10, "#10FF10", 2);
+
+						embeddedObj.camera.drawArrow(new Vector(m.x, circles[(iy+0)*gridSize + (ix+0)].getOrigin().y), m, 10, "#10FF10", 2);
+						embeddedObj.camera.drawArrow(new Vector(m.x, circles[(iy+1)*gridSize + (ix+0)].getOrigin().y), m, 10, "#10FF10", 2);
+					}
+				}
+			}
 		}
 
 		embeddedObj.onMouseDown = function (m, mp, buttons)
 		{
-			if (shape == undefined || !followMouse)
+			if (shape == undefined)
 				return;
 
 			dragOffset = sub(shape.getOrigin(), m);
@@ -401,13 +476,25 @@
 
 	Go ahead and move the shape around (right mouse drag) to see how the cell distance values change.
 
-	Note that for reasons of clarity I'm only showing the circles that have a diameter of about one cell. The other cells are computed as well and their values will be used later on for the approximation.
-
 	<div id="embeddedDrawing_sdf_circle" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
 	<pre style="display:none;"><script>
 		ShowSDF("embeddedDrawing_sdf_circle", undefined, true, true, false, true, false);
 	</script></pre>
+
+	Note that for reasons of clarity I'm only showing the circles that have a diameter of about one cell. The other cells are computed as well and their values will be used later on for the approximation.
+
+	Ok, so now we have a regular grid where we store the distance to the shape boundary as well as a bit that tells us whether we're inside or outside the shape. How can we use that information to reconstruct the original shape?
+
+	Let's have a look at the diagram without the original shape.
+
+	<div id="embeddedDrawing_sdf_circles_only" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+
+	<pre style="display:none;"><script>
+		ShowSDF("embeddedDrawing_sdf_circles_only", undefined, true, true, false, false, false);
+	</script></pre>
+
+	Imagine we throw a dart onto the grid. If the dart lands exactly at the center of a cell we'll accurately know our distance to the shape outline and whether we're inside it or not. That information will only be accurate if it lands exactly at the center because that's where we evaluated the distance and sign. If the dart lands anywhere else (and chances are that it will) then we'll need to make an approximation by interpolating between the 4 nearest cells.
 
 	<div id="controls_sdf" style="width: 100%;"></div>
 	<p />
@@ -421,6 +508,7 @@
 	* cross section height diagram
 	* hardware does the interpolation for us
 	* generating is expensive, sampling is cheap
+
 
 </body>
 </html>
