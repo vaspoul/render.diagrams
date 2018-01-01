@@ -1,0 +1,174 @@
+<html>
+<head>
+
+<script type="text/javascript" src="../lib/maths.js"></script>
+<script type="text/javascript" src="../lib/graphics.js"></script>
+<script type="text/javascript" src="../lib/camera.js"></script>
+<script type="text/javascript" src="../lib/scene.js"></script>
+<script type="text/javascript" src="../lib/sceneObjects.js"></script>
+<script type="text/javascript" src="../lib/brdf.js"></script>
+<script type="text/javascript" src="../lib/ui.js"></script>
+<script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
+
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="../styles.css">
+</head>
+
+
+<body style="width:750px; margin:0 auto">
+
+	<pre style="display:none;"><script>
+	function Show3DScene(divName)
+	{
+		var embeddedObj = new EmbeddedDrawing(divName);
+		var scene = embeddedObj.getScene();
+		var ray = undefined;
+
+		function makeScene()
+		{
+			var w = new Wall([new Vector(-22, 0), new Vector(21, 0)]);
+			w.closed = false;
+			w.roughness = 0;
+			w.metalness = 0;
+			w.color = "#0a7817";
+			w.visible = true;
+			w.frozen = false;
+			scene.addObject(w);
+
+			var w = new Wall([new Vector(14.378105238028517, 0), new Vector(14.378105238028517, 5), new Vector(16.378105238028517, 5), new Vector(16.378105238028517, 0), new Vector(14.378105238028517, 0)]);
+			w.closed = false;
+			w.roughness = 0.1;
+			w.metalness = 0;
+			w.color = "#683411";
+			w.visible = true;
+			w.frozen = false;
+			scene.addObject(w);
+
+			var w = new Wall([new Vector(14.378105238028517, 5), new Vector(11.378105238028517, 7), new Vector(11.378105238028517, 9), new Vector(10.378105238028517, 11), new Vector(11.378105238028517, 13), new Vector(11.378105238028517, 15), new Vector(13.864922413235675, 15.6149344555104), new Vector(15.378105238028517, 17), new Vector(18.448297837647427, 16.187856383561872), new Vector(19.259937235720344, 13.70519469533884), new Vector(21.026446513879037, 11.699967947158697), new Vector(19.403167717733208, 9.503767222961393), new Vector(19.116706753707476, 6.49592710069118), new Vector(16.378105238028517, 5), new Vector(14.378105238028517, 5)]);
+			w.closed = false;
+			w.roughness = 0.6000000000000001;
+			w.metalness = 0;
+			w.color = "#0fb527";
+			w.visible = true;
+			w.frozen = false;
+			scene.addObject(w);
+
+			var w = new Wall([new Vector(-17, 0), new Vector(-18.415000000000003, 0.5596666666666646), new Vector(-19.727333333333334, 1.8296666666666648), new Vector(-19.473333333333336, 2.718666666666665), new Vector(-19.00766666666667, 3.099666666666665), new Vector(-18.88066666666667, 4.496666666666665), new Vector(-19.515666666666668, 5.173999999999999), new Vector(-19.812, 5.808999999999998), new Vector(-19.473333333333336, 6.443999999999999), new Vector(-18.330333333333336, 6.570999999999999), new Vector(-16.933333333333337, 6.697999999999999), new Vector(-15.536333333333335, 7.544666666666665), new Vector(-15.409333333333334, 7.544666666666665), new Vector(-14.647333333333336, 6.528666666666665), new Vector(-13.800666666666668, 5.5973333333333315), new Vector(-12.911666666666669, 5.343333333333332), new Vector(-12.149666666666668, 4.0733333333333315), new Vector(-12.192000000000002, 3.226666666666665), new Vector(-12.827000000000002, 2.9303333333333317), new Vector(-13.335, 2.591666666666665), new Vector(-13.843000000000002, 2.4223333333333317), new Vector(-14.012333333333334, 1.8296666666666648), new Vector(-13.800666666666668, 0.9406666666666647), new Vector(-14.097000000000001, 0.5596666666666646), new Vector(-14.986000000000002, 0.4326666666666646), new Vector(-15, 0)]);
+			w.closed = true;
+			w.roughness = 0;
+			w.metalness = 0;
+			w.color = "#6b6b6b";
+			w.visible = true;
+			w.frozen = false;
+			scene.addObject(w);
+
+			var aw = new ArcWall(new Vector(-1, 8), 26.499999999999993, 34.29 * Math.PI/180, 141.71 * Math.PI/180);
+			aw.convex = true;
+			aw.roughness = 0;
+			aw.metalness = 0;
+			aw.color = "#2198d8";
+			aw.visible = true;
+			aw.frozen = false;
+			scene.addObject(aw);
+
+			var rectObj = new Rectangle(new Vector(0,0));
+			rectObj.points[0] = new Vector(-20, 36);
+			rectObj.points[1] = new Vector(20, 36);
+			rectObj.points[2] = new Vector(20, -4);
+			rectObj.points[3] = new Vector(-20, -4);
+			rectObj.color = "#900090";
+			rectObj.fillColor = "#000000";
+			rectObj.fillAlpha = 0;
+			rectObj.width = 2;
+			rectObj.rows = 1;
+			rectObj.columns = 1;
+			rectObj.centerPoints = false;
+			rectObj.visible = true;
+			rectObj.frozen = true;
+			rectObj.onChange();
+			scene.addObject(rectObj);
+
+			var ngon = new NGon(new Vector(0, 16), 1);
+			ngon.sideCount = 60;
+			ngon.rotationAngle = 0.7853981633974483;
+			ngon.color = "#900090";
+			ngon.fillColor = "#000000";
+			ngon.fillAlpha = 0;
+			ngon.dashed = false;
+			ngon.width = 2;
+			ngon.visible = true;
+			ngon.frozen = false;
+			scene.addObject(ngon);
+
+			var text = new Text(new Vector(-1.8369701987210297e-16, 15), "probe");
+			text.halign = "center";
+			text.valign = "top";
+			text.font = "Helvetica";
+			text.fontSize = 1;
+			text.color = "#000000";
+			text.angle = "0";
+			text.visible = true;
+			text.frozen = false;
+			text.maxWidth = 2.070312499999999;
+			text.totalHeight = 0.7591145833333331;
+			scene.addObject(text);
+
+			var text = new Text(new Vector(-19.709059472737106, 35.72496711318838), "cubemap");
+			text.halign = "left";
+			text.valign = "top";
+			text.font = "Helvetica";
+			text.fontSize = 1;
+			text.color = "#000000";
+			text.angle = "0";
+			text.visible = true;
+			text.frozen = false;
+			text.maxWidth = 3.450520833333332;
+			text.totalHeight = 0.7591145833333331;
+			scene.addObject(text);
+
+			var text = new Text(new Vector(-17.453427432856166, 28.268394361735975), "skydome");
+			text.halign = "left";
+			text.valign = "top";
+			text.font = "Helvetica";
+			text.fontSize = 1;
+			text.color = "#000000";
+			text.angle = "35.21407811641446";
+			text.visible = true;
+			text.frozen = false;
+			text.maxWidth = 3.450520833333332;
+			text.totalHeight = 0.7591145833333331;
+			scene.addObject(text);
+
+			ray = new BRDFRay(new Vector(0, 16), new Vector(-6, 3));
+			ray.showBRDF = false;
+			ray.bounceCount = 0;
+			ray.color = "#000000";
+			ray.visible = true;
+			ray.frozen = false;
+			scene.addObject(ray);
+
+
+			embeddedObj.zoomExtents();
+		}
+
+		embeddedObj.onMouseMove = function (m, mp, buttons)
+		{
+			ray.setDragPointPos(1, m);
+		}
+
+		makeScene();
+	}
+	</script></pre>
+
+	Let's start with the cubemap capturing process. 
+
+	<div id="embeddedDrawing_3d_scene" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+
+	<pre style="display:none;"><script>
+		Show3DScene("embeddedDrawing_3d_scene");
+	</script></pre>
+
+
+
+</body>
+</html>
