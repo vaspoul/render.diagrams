@@ -134,7 +134,7 @@
 					update();
 				}
 			});
-			
+
 			var showInterpolationTick = new TickBox(showInterpolation, function (value)
 			{
 				showInterpolation = value;
@@ -580,7 +580,7 @@
 
 	Imagine we throw a dart onto the grid. If the dart lands exactly at the center of a cell we'll accurately know our distance to the shape outline and whether we're inside it or not. That information will only be accurate if it lands exactly at the center because that's where we evaluated the distance and sign. If the dart lands anywhere else (and chances are that it will) then we'll need to make an approximation by interpolating between the 4 nearest cells.
 
-	Let's see what that looks like!
+	Let's see what that looks like! Move the mouse cursor over the image.
 
 	<div id="embeddedDrawing_sdf_interpolation" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
@@ -596,21 +596,27 @@
 
 	<div id="controls_sdf" style="width: 100%;"></div>
 	<p />
-	<div id="embeddedDrawing_sdf2" style="width: 100%; padding-bottom: 100%;"></div>
+	<div id="embeddedDrawing_sdf2" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 	<pre style="display:none;"><script>
 		ShowSDF("embeddedDrawing_sdf2", "controls_sdf", true, true, false, true, true, true);
 	</script></pre>
 
 	So what's the point of all this?
 
-	Compare a low resolution SDF of a surface to a same resolution texture that stores the surface color. 	
+	Let's compare a low resolution SDF of a surface to a same resolution texture that stores the surface color.
 
 	<div id="controls_shapeImage" style="width: 100%;"></div>
 	<p />
-	<div id="embeddedDrawing_shapeImage" style="width: 100%; padding-bottom: 100%;"></div>
+	<div id="embeddedDrawing_shapeImage" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 	<pre style="display:none;"><script>
 		ShowSDF("embeddedDrawing_shapeImage", "controls_shapeImage", true, false, false, false, true, false, true);
 	</script></pre>
+
+	You can see that despite being the same, low, resolution, the SDF representation can provide a very high resolution outline of the shape compared to the very pixelated result of the texture approach. Before jumping to conclusions, we need to understand that we're comparing apples to oranges! The SDF is a high level representation of the shape surface. The image is a capture of the surface color (and alpha). We may use both representations to achieve visually comparable results, but they're fundamentally different things. Both representations need to be evaluated per pixel.
+
+	In the case of the texture this evaluation gives us the interpolated color values, producing the gradients at the edges of the pixels. The image can store different/arbitrary colors per texel, that don't have to conform to any particular function, but the look of texture is (generally) fixed (e.g. we cannot easily add an outline). Color and opacity can be stored and handled independently.
+
+	In the case of the SDF the interpolation is giving us a smooth approximation of the distance to the surface of the shape. We're free to translate that into a pixel color value using a function selected at runtime. The same SDF can be used with multiple functions to produce different results. However, unlike in the texture case, the entire SDF has to go through the same translation (i.e. it's not trivial to produce a different color for an arbitrary part of the surface). This translation is a high resolution operation, so we don't get any pixelation artifacts. Instead, the effects of the low resolution are seen on the accuracy of the approximation. You can see that the sharp corners of the original shape have disappeared and been replaced with rounded points instead.
 
 	* does the surface need to be closed?
 	* do we need to store sign?
