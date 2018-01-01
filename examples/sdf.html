@@ -601,6 +601,7 @@
 		ShowSDF("embeddedDrawing_sdf2", "controls_sdf", true, true, false, true, true, true);
 	</script></pre>
 
+	<h3>SDF vs Textures</h3>
 	So what's the point of all this?
 
 	Let's compare a low resolution SDF of a surface to a same resolution texture that stores the surface color.
@@ -618,11 +619,12 @@
 
 	In the case of the SDF the interpolation is giving us a smooth approximation of the distance to the surface of the shape. We're free to translate that into a pixel color value using a function selected at runtime. The same SDF can be used with multiple functions to produce different results. However, unlike in the texture case, the entire SDF has to go through the same translation (i.e. it's not trivial to produce a different color for an arbitrary part of the surface). This translation is a high resolution operation, so we don't get any pixelation artifacts. Instead, the effects of the low resolution are seen on the accuracy of the approximation. You can see that the sharp corners of the original shape have disappeared and been replaced with rounded points instead.
 
-	* does the surface need to be closed?
-	* do we need to store sign?
-	* cross section height diagram
-	* hardware does the interpolation for us
-	* generating is expensive, sampling is cheap
+	<h3>SDF Evaluation</h3>
+	Looking at the SDF we've created so far it should feel quite intuitive that we would store it in a low resolution texture. Ignoring format considerations for now, we'd store the distance and the sign at each texel. At runtime we can evaluate the entire SDF by sampling that texture in a pixel shader and use that to shade a quad. This is more or less what described in the Valve paper mentioned at the beginning. The quad will be rendered at a high resolution (e.g. screen resolution) and the interpolation (done for 'free' by the GPU) will give us the lovely crisp outlines we saw earlier.
+
+	However this is not always what we want (or are able) to do. While 2D SDF are easy to visualize, there is nothing inherently 2D about SDF in general. A 3D SDF can be used to represent a volumetric surface. How do we visualize that? We <em>could</em> render it as a point cloud, evaluating the SDF at each point, but that would get tricky and expensive. What about cases where we don't care to visualize the SDF? What if it represents a surface we want to do collision detection against?
+
+	As it turns out Ray Marching is a good answer to both of these questions and when it comes to ray marching SDF there are a couple of cool tricks we can use. I'll save the diagrams for this for part 2 of this post, but in the meantime have a read through <a href="http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/" rel="noopener" target="_blank">this</a> blog post and maybe have a look at <a href="http://www.claybookgame.com/" rel="noopener" target="_blank">Claybook </a>to see how cool things can be made using SDF!
 
 
 
