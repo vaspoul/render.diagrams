@@ -18,19 +18,79 @@
 <body style="width:750px; margin:0 auto">
 
 	<pre style="display:none;"><script>
-	function Show3DScene(divName, controlsDivName, showScene, showRadiance, showIrradiance)
+	function ShowCubemapFiltering(divName, controlsDivName, showRadiance, showIrradiance, precomputeRadiance)
 	{
 		var embeddedObj = new EmbeddedDrawing(divName);
 		var scene = embeddedObj.getScene();
+		var camera = embeddedObj.camera;
 
 		var ray = undefined;
 		var probe = undefined;
 		var cubemapRect = undefined;
 		var radianceTexels = new Array(40*4);
+		var irradianceTexels = new Array(40*4);
+		var F0 = 0.9;
+		var roughness = 0.6;
+		var BRDF = Phong;
 
-		var showScene = showScene;
 		var showRadiance = showRadiance;
 		var showIrradiance = showIrradiance;
+
+		function addControls()
+		{
+			if (controlsDivName == undefined)
+				return;
+
+			var showRadianceTick = new TickBox(showRadiance, function (value)
+			{
+				showRadiance = value;
+				updateVisibility();
+			});
+
+			var showIrradianceTick = new TickBox(showIrradiance, function (value)
+			{
+				showIrradiance = value;
+				updateVisibility();
+			});
+
+			var clearRadianceButton = new Button("Clear Radiance", function (value)
+			{
+				makeTexels(radianceTexels);
+			});
+
+			var clearIrradianceButton = new Button("Clear Irradiance", function (value)
+			{
+				makeTexels(irradianceTexels, 1);
+			});
+
+			var populateRadianceButton = new Button("Populate Radiance", function (value)
+			{
+				computeAllRadiance();
+			});
+
+			var populateIrradianceButton = new Button("Populate Irradiance", function (value)
+			{
+				computeAllIrradiance();
+			});
+
+			var roughnessSlider = new Slider(0, 1, roughness, 0.1, function (value)
+			{
+				roughness = value;
+				//makeTexels(irradianceTexels, 1);
+				computeAllIrradiance();
+				drawFancyProbe();
+			});
+
+			var controls = new PropertyGrid(document.getElementById(controlsDivName));
+
+			controls.addProperty("Show Radiance Texels", showRadianceTick);
+			controls.addProperty("Show Irradiance Texels", showIrradianceTick);
+			controls.addProperty("Clear Radiance Texels", clearRadianceButton);
+			controls.addProperty("Clear Irradiance Texels", clearIrradianceButton);
+			controls.addProperty("Populate Radiance", populateRadianceButton);
+			controls.addProperty("Populate Irradiance", populateIrradianceButton);
+			controls.addProperty("Roughness", roughnessSlider);
+		}
 
 		function makeScene()
 		{
@@ -315,11 +375,14 @@
 			embeddedObj.zoomExtents();
 		}
 
-		function makeRadianceTexels()
+		function makeTexels(texels, offset)
 		{
+			if (offset==undefined)
+				offset = 0;
+
 			embeddedObj.setRedrawOnChange(false);
 
-			scene.deleteObjects(radianceTexels);
+			scene.deleteObjects(texels);
 
 			var index = 0;
 
@@ -327,49 +390,49 @@
 
 			for (var x=0; x<40; ++x)
 			{
-				radianceTexels[index] = new Rectangle( add(p, new Vector(x+0.5, 40.5)) );
-				radianceTexels[index].setSize(1,1);
-				radianceTexels[index].color = "#000000";
-				radianceTexels[index].width = 0.5;
-				radianceTexels[index].fillColor = "#505050";
-				radianceTexels[index].fillAlpha = 1;
-				scene.addObject(radianceTexels[index]);
+				texels[index] = new Rectangle( add(p, new Vector(x+0.5, 40.5+offset)) );
+				texels[index].setSize(1,1);
+				texels[index].color = "#000000";
+				texels[index].width = 0.5;
+				texels[index].fillColor = "#505050";
+				texels[index].fillAlpha = 1;
+				scene.addObject(texels[index]);
+				++index;
+			}
+
+			for (var y=40-1; y>=0; --y)
+			{
+				texels[index] = new Rectangle( add(p, new Vector(40.5+offset, y+0.5)) );
+				texels[index].setSize(1,1);
+				texels[index].color = "#000000";
+				texels[index].width = 0.5;
+				texels[index].fillColor = "#505050";
+				texels[index].fillAlpha = 1;
+				scene.addObject(texels[index]);
+				++index;
+			}
+
+			for (var x=40-1; x>=0; --x)
+			{
+				texels[index] = new Rectangle( add(p, new Vector(x+0.5, -0.5-offset)) );
+				texels[index].setSize(1,1);
+				texels[index].color = "#000000";
+				texels[index].width = 0.5;
+				texels[index].fillColor = "#505050";
+				texels[index].fillAlpha = 1;
+				scene.addObject(texels[index]);
 				++index;
 			}
 
 			for (var y=0; y<40; ++y)
 			{
-				radianceTexels[index] = new Rectangle( add(p, new Vector(40.5, y+0.5)) );
-				radianceTexels[index].setSize(1,1);
-				radianceTexels[index].color = "#000000";
-				radianceTexels[index].width = 0.5;
-				radianceTexels[index].fillColor = "#505050";
-				radianceTexels[index].fillAlpha = 1;
-				scene.addObject(radianceTexels[index]);
-				++index;
-			}
-
-			for (var x=0; x<40; ++x)
-			{
-				radianceTexels[index] = new Rectangle( add(p, new Vector(x+0.5, -0.5)) );
-				radianceTexels[index].setSize(1,1);
-				radianceTexels[index].color = "#000000";
-				radianceTexels[index].width = 0.5;
-				radianceTexels[index].fillColor = "#505050";
-				radianceTexels[index].fillAlpha = 1;
-				scene.addObject(radianceTexels[index]);
-				++index;
-			}
-
-			for (var y=0; y<40; ++y)
-			{
-				radianceTexels[index] = new Rectangle( add(p, new Vector(-0.5, y+0.5)) );
-				radianceTexels[index].setSize(1,1);
-				radianceTexels[index].color = "#000000";
-				radianceTexels[index].width = 0.5;
-				radianceTexels[index].fillColor = "#505050";
-				radianceTexels[index].fillAlpha = 1;
-				scene.addObject(radianceTexels[index]);
+				texels[index] = new Rectangle( add(p, new Vector(-0.5-offset, y+0.5)) );
+				texels[index].setSize(1,1);
+				texels[index].color = "#000000";
+				texels[index].width = 0.5;
+				texels[index].fillColor = "#505050";
+				texels[index].fillAlpha = 1;
+				scene.addObject(texels[index]);
 				++index;
 			}
 
@@ -390,7 +453,7 @@
 			{
 				if (dir.x > 0)
 				{
-					index = 40 + Math.floor(p.y - origin.y);
+					index = 40 + 40 - Math.floor(p.y - origin.y);
 				}
 				else
 				{
@@ -405,35 +468,216 @@
 				}
 				else
 				{
-					index = 80 + Math.floor(p.x - origin.x);
+					index = 80 + 40 - Math.floor(p.x - origin.x);
 				}
 			}
 
 			return index;
 		}
 
-		embeddedObj.onMouseMove = function (m, mp, buttons)
+		function computeAllRadiance()
 		{
-			ray.setDragPointPos(1, m);
+			embeddedObj.setRedrawOnChange(false);
 
-			if (ray.intersectionPoints.length)
+			for (var i=0; i!=radianceTexels.length; ++i)
 			{
-				probe.fillColor = ray.intersectionPoints[0].color;
-				probe.fillAlpha = 1;
-			}
-			else
-			{
-				probe.fillAlpha = 0;
+				ray.setDragPointPos(1, avg(radianceTexels[i].getBoundsMin(), radianceTexels[i].getBoundsMax()));
+
+				if (ray.intersectionPoints.length)
+				{
+					radianceTexels[i].fillColor = ray.intersectionPoints[0].color;
+					radianceTexels[i].fillAlpha = 1;
+				}
+				else
+				{
+					radianceTexels[i].fillAlpha = 0;
+				}
 			}
 
-			var texelIndex = getTexelIndex(ray.dir);
-
-			radianceTexels[texelIndex].fillColor = probe.fillColor;
-			radianceTexels[texelIndex].fillAlpha = probe.fillAlpha;
+			embeddedObj.setRedrawOnChange(true);
+			embeddedObj.draw();
 		}
 
+		function solidAngle(index)
+		{
+			var p = avg(radianceTexels[index].getBoundsMin(), radianceTexels[index].getBoundsMax());
+
+			var L = sub(p, probe.center);
+
+			var d = (Math.abs(L.x) > Math.abs(L.y)) ? L.y : L.x;
+			var t = (Math.abs(L.x) > Math.abs(L.y)) ? L.x : L.y;
+
+			var di = 1.0 * Math.sqrt( 1 - d*d/L.lengthSqr() );
+
+			return di;
+		}
+
+		function computeIrradiance(index, drawLines)
+		{
+			var rayDir = sub(avg(radianceTexels[index].getBoundsMin(), radianceTexels[index].getBoundsMax()), probe.center).unit();
+
+			var irradiance = {r:0, g:0, b:0, weight:0};
+
+			for (var i=0; i!=radianceTexels.length; ++i)
+			{
+				var p = avg(radianceTexels[i].getBoundsMin(), radianceTexels[i].getBoundsMax());
+
+				var Li = sub(p, probe.center).unit();
+
+				var brdf = BRDF(F0, rayDir, rayDir, Li, roughness);
+
+				var weight = brdf * solidAngle(i);
+
+				var rgb = hexToRgb(radianceTexels[i].fillColor);
+
+				irradiance.r += rgb.r * weight;
+				irradiance.g += rgb.g * weight;
+				irradiance.b += rgb.b * weight;
+				irradiance.weight += weight;
+
+				if (drawLines)
+				{
+					a = Math.min(1, brdf);
+					var color = "rgba(" + rgb.r + ", " + rgb.g + ", " + rgb.b + ", " + a + ")";
+
+					if (a>0)
+					{
+						camera.drawLine(probe.center, p, color, 1.5);
+					}
+				}
+			}
+
+			irradiance.r /= irradiance.weight;
+			irradiance.g /= irradiance.weight;
+			irradiance.b /= irradiance.weight;
+
+			irradianceTexels[index].fillColor = rgbToHex(irradiance.r, irradiance.g, irradiance.b);
+			irradianceTexels[index].fillAlpha = 1;
+
+			return irradiance;
+		}
+
+		function computeAllIrradiance()
+		{
+			embeddedObj.setRedrawOnChange(false);
+
+			computeAllRadiance();
+
+			for (var i=0; i!=irradianceTexels.length; ++i)
+			{
+				computeIrradiance(i, false);
+			}
+
+			embeddedObj.setRedrawOnChange(true);
+			embeddedObj.draw();
+		}
+
+		function drawFancyProbe()
+		{
+			for (var i=0; i!=irradianceTexels.length; ++i)
+			{
+				var i_prev = (i+irradianceTexels.length-1) % irradianceTexels.length;
+				var i_next = (i+1) % irradianceTexels.length;
+
+				var ray_prev = sub(avg(radianceTexels[i_prev].getBoundsMin(), radianceTexels[i_prev].getBoundsMax()), probe.center).unit();
+				var ray_next = sub(avg(radianceTexels[i_next].getBoundsMin(), radianceTexels[i_next].getBoundsMax()), probe.center).unit();
+
+				var a_prev = toAngle(ray_prev);
+				var a_next = toAngle(ray_next);
+
+				camera.drawArc(probe.center, 4, a_next, a_prev, "#000000", 0, irradianceTexels[i].fillColor);
+			}
+		}
+
+		embeddedObj.onMouseMove = function (m, mp, buttons)
+		{
+			embeddedObj.setRedrawOnChange(false);
+
+			if (!ray.isVisible())
+				ray.toggleVisibility();
+
+			ray.setDragPointPos(1, m);
+
+			// Radiance
+			{
+				if (ray.intersectionPoints.length)
+				{
+					probe.fillColor = ray.intersectionPoints[0].color;
+					probe.fillAlpha = 1;
+				}
+				else
+				{
+					probe.fillAlpha = 0;
+				}
+
+				var texelIndex = getTexelIndex(ray.dir);
+
+				radianceTexels[texelIndex].fillColor = probe.fillColor;
+				radianceTexels[texelIndex].fillAlpha = probe.fillAlpha;
+
+				embeddedObj.draw();
+			}
+
+			// Irradiance
+			{
+				var texelIndex = getTexelIndex(ray.dir);
+
+				var irradiance = computeIrradiance(texelIndex, true);
+
+				probe.fillColor = rgbToHex(irradiance.r, irradiance.g, irradiance.b);
+				probe.fillAlpha = 1;
+				probe.draw(camera);
+
+				camera.drawBRDFGraph(BRDF, ray.dir.unit(), ray.dir.unit(), F0, roughness, probe.center, 2, "#008000", 1, "rgba(0,255,0,1)");
+
+				drawFancyProbe();
+			}
+
+			embeddedObj.setRedrawOnChange(true);
+		}
+
+		embeddedObj.onMouseLeave = function ()
+		{
+			if (ray.isVisible())
+				ray.toggleVisibility();
+
+			embeddedObj.draw();
+		}
+
+		function updateVisibility()
+		{
+			embeddedObj.setRedrawOnChange(false);
+
+			if (radianceTexels.length>0 && radianceTexels[0].isVisible() != showRadiance)
+			{
+				for (var i=0; i!=radianceTexels.length; ++i)
+				{
+					radianceTexels[i].toggleVisibility();
+				}
+			}
+
+			if (irradianceTexels.length>0 && irradianceTexels[0].isVisible() != showIrradiance)
+			{
+				for (var i=0; i!=irradianceTexels.length; ++i)
+				{
+					irradianceTexels[i].toggleVisibility();
+				}
+			}
+
+			embeddedObj.setRedrawOnChange(true);
+			embeddedObj.draw();
+		}
+
+		addControls();
 		makeScene();
-		makeRadianceTexels();
+		makeTexels(radianceTexels);
+		makeTexels(irradianceTexels, 1);
+		updateVisibility();
+
+		if (precomputeRadiance)
+		{
+			computeAllRadiance();
+		}
 	}
 	</script></pre>
 
@@ -441,10 +685,11 @@
 
 	First, let's take a moment to appreciate the awesomeness of my programmer art skills in the scene I've made below! :) I had to add a few random colorful objects to add a bit of variation on the scene.
 
-	<div id="embeddedDrawing_3d_scene" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="controls_cubemapfilter" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
 	<pre style="display:none;"><script>
-		Show3DScene("embeddedDrawing_3d_scene");
+		ShowCubemapFiltering("embeddedDrawing_cubemapfilter", "controls_cubemapfilter", true, true, true);
 	</script></pre>
 
 
