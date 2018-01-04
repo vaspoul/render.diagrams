@@ -18,7 +18,7 @@
 <body style="width:750px; margin:0 auto">
 
 	<pre style="display:none;"><script>
-	function ShowCubemapFiltering(divName, controlsDivName, showRadiance, showIrradiance, showMouseRay, precomputeRadiance, precomputeIrradiance)
+	function ShowCubemapFiltering(divName, controlsDivName, showCubemap, showRadiance, showIrradiance, showMouseRay, precomputeRadiance, precomputeIrradiance)
 	{
 		var embeddedObj = new EmbeddedDrawing(divName);
 		var scene = embeddedObj.getScene();
@@ -26,7 +26,9 @@
 
 		var ray = undefined;
 		var probe = undefined;
+		var probeLabel = undefined;
 		var cubemapRect = undefined;
+		var cubemapLabel = undefined;
 		var radianceTexels = new Array(40*4);
 		var irradianceTexels = new Array(40*4);
 		var F0 = 0.9;
@@ -91,13 +93,13 @@
 
 			var controls = new PropertyGrid(document.getElementById(controlsDivName));
 
-			controls.addProperty("Show Radiance Texels", showRadianceTick);
-			controls.addProperty("Show Irradiance Texels", showIrradianceTick);
-			controls.addProperty("Clear Radiance Texels", clearRadianceButton);
-			controls.addProperty("Clear Irradiance Texels", clearIrradianceButton);
-			controls.addProperty("Populate Radiance", populateRadianceButton);
-			controls.addProperty("Populate Irradiance", populateIrradianceButton);
-			controls.addProperty("Roughness", roughnessSlider);
+			if (showRadiance)	controls.addProperty("Show Radiance Texels", showRadianceTick);
+			if (showIrradiance)	controls.addProperty("Show Irradiance Texels", showIrradianceTick);
+			if (showRadiance)	controls.addProperty("Clear Radiance Texels", clearRadianceButton);
+			if (showIrradiance)	controls.addProperty("Clear Irradiance Texels", clearIrradianceButton);
+			if (showRadiance)	controls.addProperty("Populate Radiance", populateRadianceButton);
+			if (showIrradiance)	controls.addProperty("Populate Irradiance", populateIrradianceButton);
+			if (showIrradiance)	controls.addProperty("Roughness", roughnessSlider);
 		}
 
 		function makeScene()
@@ -178,31 +180,31 @@
 			probe.frozen = false;
 			scene.addObject(probe);
 
-			var text = new Text(new Vector(-1.8369701987210297e-16, 15), "probe");
-			text.halign = "center";
-			text.valign = "top";
-			text.font = "Helvetica";
-			text.fontSize = 1;
-			text.color = "#000000";
-			text.angle = "0";
-			text.visible = true;
-			text.frozen = false;
-			text.maxWidth = 2.6144542152530668;
-			text.totalHeight = 0.8216856105081067;
-			scene.addObject(text);
+			probeLabel = new Text(new Vector(-1.8369701987210297e-16, 15), "probe");
+			probeLabel.halign = "center";
+			probeLabel.valign = "top";
+			probeLabel.font = "Helvetica";
+			probeLabel.fontSize = 1;
+			probeLabel.color = "#000000";
+			probeLabel.angle = "0";
+			probeLabel.visible = true;
+			probeLabel.frozen = false;
+			probeLabel.maxWidth = 2.6144542152530668;
+			probeLabel.totalHeight = 0.8216856105081067;
+			scene.addObject(probeLabel);
 
-			var text = new Text(new Vector(-19.709059472737106, 35.72496711318838), "cubemap");
-			text.halign = "left";
-			text.valign = "top";
-			text.font = "Helvetica";
-			text.fontSize = 1;
-			text.color = "#000000";
-			text.angle = "0";
-			text.visible = true;
-			text.frozen = false;
-			text.maxWidth = 4.108428052540533;
-			text.totalHeight = 0.8216856105081067;
-			scene.addObject(text);
+			cubemapLabel = new Text(new Vector(-19.709059472737106, 35.72496711318838), "cubemap");
+			cubemapLabel.halign = "left";
+			cubemapLabel.valign = "top";
+			cubemapLabel.font = "Helvetica";
+			cubemapLabel.fontSize = 1;
+			cubemapLabel.color = "#000000";
+			cubemapLabel.angle = "0";
+			cubemapLabel.visible = true;
+			cubemapLabel.frozen = false;
+			cubemapLabel.maxWidth = 4.108428052540533;
+			cubemapLabel.totalHeight = 0.8216856105081067;
+			scene.addObject(cubemapLabel);
 
 			var text = new Text(new Vector(-17.453427432856166, 28.268394361735975), "skydome");
 			text.halign = "left";
@@ -402,7 +404,7 @@
 				texels[index].setSize(1,1);
 				texels[index].color = "#000000";
 				texels[index].width = 0.5;
-				texels[index].fillColor = "#505050";
+				texels[index].fillColor = "#A0A0A0";
 				texels[index].fillAlpha = 1;
 				scene.addObject(texels[index]);
 				++index;
@@ -414,7 +416,7 @@
 				texels[index].setSize(1,1);
 				texels[index].color = "#000000";
 				texels[index].width = 0.5;
-				texels[index].fillColor = "#505050";
+				texels[index].fillColor = "#A0A0A0";
 				texels[index].fillAlpha = 1;
 				scene.addObject(texels[index]);
 				++index;
@@ -426,7 +428,7 @@
 				texels[index].setSize(1,1);
 				texels[index].color = "#000000";
 				texels[index].width = 0.5;
-				texels[index].fillColor = "#505050";
+				texels[index].fillColor = "#A0A0A0";
 				texels[index].fillAlpha = 1;
 				scene.addObject(texels[index]);
 				++index;
@@ -438,7 +440,7 @@
 				texels[index].setSize(1,1);
 				texels[index].color = "#000000";
 				texels[index].width = 0.5;
-				texels[index].fillColor = "#505050";
+				texels[index].fillColor = "#A0A0A0";
 				texels[index].fillAlpha = 1;
 				scene.addObject(texels[index]);
 				++index;
@@ -619,6 +621,9 @@
 		{
 			embeddedObj.setRedrawOnChange(false);
 
+			if (ray == undefined)
+				return;
+
 			if (ray.isVisible() != showMouseRay)
 				ray.toggleVisibility();
 
@@ -666,7 +671,7 @@
 				}
 
 				// Irradiance
-				else if (precomputeRadiance && !precomputeIrradiance)
+				else if (showIrradiance && precomputeRadiance && !precomputeIrradiance)
 				{
 					if (probe.isVisible())
 						probe.toggleVisibility();
@@ -728,6 +733,25 @@
 					probe.toggleVisibility();
 			}
 
+			if (ray.isVisible() != showMouseRay)
+				ray.toggleVisibility();
+
+			if (cubemapRect.isVisible() != showCubemap)
+			{
+				cubemapRect.toggleVisibility();
+				cubemapLabel.toggleVisibility();
+			}
+			
+			if (probe.isVisible() != showCubemap)
+			{
+				probe.toggleVisibility();
+			}
+
+			if (probeLabel.isVisible() != showCubemap)
+			{
+				probeLabel.toggleVisibility();
+			}
+
 			embeddedObj.setRedrawOnChange(true);
 			embeddedObj.draw();
 			drawFancyProbe();
@@ -747,16 +771,42 @@
 	}
 	</script></pre>
 
-	Let's start with the cubemap capturing process. 
+	Rendering engines often use cubemaps to store some form of lighting. There are a myriad of techniques that use them ranging from static to dynamic, direct and indirect, diffuse and specular lighting and so on. In this post we'll try to illustrate some of the common steps in capturing, filtering and using cubemaps to achieve some form of lighting.
 
-	First, let's take a moment to appreciate the awesomeness of my programmer art skills in the scene I've made below! :) I had to add a few random colorful objects to add a bit of variation on the scene.
+	Let's start with the cubemap capturing process, starting with just a simple environment (full of awesome programmer art). I've added a few random colorful objects just to make things a bit more interesting!
 
-	<div id="controls_cubemapfilter" style="width: 70%; margin:0 auto;"></div>
-	<div id="embeddedDrawing_cubemapfilter" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter_scene" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
 	<pre style="display:none;"><script>
-		ShowCubemapFiltering("embeddedDrawing_cubemapfilter", "controls_cubemapfilter", true, true, true, false, false);
+		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_scene", undefined, false, false, false, false, false, false);
 	</script></pre>
+
+	Next, let's define our cubemap's boundary as well as the capture point. It's quite common to have the capture point being at the center of the cubemap, but it's not always necessary to do so. In some cases the center of the cubemap might lie inside some scene geometry so moving it a bit further away would help. Use the right mouse button to move the capture point.
+
+	<div id="embeddedDrawing_cubemapfilter_cubemap" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+
+	<pre style="display:none;"><script>
+		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_cubemap", undefined, true, true, false, false, false, false);
+	</script></pre>
+
+	With the cubemap in place we can start thinking about how to populate it. We need to decide what values to store on each texel and how we'll calculate them. The choice of content will have implications the cubemap texture format, bit depth and compression method, but for now we'll focus on illustrating the capturing process.
+
+	The simplest capture we can make is to simply record the color value of the scene at each texel location. We can visualise this by firing a ray from the capture point to the center of each texel. Have a go at doing this by moving the mouse cursor through the diagram below.
+
+	<div id="controls_cubemapfilter_capture" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter_capture" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+
+	<pre style="display:none;"><script>
+		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_capture", "controls_cubemapfilter_capture", true, true, false, true, false, false);
+	</script></pre>
+
+	In a real rendering engine we probably wouldn't be firing rays from the capture point, but rather setup 6 cameras (for a 3D cubemap), each pointing at the center of each cube face, with a 90° field of view and an aspect ratio of 1 (square). We'd then render the scene from each camera and store the results (e.g. render to texture) on each cube face.
+
+	But what is it that we're capturing? In the case of the diagram above when the ray hits an object we just copy that object's color into the cubemap texel that corresponds to that direction. In that case we have assumed that the entire object has a constant color, i.e. it's the same across the entire surface and doesn't vary with the incident vector. This would be the case if all the object in the scene were purely emissive.
+
+	A more realistic model would be one where the color we capture is based on the lighting that affects the object as well the material properties and shading model (BRDF) of the surface at the point where the ray hits. 
+
+	indirect lighting
 
 
 
