@@ -18,7 +18,7 @@
 <body style="width:750px; margin:0 auto">
 
 	<pre style="display:none;"><script>
-	function ShowCubemapFiltering(divName, controlsDivName, showRadiance, showIrradiance, precomputeRadiance)
+	function ShowCubemapFiltering(divName, controlsDivName, showRadiance, showIrradiance, showMouseRay, precomputeRadiance, precomputeIrradiance)
 	{
 		var embeddedObj = new EmbeddedDrawing(divName);
 		var scene = embeddedObj.getScene();
@@ -31,10 +31,12 @@
 		var irradianceTexels = new Array(40*4);
 		var F0 = 0.9;
 		var roughness = 0.6;
-		var BRDF = Phong;
+		var BRDF = CosineLobe;
 
 		var showRadiance = showRadiance;
 		var showIrradiance = showIrradiance;
+		var precomputeRadiance = precomputeRadiance;
+		var precomputeIrradiance = precomputeIrradiance;
 
 		function addControls()
 		{
@@ -55,12 +57,17 @@
 
 			var clearRadianceButton = new Button("Clear Radiance", function (value)
 			{
+				precomputeRadiance = false;
+				precomputeIrradiance = false;
 				makeTexels(radianceTexels);
+				updateVisibility();
 			});
 
 			var clearIrradianceButton = new Button("Clear Irradiance", function (value)
 			{
+				precomputeIrradiance = false;
 				makeTexels(irradianceTexels, 1);
+				updateVisibility();
 			});
 
 			var populateRadianceButton = new Button("Populate Radiance", function (value)
@@ -71,6 +78,7 @@
 			var populateIrradianceButton = new Button("Populate Irradiance", function (value)
 			{
 				computeAllIrradiance();
+				drawFancyProbe();
 			});
 
 			var roughnessSlider = new Slider(0, 1, roughness, 0.1, function (value)
@@ -446,17 +454,20 @@
 
 			var origin = cubemapRect.points[3];
 
-			dir = mul(dir, 20 / Math.max(Math.abs(dir.x), Math.abs(dir.y)));
-			var p = add(probe.center, dir);
-
 			if (Math.abs(dir.x) > Math.abs(dir.y))
 			{
 				if (dir.x > 0)
 				{
+					var d = cubemapRect.points[1].x - probe.center.x;
+					var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
+
 					index = 40 + 40 - Math.floor(p.y - origin.y);
 				}
 				else
 				{
+					var d = probe.center.x - cubemapRect.points[0].x;
+					var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
+
 					index = 120 + Math.floor(p.y - origin.y);
 				}
 			}
@@ -464,10 +475,16 @@
 			{
 				if (dir.y > 0)
 				{
+					var d = cubemapRect.points[0].y - probe.center.y;
+					var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
+
 					index = 0 + Math.floor(p.x - origin.x);
 				}
 				else
 				{
+					var d = probe.center.y - cubemapRect.points[2].y;
+					var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
+
 					index = 80 + 40 - Math.floor(p.x - origin.x);
 				}
 			}
@@ -477,6 +494,8 @@
 
 		function computeAllRadiance()
 		{
+			precomputeRadiance = true;
+
 			embeddedObj.setRedrawOnChange(false);
 
 			for (var i=0; i!=radianceTexels.length; ++i)
@@ -493,6 +512,8 @@
 					radianceTexels[i].fillAlpha = 0;
 				}
 			}
+
+			updateVisibility();
 
 			embeddedObj.setRedrawOnChange(true);
 			embeddedObj.draw();
@@ -559,6 +580,7 @@
 
 		function computeAllIrradiance()
 		{
+			precomputeIrradiance = true;
 			embeddedObj.setRedrawOnChange(false);
 
 			computeAllRadiance();
@@ -570,10 +592,14 @@
 
 			embeddedObj.setRedrawOnChange(true);
 			embeddedObj.draw();
+			drawFancyProbe();
 		}
 
 		function drawFancyProbe()
 		{
+			if (!precomputeIrradiance)
+				return;
+
 			for (var i=0; i!=irradianceTexels.length; ++i)
 			{
 				var i_prev = (i+irradianceTexels.length-1) % irradianceTexels.length;
@@ -589,48 +615,74 @@
 			}
 		}
 
-		embeddedObj.onMouseMove = function (m, mp, buttons)
+		embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey)
 		{
 			embeddedObj.setRedrawOnChange(false);
 
-			if (!ray.isVisible())
+			if (ray.isVisible() != showMouseRay)
 				ray.toggleVisibility();
 
-			ray.setDragPointPos(1, m);
-
-			// Radiance
+			if (buttons & 2)
 			{
-				if (ray.intersectionPoints.length)
+				probe.setOrigin(m);
+				ray.setOrigin(m);
+
+				if (precomputeIrradiance)
 				{
-					probe.fillColor = ray.intersectionPoints[0].color;
-					probe.fillAlpha = 1;
+					computeAllIrradiance();
+				}
+				else if (precomputeRadiance)
+				{
+					computeAllRadiance();
+				}
+			}
+
+			if (showMouseRay)
+			{
+				ray.setDragPointPos(1, m);
+
+				// Radiance
+				if (!precomputeRadiance)
+				{
+					if (!probe.isVisible())
+						probe.toggleVisibility();
+
+					if (ray.intersectionPoints.length)
+					{
+						probe.fillColor = ray.intersectionPoints[0].color;
+						probe.fillAlpha = 1;
+					}
+					else
+					{
+						probe.fillAlpha = 0;
+					}
+
+					var texelIndex = getTexelIndex(ray.dir);
+
+					radianceTexels[texelIndex].fillColor = probe.fillColor;
+					radianceTexels[texelIndex].fillAlpha = probe.fillAlpha;
+
+					embeddedObj.draw();
+				}
+
+				// Irradiance
+				else if (precomputeRadiance && !precomputeIrradiance)
+				{
+					if (probe.isVisible())
+						probe.toggleVisibility();
+
+					embeddedObj.draw();
+					drawFancyProbe();
+
+					var texelIndex = getTexelIndex(ray.dir);
+					var irradiance = computeIrradiance(texelIndex, true);
+
+					camera.drawBRDFGraph(BRDF, ray.dir.unit(), ray.dir.unit(), F0, roughness, probe.center, 2, "#008000", 1, "rgba(0,255,0,1)");
 				}
 				else
 				{
-					probe.fillAlpha = 0;
+					drawFancyProbe();
 				}
-
-				var texelIndex = getTexelIndex(ray.dir);
-
-				radianceTexels[texelIndex].fillColor = probe.fillColor;
-				radianceTexels[texelIndex].fillAlpha = probe.fillAlpha;
-
-				embeddedObj.draw();
-			}
-
-			// Irradiance
-			{
-				var texelIndex = getTexelIndex(ray.dir);
-
-				var irradiance = computeIrradiance(texelIndex, true);
-
-				probe.fillColor = rgbToHex(irradiance.r, irradiance.g, irradiance.b);
-				probe.fillAlpha = 1;
-				probe.draw(camera);
-
-				camera.drawBRDFGraph(BRDF, ray.dir.unit(), ray.dir.unit(), F0, roughness, probe.center, 2, "#008000", 1, "rgba(0,255,0,1)");
-
-				drawFancyProbe();
 			}
 
 			embeddedObj.setRedrawOnChange(true);
@@ -642,6 +694,7 @@
 				ray.toggleVisibility();
 
 			embeddedObj.draw();
+			drawFancyProbe();
 		}
 
 		function updateVisibility()
@@ -656,7 +709,7 @@
 				}
 			}
 
-			if (irradianceTexels.length>0 && irradianceTexels[0].isVisible() != showIrradiance)
+			if (irradianceTexels.length>0 && irradianceTexels[0].isVisible() != (showIrradiance && precomputeRadiance))
 			{
 				for (var i=0; i!=irradianceTexels.length; ++i)
 				{
@@ -664,14 +717,27 @@
 				}
 			}
 
+			if (!precomputeRadiance)
+			{
+				if (!probe.isVisible())
+					probe.toggleVisibility();
+			}
+			else if (precomputeRadiance && !precomputeIrradiance)
+			{
+				if (probe.isVisible())
+					probe.toggleVisibility();
+			}
+
 			embeddedObj.setRedrawOnChange(true);
 			embeddedObj.draw();
+			drawFancyProbe();
 		}
 
 		addControls();
 		makeScene();
 		makeTexels(radianceTexels);
 		makeTexels(irradianceTexels, 1);
+		embeddedObj.zoomExtents();
 		updateVisibility();
 
 		if (precomputeRadiance)
@@ -689,7 +755,7 @@
 	<div id="embeddedDrawing_cubemapfilter" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
 	<pre style="display:none;"><script>
-		ShowCubemapFiltering("embeddedDrawing_cubemapfilter", "controls_cubemapfilter", true, true, true);
+		ShowCubemapFiltering("embeddedDrawing_cubemapfilter", "controls_cubemapfilter", true, true, true, false, false);
 	</script></pre>
 
 
