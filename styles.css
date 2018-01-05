@@ -19,3 +19,20 @@ table.propertyGrid tr th
 	border: none;
 	border-bottom: 2px solid black;
 }
+
+table.contextMenuTable, table.contextMenuTable tr, table.contextMenuTable tr td 
+{
+	border: none;
+	cursor: default;
+}
+
+table.contextMenuTable tr:hover
+{
+	background-color: #BBBBBB;
+}
+
+table.contextMenuTable tr th
+{
+	border: none;
+	border-bottom: 2px solid black;
+}
