@@ -19,3 +19,8 @@ table.propertyGrid tr th
 	border: none;
 	border-bottom: 2px solid black;
 }
+
+table.contextMenuTable tr:hover
+{
+    background-color: #BBBBBB;
+}
