@@ -18,208 +18,805 @@
 <body style="width:750px; margin:0 auto">
 
 	<pre style="display:none;"><script>
-	function ShowCubemapFiltering(divName, controlsDivName, showCubemap, showRadiance, showIrradiance, showMouseRay, precomputeRadiance, precomputeIrradiance)
-	{
-		var embeddedObj = new EmbeddedDrawing(divName);
-		var scene = embeddedObj.getScene();
-		var camera = embeddedObj.camera;
-
-		var ray = undefined;
-		var probe = undefined;
-		var probeLabel = undefined;
-		var cubemapRect = undefined;
-		var cubemapLabel = undefined;
-		var radianceTexels = new Array(40*4);
-		var irradianceTexels = new Array(40*4);
-		var F0 = 0.9;
-		var roughness = 0.6;
-		var BRDF = Lambert;
-
-		var showRadiance = showRadiance;
-		var showIrradiance = showIrradiance;
-		var precomputeRadiance = precomputeRadiance;
-		var precomputeIrradiance = precomputeIrradiance;
-
-		function addControls()
+		function ShowCubemapFiltering(divName, controlsDivName, showCubemap, showRadiance, showIrradiance, showMouseRay, precomputeRadiance, precomputeIrradiance)
 		{
-			if (controlsDivName == undefined)
-				return;
+			var embeddedObj = new EmbeddedDrawing(divName);
+			var scene = embeddedObj.getScene();
+			var camera = embeddedObj.camera;
 
-			var showRadianceTick = new TickBox(showRadiance, function (value)
+			var ray = undefined;
+			var probe = undefined;
+			var probeLabel = undefined;
+			var cubemapRect = undefined;
+			var cubemapLabel = undefined;
+			var radianceTexels = new Array(40 * 4);
+			var irradianceTexels = new Array(40 * 4);
+			var F0 = 0.9;
+			var roughness = 0.6;
+			var BRDF = Phong;
+			var BRDFIndex = 1;
+
+			var showRadiance = showRadiance;
+			var showIrradiance = showIrradiance;
+			var precomputeRadiance = precomputeRadiance;
+			var precomputeIrradiance = precomputeIrradiance;
+
+			function addControls()
 			{
-				showRadiance = value;
-				updateVisibility();
-			});
+				if (controlsDivName == undefined)
+					return;
 
-			var showIrradianceTick = new TickBox(showIrradiance, function (value)
+				var showRadianceTick = new TickBox(showRadiance, function (value)
+				{
+					showRadiance = value;
+					updateVisibility();
+				});
+
+				var showIrradianceTick = new TickBox(showIrradiance, function (value)
+				{
+					showIrradiance = value;
+					updateVisibility();
+				});
+
+				var clearRadianceButton = new Button("Clear Radiance", function (value)
+				{
+					precomputeRadiance = false;
+					precomputeIrradiance = false;
+					makeTexels(radianceTexels);
+					updateVisibility();
+				});
+
+				var clearIrradianceButton = new Button("Clear Irradiance", function (value)
+				{
+					precomputeIrradiance = false;
+					makeTexels(irradianceTexels, 1);
+					updateVisibility();
+				});
+
+				var populateRadianceButton = new Button("Populate Radiance", function (value)
+				{
+					computeAllRadiance();
+				});
+
+				var populateIrradianceButton = new Button("Populate Irradiance", function (value)
+				{
+					computeAllIrradiance();
+					drawFancyProbe();
+				});
+
+				var roughnessSlider = new Slider(0, 1, roughness, 0.1, function (value)
+				{
+					roughness = value;
+					if (precomputeIrradiance)
+					{
+						computeAllIrradiance();
+						drawFancyProbe();
+					}
+					else
+					{
+						makeTexels(irradianceTexels, 1);
+					}
+				});
+
+				var brdfDropdown = new Dropdown(["Lambert", "Phong"], BRDFIndex, function (value)
+				{
+					BRDFIndex = value;
+					BRDF = [Lambert, Phong][value];
+
+					if (precomputeIrradiance)
+					{
+						computeAllIrradiance();
+						drawFancyProbe();
+					}
+					else
+					{
+						makeTexels(irradianceTexels, 1);
+					}
+
+					updateVisibility();
+				});
+
+				var controls = new PropertyGrid(document.getElementById(controlsDivName));
+
+				//if (showRadiance)	controls.addProperty("Show Radiance Texels", showRadianceTick);
+				//if (showIrradiance)	controls.addProperty("Show Irradiance Texels", showIrradianceTick);
+				if (showRadiance) controls.addProperty("Clear Radiance Texels", clearRadianceButton);
+				if (showIrradiance) controls.addProperty("Clear Irradiance Texels", clearIrradianceButton);
+				if (showRadiance) controls.addProperty("Populate Radiance", populateRadianceButton);
+				if (showIrradiance) controls.addProperty("Populate Irradiance", populateIrradianceButton);
+				if (showIrradiance) controls.addProperty("Roughness", roughnessSlider);
+				if (showIrradiance) controls.addProperty("BRDF", brdfDropdown);
+			}
+
+			function makeScene()
 			{
-				showIrradiance = value;
-				updateVisibility();
-			});
+				scene.deleteAllObjects();
 
-			var clearRadianceButton = new Button("Clear Radiance", function (value)
+				var w = new Wall([new Vector(-22, 0), new Vector(21, 0)]);
+				w.closed = false;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#0a7817";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(14.378105238028517, 0), new Vector(14.378105238028517, 5), new Vector(16.378105238028517, 5), new Vector(16.378105238028517, 0), new Vector(14.378105238028517, 0)]);
+				w.closed = false;
+				w.roughness = 0.1;
+				w.metalness = 0;
+				w.color = "#683411";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(14.378105238028517, 5), new Vector(11.378105238028517, 7), new Vector(11.378105238028517, 9), new Vector(10.378105238028517, 11), new Vector(11.378105238028517, 13), new Vector(11.378105238028517, 15), new Vector(13.864922413235675, 15.6149344555104), new Vector(15.378105238028517, 17), new Vector(18.448297837647427, 16.187856383561872), new Vector(19.259937235720344, 13.70519469533884), new Vector(21.026446513879037, 11.699967947158697), new Vector(19.403167717733208, 9.503767222961393), new Vector(19.116706753707476, 6.49592710069118), new Vector(16.378105238028517, 5), new Vector(14.378105238028517, 5)]);
+				w.closed = false;
+				w.roughness = 0.6000000000000001;
+				w.metalness = 0;
+				w.color = "#0fb527";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(-17, 0), new Vector(-18.415000000000003, 0.5596666666666646), new Vector(-19.727333333333334, 1.8296666666666648), new Vector(-19.473333333333336, 2.718666666666665), new Vector(-19.00766666666667, 3.099666666666665), new Vector(-18.88066666666667, 4.496666666666665), new Vector(-19.515666666666668, 5.173999999999999), new Vector(-19.812, 5.808999999999998), new Vector(-19.473333333333336, 6.443999999999999), new Vector(-18.330333333333336, 6.570999999999999), new Vector(-16.933333333333337, 6.697999999999999), new Vector(-15.536333333333335, 7.544666666666665), new Vector(-15.409333333333334, 7.544666666666665), new Vector(-14.647333333333336, 6.528666666666665), new Vector(-13.800666666666668, 5.5973333333333315), new Vector(-12.911666666666669, 5.343333333333332), new Vector(-12.149666666666668, 4.0733333333333315), new Vector(-12.192000000000002, 3.226666666666665), new Vector(-12.827000000000002, 2.9303333333333317), new Vector(-13.335, 2.591666666666665), new Vector(-13.843000000000002, 2.4223333333333317), new Vector(-14.012333333333334, 1.8296666666666648), new Vector(-13.800666666666668, 0.9406666666666647), new Vector(-14.097000000000001, 0.5596666666666646), new Vector(-14.986000000000002, 0.4326666666666646), new Vector(-15, 0)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#6b6b6b";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var aw = new ArcWall(new Vector(-1, 8), 26.499999999999993, 34.29 * Math.PI / 180, 141.34 * Math.PI / 180);
+				aw.convex = true;
+				aw.roughness = 0;
+				aw.metalness = 0;
+				aw.color = "#2198d8";
+				aw.visible = true;
+				aw.frozen = false;
+				scene.addObject(aw);
+
+				cubemapRect = new Rectangle(new Vector(0, 0));
+				cubemapRect.points[0] = new Vector(-20, 36);
+				cubemapRect.points[1] = new Vector(20, 36);
+				cubemapRect.points[2] = new Vector(20, -4);
+				cubemapRect.points[3] = new Vector(-20, -4);
+				cubemapRect.color = "#900090";
+				cubemapRect.fillColor = "#000000";
+				cubemapRect.fillAlpha = 0;
+				cubemapRect.width = 2;
+				cubemapRect.rows = 1;
+				cubemapRect.columns = 1;
+				cubemapRect.centerPoints = false;
+				cubemapRect.visible = true;
+				cubemapRect.frozen = true;
+				cubemapRect.onChange();
+				scene.addObject(cubemapRect);
+
+				probe = new NGon(new Vector(0, 16), 1);
+				probe.sideCount = 60;
+				probe.rotationAngle = 0.7853981633974483;
+				probe.color = "#900090";
+				probe.fillColor = "#000000";
+				probe.fillAlpha = 0;
+				probe.dashed = false;
+				probe.width = 2;
+				probe.visible = true;
+				probe.frozen = false;
+				scene.addObject(probe);
+
+				probeLabel = new Text(new Vector(-1.8369701987210297e-16, 15), "probe");
+				probeLabel.halign = "center";
+				probeLabel.valign = "top";
+				probeLabel.font = "Helvetica";
+				probeLabel.fontSize = 1;
+				probeLabel.color = "#000000";
+				probeLabel.angle = "0";
+				probeLabel.visible = true;
+				probeLabel.frozen = false;
+				probeLabel.maxWidth = 2.6144542152530668;
+				probeLabel.totalHeight = 0.8216856105081067;
+				scene.addObject(probeLabel);
+
+				cubemapLabel = new Text(new Vector(-19.709059472737106, 35.72496711318838), "cubemap");
+				cubemapLabel.halign = "left";
+				cubemapLabel.valign = "top";
+				cubemapLabel.font = "Helvetica";
+				cubemapLabel.fontSize = 1;
+				cubemapLabel.color = "#000000";
+				cubemapLabel.angle = "0";
+				cubemapLabel.visible = true;
+				cubemapLabel.frozen = false;
+				cubemapLabel.maxWidth = 4.108428052540533;
+				cubemapLabel.totalHeight = 0.8216856105081067;
+				scene.addObject(cubemapLabel);
+
+				var text = new Text(new Vector(-17.453427432856166, 28.268394361735975), "skydome");
+				text.halign = "left";
+				text.valign = "top";
+				text.font = "Helvetica";
+				text.fontSize = 1;
+				text.color = "#000000";
+				text.angle = "35.21407811641446";
+				text.visible = true;
+				text.frozen = false;
+				text.maxWidth = 4.108428052540533;
+				text.totalHeight = 0.8216856105081067;
+				scene.addObject(text);
+
+				ray = new BRDFRay(new Vector(0, 16), new Vector(-6, 3));
+				ray.showBRDF = false;
+				ray.bounceCount = 0;
+				ray.color = "#000000";
+				ray.visible = true;
+				ray.frozen = false;
+				scene.addObject(ray);
+
+				var w = new Wall([new Vector(-13, 27), new Vector(-11, 29), new Vector(-9, 27), new Vector(-12, 25)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#e72b0a";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(-3, 30), new Vector(2, 30), new Vector(3, 28), new Vector(-4, 27)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#872ceb";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(17, 22), new Vector(15, 21), new Vector(13, 23), new Vector(18, 25)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#d92da9";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(-18, 18), new Vector(-16, 16), new Vector(-18, 14), new Vector(-20, 16)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#c0ea42";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(-11.330345805964948, 1.165172902982465), new Vector(-10.165172902982475, 2.3303458059649387), new Vector(-8.999999999999996, 1.747759354473712), new Vector(-7.9551756113737255, 1.5971475853585622), new Vector(-7.53307564359328, 0.6747809890975942), new Vector(-9, 0), new Vector(-10.675375403736576, 0.0025477070768795684)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#595959";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(-6.330345805964948, 1.165172902982465), new Vector(-5.165172902982475, 2.3303458059649387), new Vector(-3.9999999999999964, 1.747759354473712), new Vector(-2.9551756113737255, 1.5971475853585622), new Vector(-2.53307564359328, 0.6747809890975942), new Vector(-4, 0), new Vector(-5.675375403736576, 0.0025477070768795684)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#7c4934";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(-0.33034580596494756, 1.165172902982465), new Vector(0.8348270970175253, 2.3303458059649387), new Vector(2.0000000000000036, 1.747759354473712), new Vector(3.0448243886262745, 1.5971475853585622), new Vector(3.46692435640672, 0.6747809890975942), new Vector(2, 0), new Vector(0.32462459626342444, 0.0025477070768795684)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#4a4a4a";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(3.6696541940350524, 1.165172902982465), new Vector(4.834827097017525, 2.3303458059649387), new Vector(6.0000000000000036, 1.747759354473712), new Vector(7.0448243886262745, 1.5971475853585622), new Vector(7.46692435640672, 0.6747809890975942), new Vector(6, 0), new Vector(4.324624596263424, 0.0025477070768795684)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#7e7e7e";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(1.9218948395613413, 2.9129322574561667), new Vector(3.087067742543814, 4.078105160438641), new Vector(4.252240645526292, 3.495518708947414), new Vector(5.297065034152563, 3.344906939832264), new Vector(5.719165001933009, 2.422540343571296), new Vector(4.252240645526289, 1.7477593544737018), new Vector(2.5768652417897133, 1.7503070615505814)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#683520";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(-21.692116118920325, 24.555552860630094), new Vector(-22, 0)]);
+				w.closed = false;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#eaeaea";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(21, 0), new Vector(20.894210847714596, 22.92961926359196)]);
+				w.closed = false;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#d1d1d1";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(1, 25), new Vector(4, 27), new Vector(5, 25), new Vector(5, 23)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#f53237";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(8, 14), new Vector(10, 15), new Vector(10, 12), new Vector(8, 13)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#dace3d";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(-12, 19), new Vector(-11, 22), new Vector(-9, 21), new Vector(-9, 19)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#3cf327";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(-8, 3), new Vector(-10, 4), new Vector(-8, 6), new Vector(-6, 6), new Vector(-5, 4)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#7031f2";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(8, 4), new Vector(9, 6), new Vector(10, 4)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#6ae4f2";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+				var w = new Wall([new Vector(-16, 10), new Vector(-15, 12), new Vector(-13, 10), new Vector(-14, 8)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.color = "#0d9fee";
+				w.visible = true;
+				w.frozen = false;
+				scene.addObject(w);
+
+
+
+				embeddedObj.zoomExtents();
+			}
+
+			function makeTexels(texels, offset)
 			{
-				precomputeRadiance = false;
-				precomputeIrradiance = false;
-				makeTexels(radianceTexels);
-				updateVisibility();
-			});
+				if (offset == undefined)
+					offset = 0;
 
-			var clearIrradianceButton = new Button("Clear Irradiance", function (value)
+				embeddedObj.setRedrawOnChange(false);
+
+				scene.deleteObjects(texels);
+
+				var index = 0;
+
+				var p = cubemapRect.points[3];
+
+				for (var x = 0; x < 40; ++x)
+				{
+					texels[index] = new Rectangle(add(p, new Vector(x + 0.5, 40.5 + offset)));
+					texels[index].setSize(1, 1);
+					texels[index].color = "#000000";
+					texels[index].width = 0.5;
+					texels[index].fillColor = "#A0A0A0";
+					texels[index].fillAlpha = 1;
+					scene.addObject(texels[index]);
+					++index;
+				}
+
+				for (var y = 40 - 1; y >= 0; --y)
+				{
+					texels[index] = new Rectangle(add(p, new Vector(40.5 + offset, y + 0.5)));
+					texels[index].setSize(1, 1);
+					texels[index].color = "#000000";
+					texels[index].width = 0.5;
+					texels[index].fillColor = "#A0A0A0";
+					texels[index].fillAlpha = 1;
+					scene.addObject(texels[index]);
+					++index;
+				}
+
+				for (var x = 40 - 1; x >= 0; --x)
+				{
+					texels[index] = new Rectangle(add(p, new Vector(x + 0.5, -0.5 - offset)));
+					texels[index].setSize(1, 1);
+					texels[index].color = "#000000";
+					texels[index].width = 0.5;
+					texels[index].fillColor = "#A0A0A0";
+					texels[index].fillAlpha = 1;
+					scene.addObject(texels[index]);
+					++index;
+				}
+
+				for (var y = 0; y < 40; ++y)
+				{
+					texels[index] = new Rectangle(add(p, new Vector(-0.5 - offset, y + 0.5)));
+					texels[index].setSize(1, 1);
+					texels[index].color = "#000000";
+					texels[index].width = 0.5;
+					texels[index].fillColor = "#A0A0A0";
+					texels[index].fillAlpha = 1;
+					scene.addObject(texels[index]);
+					++index;
+				}
+
+				embeddedObj.setRedrawOnChange(true);
+				embeddedObj.draw();
+			}
+
+			function getTexelIndex(dir)
 			{
-				precomputeIrradiance = false;
-				makeTexels(irradianceTexels, 1);
-				updateVisibility();
-			});
+				var index = 0;
 
-			var populateRadianceButton = new Button("Populate Radiance", function (value)
+				var origin = cubemapRect.points[3];
+
+				if (Math.abs(dir.x) > Math.abs(dir.y))
+				{
+					if (dir.x > 0)
+					{
+						var d = cubemapRect.points[1].x - probe.center.x;
+						var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
+
+						index = 40 + 40 - Math.floor(p.y - origin.y);
+					}
+					else
+					{
+						var d = probe.center.x - cubemapRect.points[0].x;
+						var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
+
+						index = 120 + Math.floor(p.y - origin.y);
+					}
+				}
+				else
+				{
+					if (dir.y > 0)
+					{
+						var d = cubemapRect.points[0].y - probe.center.y;
+						var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
+
+						index = 0 + Math.floor(p.x - origin.x);
+					}
+					else
+					{
+						var d = probe.center.y - cubemapRect.points[2].y;
+						var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
+
+						index = 80 + 40 - Math.floor(p.x - origin.x);
+					}
+				}
+
+				return index;
+			}
+
+			function computeAllRadiance()
+			{
+				precomputeRadiance = true;
+
+				embeddedObj.setRedrawOnChange(false);
+
+				for (var i = 0; i != radianceTexels.length; ++i)
+				{
+					ray.setDragPointPos(1, avg(radianceTexels[i].getBoundsMin(), radianceTexels[i].getBoundsMax()));
+
+					if (ray.intersectionPoints.length)
+					{
+						radianceTexels[i].fillColor = ray.intersectionPoints[0].color;
+						radianceTexels[i].fillAlpha = 1;
+					}
+					else
+					{
+						radianceTexels[i].fillAlpha = 0;
+					}
+				}
+
+				updateVisibility();
+
+				embeddedObj.setRedrawOnChange(true);
+				embeddedObj.draw();
+			}
+
+			function solidAngle(index)
+			{
+				var p = avg(radianceTexels[index].getBoundsMin(), radianceTexels[index].getBoundsMax());
+
+				var L = sub(p, probe.center);
+
+				var d = (Math.abs(L.x) > Math.abs(L.y)) ? L.y : L.x;
+				var t = (Math.abs(L.x) > Math.abs(L.y)) ? L.x : L.y;
+
+				var di = 1.0 * Math.sqrt(1 - d * d / L.lengthSqr());
+
+				return di;
+			}
+
+			function computeIrradiance(index, drawLines)
+			{
+				var rayDir = sub(avg(radianceTexels[index].getBoundsMin(), radianceTexels[index].getBoundsMax()), probe.center).unit();
+
+				var irradiance = { r: 0, g: 0, b: 0, weight: 0 };
+
+				for (var i = 0; i != radianceTexels.length; ++i)
+				{
+					var p = avg(radianceTexels[i].getBoundsMin(), radianceTexels[i].getBoundsMax());
+
+					var Li = sub(p, probe.center).unit();
+
+					var brdf = BRDF(F0, rayDir, rayDir, Li, roughness);
+
+					var weight = brdf * solidAngle(i);
+
+					var rgb = hexToRgb(radianceTexels[i].fillColor);
+
+					irradiance.r += rgb.r * weight;
+					irradiance.g += rgb.g * weight;
+					irradiance.b += rgb.b * weight;
+					irradiance.weight += weight;
+
+					if (drawLines)
+					{
+						a = Math.min(1, brdf);
+						var color = "rgba(" + rgb.r + ", " + rgb.g + ", " + rgb.b + ", " + a + ")";
+
+						if (a > 0)
+						{
+							camera.drawLine(probe.center, p, color, 1.5);
+						}
+					}
+				}
+
+				irradiance.r /= irradiance.weight;
+				irradiance.g /= irradiance.weight;
+				irradiance.b /= irradiance.weight;
+
+				irradianceTexels[index].fillColor = rgbToHex(irradiance.r, irradiance.g, irradiance.b);
+				irradianceTexels[index].fillAlpha = 1;
+
+				return irradiance;
+			}
+
+			function computeAllIrradiance()
+			{
+				precomputeIrradiance = true;
+				embeddedObj.setRedrawOnChange(false);
+
+				computeAllRadiance();
+
+				for (var i = 0; i != irradianceTexels.length; ++i)
+				{
+					computeIrradiance(i, false);
+				}
+
+				embeddedObj.setRedrawOnChange(true);
+				embeddedObj.draw();
+				drawFancyProbe();
+			}
+
+			function drawFancyProbe()
+			{
+				if (!precomputeIrradiance)
+					return;
+
+				for (var i = 0; i != irradianceTexels.length; ++i)
+				{
+					var i_prev = (i + irradianceTexels.length - 1) % irradianceTexels.length;
+					var i_next = (i + 1) % irradianceTexels.length;
+
+					var ray_prev = sub(avg(radianceTexels[i_prev].getBoundsMin(), radianceTexels[i_prev].getBoundsMax()), probe.center).unit();
+					var ray_next = sub(avg(radianceTexels[i_next].getBoundsMin(), radianceTexels[i_next].getBoundsMax()), probe.center).unit();
+
+					var a_prev = toAngle(ray_prev);
+					var a_next = toAngle(ray_next);
+
+					camera.drawArc(probe.center, 4, a_next, a_prev, "#000000", 0, irradianceTexels[i].fillColor);
+				}
+			}
+
+			embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey)
+			{
+				embeddedObj.setRedrawOnChange(false);
+
+				if (ray == undefined)
+					return;
+
+				if (ray.isVisible() != showMouseRay)
+					ray.toggleVisibility();
+
+				if (buttons & 2)
+				{
+					probe.setOrigin(m);
+					ray.setOrigin(m);
+
+					if (precomputeIrradiance)
+					{
+						computeAllIrradiance();
+					}
+					else if (precomputeRadiance)
+					{
+						computeAllRadiance();
+					}
+				}
+
+				if (showMouseRay)
+				{
+					ray.setDragPointPos(1, m);
+
+					// Radiance
+					if (!precomputeRadiance)
+					{
+						if (!probe.isVisible())
+							probe.toggleVisibility();
+
+						if (ray.intersectionPoints.length)
+						{
+							probe.fillColor = ray.intersectionPoints[0].color;
+							probe.fillAlpha = 1;
+						}
+						else
+						{
+							probe.fillAlpha = 0;
+						}
+
+						var texelIndex = getTexelIndex(ray.dir);
+
+						radianceTexels[texelIndex].fillColor = probe.fillColor;
+						radianceTexels[texelIndex].fillAlpha = probe.fillAlpha;
+
+						embeddedObj.draw();
+					}
+
+						// Irradiance
+					else if (showIrradiance && precomputeRadiance && !precomputeIrradiance)
+					{
+						if (probe.isVisible())
+							probe.toggleVisibility();
+
+						embeddedObj.draw();
+						drawFancyProbe();
+
+						var texelIndex = getTexelIndex(ray.dir);
+						var irradiance = computeIrradiance(texelIndex, true);
+
+						camera.drawBRDFGraph(BRDF, ray.dir.unit(), ray.dir.unit(), F0, roughness, probe.center, 2, "#008000", 1, "rgba(0,255,0,1)");
+					}
+					else
+					{
+						drawFancyProbe();
+					}
+				}
+
+				embeddedObj.setRedrawOnChange(true);
+			}
+
+			embeddedObj.onMouseLeave = function ()
+			{
+				if (ray.isVisible())
+					ray.toggleVisibility();
+
+				embeddedObj.draw();
+				drawFancyProbe();
+			}
+
+			function updateVisibility()
+			{
+				embeddedObj.setRedrawOnChange(false);
+
+				if (radianceTexels.length > 0 && radianceTexels[0].isVisible() != showRadiance)
+				{
+					for (var i = 0; i != radianceTexels.length; ++i)
+					{
+						radianceTexels[i].toggleVisibility();
+					}
+				}
+
+				if (irradianceTexels.length > 0 && irradianceTexels[0].isVisible() != (showIrradiance && precomputeRadiance))
+				{
+					for (var i = 0; i != irradianceTexels.length; ++i)
+					{
+						irradianceTexels[i].toggleVisibility();
+					}
+				}
+
+				if (!precomputeRadiance)
+				{
+					if (!probe.isVisible())
+						probe.toggleVisibility();
+				}
+				else if (precomputeRadiance && !precomputeIrradiance)
+				{
+					if (probe.isVisible())
+						probe.toggleVisibility();
+				}
+
+				if (ray.isVisible() != showMouseRay)
+					ray.toggleVisibility();
+
+				if (cubemapRect.isVisible() != showCubemap)
+				{
+					cubemapRect.toggleVisibility();
+					cubemapLabel.toggleVisibility();
+				}
+
+				if (probe.isVisible() != showCubemap)
+				{
+					probe.toggleVisibility();
+				}
+
+				if (probeLabel.isVisible() != showCubemap)
+				{
+					probeLabel.toggleVisibility();
+				}
+
+				embeddedObj.setRedrawOnChange(true);
+				embeddedObj.draw();
+				drawFancyProbe();
+			}
+
+			addControls();
+			makeScene();
+			makeTexels(radianceTexels);
+			makeTexels(irradianceTexels, 1);
+			embeddedObj.zoomExtents();
+			updateVisibility();
+
+			if (precomputeRadiance)
 			{
 				computeAllRadiance();
-			});
-
-			var populateIrradianceButton = new Button("Populate Irradiance", function (value)
-			{
-				computeAllIrradiance();
-				drawFancyProbe();
-			});
-
-			var roughnessSlider = new Slider(0, 1, roughness, 0.1, function (value)
-			{
-				roughness = value;
-				//makeTexels(irradianceTexels, 1);
-				computeAllIrradiance();
-				drawFancyProbe();
-			});
-
-			var controls = new PropertyGrid(document.getElementById(controlsDivName));
-
-			if (showRadiance)	controls.addProperty("Show Radiance Texels", showRadianceTick);
-			if (showIrradiance)	controls.addProperty("Show Irradiance Texels", showIrradianceTick);
-			if (showRadiance)	controls.addProperty("Clear Radiance Texels", clearRadianceButton);
-			if (showIrradiance)	controls.addProperty("Clear Irradiance Texels", clearIrradianceButton);
-			if (showRadiance)	controls.addProperty("Populate Radiance", populateRadianceButton);
-			if (showIrradiance)	controls.addProperty("Populate Irradiance", populateIrradianceButton);
-			if (showIrradiance)	controls.addProperty("Roughness", roughnessSlider);
+			}
 		}
 
-		function makeScene()
+		function ShowCubemapFiltering_SamplePoint(divName)
 		{
-			scene.deleteAllObjects();
+			var embeddedObj = new EmbeddedDrawing(divName);
+			var scene = embeddedObj.getScene();
+			var camera = embeddedObj.camera;
 
-			var w = new Wall([new Vector(-22, 0), new Vector(21, 0)]);
+			scene.name = "BRDF Example";
+			camera.setViewPosition(-13.094875162046673, 13.466994886016069); camera.setUnitScale(50.42404280973971);
+
+			var w = new Wall([new Vector(-4, 21), new Vector(-25, 21)]);
 			w.closed = false;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#0a7817";
+			w.roughness = 0.7000000000000001;
+			w.metalness = 0.6000000000000001;
+			w.intensity = 4;
+			w.BRDFIndex = 1;
+			w.color = "#000000";
 			w.visible = true;
 			w.frozen = false;
-			scene.addObject(w);
+			w.onChange(); scene.addObject(w);
 
-			var w = new Wall([new Vector(14.378105238028517, 0), new Vector(14.378105238028517, 5), new Vector(16.378105238028517, 5), new Vector(16.378105238028517, 0), new Vector(14.378105238028517, 0)]);
-			w.closed = false;
-			w.roughness = 0.1;
-			w.metalness = 0;
-			w.color = "#683411";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(14.378105238028517, 5), new Vector(11.378105238028517, 7), new Vector(11.378105238028517, 9), new Vector(10.378105238028517, 11), new Vector(11.378105238028517, 13), new Vector(11.378105238028517, 15), new Vector(13.864922413235675, 15.6149344555104), new Vector(15.378105238028517, 17), new Vector(18.448297837647427, 16.187856383561872), new Vector(19.259937235720344, 13.70519469533884), new Vector(21.026446513879037, 11.699967947158697), new Vector(19.403167717733208, 9.503767222961393), new Vector(19.116706753707476, 6.49592710069118), new Vector(16.378105238028517, 5), new Vector(14.378105238028517, 5)]);
-			w.closed = false;
-			w.roughness = 0.6000000000000001;
-			w.metalness = 0;
-			w.color = "#0fb527";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(-17, 0), new Vector(-18.415000000000003, 0.5596666666666646), new Vector(-19.727333333333334, 1.8296666666666648), new Vector(-19.473333333333336, 2.718666666666665), new Vector(-19.00766666666667, 3.099666666666665), new Vector(-18.88066666666667, 4.496666666666665), new Vector(-19.515666666666668, 5.173999999999999), new Vector(-19.812, 5.808999999999998), new Vector(-19.473333333333336, 6.443999999999999), new Vector(-18.330333333333336, 6.570999999999999), new Vector(-16.933333333333337, 6.697999999999999), new Vector(-15.536333333333335, 7.544666666666665), new Vector(-15.409333333333334, 7.544666666666665), new Vector(-14.647333333333336, 6.528666666666665), new Vector(-13.800666666666668, 5.5973333333333315), new Vector(-12.911666666666669, 5.343333333333332), new Vector(-12.149666666666668, 4.0733333333333315), new Vector(-12.192000000000002, 3.226666666666665), new Vector(-12.827000000000002, 2.9303333333333317), new Vector(-13.335, 2.591666666666665), new Vector(-13.843000000000002, 2.4223333333333317), new Vector(-14.012333333333334, 1.8296666666666648), new Vector(-13.800666666666668, 0.9406666666666647), new Vector(-14.097000000000001, 0.5596666666666646), new Vector(-14.986000000000002, 0.4326666666666646), new Vector(-15, 0)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#6b6b6b";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var aw = new ArcWall(new Vector(-1, 8), 26.499999999999993, 34.29 * Math.PI/180, 141.34 * Math.PI/180);
-			aw.convex = true;
-			aw.roughness = 0;
-			aw.metalness = 0;
-			aw.color = "#2198d8";
-			aw.visible = true;
-			aw.frozen = false;
-			scene.addObject(aw);
-
-			cubemapRect = new Rectangle(new Vector(0,0));
-			cubemapRect.points[0] = new Vector(-20, 36);
-			cubemapRect.points[1] = new Vector(20, 36);
-			cubemapRect.points[2] = new Vector(20, -4);
-			cubemapRect.points[3] = new Vector(-20, -4);
-			cubemapRect.color = "#900090";
-			cubemapRect.fillColor = "#000000";
-			cubemapRect.fillAlpha = 0;
-			cubemapRect.width = 2;
-			cubemapRect.rows = 1;
-			cubemapRect.columns = 1;
-			cubemapRect.centerPoints = false;
-			cubemapRect.visible = true;
-			cubemapRect.frozen = true;
-			cubemapRect.onChange();
-			scene.addObject(cubemapRect);
-
-			probe = new NGon(new Vector(0, 16), 1);
-			probe.sideCount = 60;
-			probe.rotationAngle = 0.7853981633974483;
-			probe.color = "#900090";
-			probe.fillColor = "#000000";
-			probe.fillAlpha = 0;
-			probe.dashed = false;
-			probe.width = 2;
-			probe.visible = true;
-			probe.frozen = false;
-			scene.addObject(probe);
-
-			probeLabel = new Text(new Vector(-1.8369701987210297e-16, 15), "probe");
-			probeLabel.halign = "center";
-			probeLabel.valign = "top";
-			probeLabel.font = "Helvetica";
-			probeLabel.fontSize = 1;
-			probeLabel.color = "#000000";
-			probeLabel.angle = "0";
-			probeLabel.visible = true;
-			probeLabel.frozen = false;
-			probeLabel.maxWidth = 2.6144542152530668;
-			probeLabel.totalHeight = 0.8216856105081067;
-			scene.addObject(probeLabel);
-
-			cubemapLabel = new Text(new Vector(-19.709059472737106, 35.72496711318838), "cubemap");
-			cubemapLabel.halign = "left";
-			cubemapLabel.valign = "top";
-			cubemapLabel.font = "Helvetica";
-			cubemapLabel.fontSize = 1;
-			cubemapLabel.color = "#000000";
-			cubemapLabel.angle = "0";
-			cubemapLabel.visible = true;
-			cubemapLabel.frozen = false;
-			cubemapLabel.maxWidth = 4.108428052540533;
-			cubemapLabel.totalHeight = 0.8216856105081067;
-			scene.addObject(cubemapLabel);
-
-			var text = new Text(new Vector(-17.453427432856166, 28.268394361735975), "skydome");
-			text.halign = "left";
-			text.valign = "top";
-			text.font = "Helvetica";
-			text.fontSize = 1;
-			text.color = "#000000";
-			text.angle = "35.21407811641446";
-			text.visible = true;
-			text.frozen = false;
-			text.maxWidth = 4.108428052540533;
-			text.totalHeight = 0.8216856105081067;
-			scene.addObject(text);
-
-			ray = new BRDFRay(new Vector(0, 16), new Vector(-6, 3));
+			var ray = new BRDFRay(new Vector(-13, 10), new Vector(0.3854484153749337, 2.1121501402508054));
 			ray.showBRDF = false;
 			ray.bounceCount = 0;
 			ray.color = "#000000";
@@ -227,860 +824,289 @@
 			ray.frozen = false;
 			scene.addObject(ray);
 
-			var w = new Wall([new Vector(-13, 27), new Vector(-11, 29), new Vector(-9, 27), new Vector(-12, 25)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#e72b0a";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(-3, 30), new Vector(2, 30), new Vector(3, 28), new Vector(-4, 27)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#872ceb";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(17, 22), new Vector(15, 21), new Vector(13, 23), new Vector(18, 25)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#d92da9";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(-18, 18), new Vector(-16, 16), new Vector(-18, 14), new Vector(-20, 16)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#c0ea42";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(-11.330345805964948, 1.165172902982465), new Vector(-10.165172902982475, 2.3303458059649387), new Vector(-8.999999999999996, 1.747759354473712), new Vector(-7.9551756113737255, 1.5971475853585622), new Vector(-7.53307564359328, 0.6747809890975942), new Vector(-9, 0), new Vector(-10.675375403736576, 0.0025477070768795684)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#595959";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(-6.330345805964948, 1.165172902982465), new Vector(-5.165172902982475, 2.3303458059649387), new Vector(-3.9999999999999964, 1.747759354473712), new Vector(-2.9551756113737255, 1.5971475853585622), new Vector(-2.53307564359328, 0.6747809890975942), new Vector(-4, 0), new Vector(-5.675375403736576, 0.0025477070768795684)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#7c4934";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(-0.33034580596494756, 1.165172902982465), new Vector(0.8348270970175253, 2.3303458059649387), new Vector(2.0000000000000036, 1.747759354473712), new Vector(3.0448243886262745, 1.5971475853585622), new Vector(3.46692435640672, 0.6747809890975942), new Vector(2, 0), new Vector(0.32462459626342444, 0.0025477070768795684)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#4a4a4a";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(3.6696541940350524, 1.165172902982465), new Vector(4.834827097017525, 2.3303458059649387), new Vector(6.0000000000000036, 1.747759354473712), new Vector(7.0448243886262745, 1.5971475853585622), new Vector(7.46692435640672, 0.6747809890975942), new Vector(6, 0), new Vector(4.324624596263424, 0.0025477070768795684)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#7e7e7e";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(1.9218948395613413, 2.9129322574561667), new Vector(3.087067742543814, 4.078105160438641), new Vector(4.252240645526292, 3.495518708947414), new Vector(5.297065034152563, 3.344906939832264), new Vector(5.719165001933009, 2.422540343571296), new Vector(4.252240645526289, 1.7477593544737018), new Vector(2.5768652417897133, 1.7503070615505814)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#683520";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
-
-			var w = new Wall([new Vector(-21.692116118920325, 24.555552860630094), new Vector(-22, 0)]);
+			var w = new Wall([new Vector(-25, 5), new Vector(-4, 5)]);
 			w.closed = false;
 			w.roughness = 0;
 			w.metalness = 0;
-			w.color = "#eaeaea";
+			w.intensity = 1;
+			w.BRDFIndex = 1;
+			w.color = "#000000";
 			w.visible = true;
 			w.frozen = false;
-			scene.addObject(w);
+			w.onChange(); scene.addObject(w);
 
-			var w = new Wall([new Vector(21, 0), new Vector(20.894210847714596, 22.92961926359196)]);
+			var light = new PointLight(new Vector(-9, 14), 7.810249675906654);
+			light.bulbRadius = 1;
+			light.collisionOutline = false;
+			light.color = "#FFC000";
+			light.visible = true;
+			light.frozen = false;
+			scene.addObject(light);
+
+			var w = new Wall([new Vector(-25, 21), new Vector(-25, 5)]);
 			w.closed = false;
 			w.roughness = 0;
 			w.metalness = 0;
-			w.color = "#d1d1d1";
+			w.intensity = 1;
+			w.BRDFIndex = 1;
+			w.color = "#000000";
 			w.visible = true;
 			w.frozen = false;
-			scene.addObject(w);
+			w.onChange(); scene.addObject(w);
 
-			var w = new Wall([new Vector(1, 25), new Vector(4, 27), new Vector(5, 25), new Vector(5, 23)]);
-			w.closed = true;
+			var w = new Wall([new Vector(-4.05444534748811, 4.739015623016712), new Vector(-4, 21)]);
+			w.closed = false;
 			w.roughness = 0;
 			w.metalness = 0;
-			w.color = "#f53237";
+			w.intensity = 1;
+			w.BRDFIndex = 1;
+			w.color = "#000000";
 			w.visible = true;
 			w.frozen = false;
-			scene.addObject(w);
+			w.onChange(); scene.addObject(w);
 
-			var w = new Wall([new Vector(8, 14), new Vector(10, 15), new Vector(10, 12), new Vector(8, 13)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#dace3d";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
+			var ngon = new NGon(new Vector(-13, 10), 1);
+			ngon.sideCount = 60;
+			ngon.rotationAngle = 0.20943951023931953;
+			ngon.color = "#900090";
+			ngon.fillColor = "#000000";
+			ngon.fillAlpha = 0;
+			ngon.dashed = false;
+			ngon.width = 2;
+			ngon.visible = true;
+			ngon.frozen = false;
+			scene.addObject(ngon);
 
-			var w = new Wall([new Vector(-12, 19), new Vector(-11, 22), new Vector(-9, 21), new Vector(-9, 19)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#3cf327";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
+			var lineObject = new Line([new Vector(-9, 14), new Vector(-10.992598874329644, 21)]);
+			lineObject.closed = false;
+			lineObject.color = "#d3ce05";
+			lineObject.fillColor = "#000000";
+			lineObject.fillAlpha = 0.2;
+			lineObject.pixelMip = -1;
+			lineObject.arrowStart = false;
+			lineObject.arrowEnd = true;
+			lineObject.handDrawn = false;
+			lineObject.dashed = false;
+			lineObject.width = 2;
+			lineObject.visible = true;
+			lineObject.frozen = false;
+			scene.addObject(lineObject);
 
-			var w = new Wall([new Vector(-8, 3), new Vector(-10, 4), new Vector(-8, 6), new Vector(-6, 6), new Vector(-5, 4)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#7031f2";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
+			var ngon = new NGon(new Vector(-19, 10), 1);
+			ngon.sideCount = 60;
+			ngon.rotationAngle = 0.20943951023931953;
+			ngon.color = "#900090";
+			ngon.fillColor = "#000000";
+			ngon.fillAlpha = 0;
+			ngon.dashed = false;
+			ngon.width = 2;
+			ngon.visible = true;
+			ngon.frozen = false;
+			scene.addObject(ngon);
 
-			var w = new Wall([new Vector(8, 4), new Vector(9, 6), new Vector(10, 4)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#6ae4f2";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
+			var ray = new BRDFRay(new Vector(-19, 10), new Vector(1.644351132310454, 2.2588930130436955));
+			ray.showBRDF = false;
+			ray.bounceCount = 0;
+			ray.color = "#000000";
+			ray.visible = true;
+			ray.frozen = false;
+			scene.addObject(ray);
 
-			var w = new Wall([new Vector(-16, 10), new Vector(-15, 12), new Vector(-13, 10), new Vector(-14, 8)]);
-			w.closed = true;
-			w.roughness = 0;
-			w.metalness = 0;
-			w.color = "#0d9fee";
-			w.visible = true;
-			w.frozen = false;
-			scene.addObject(w);
+			var text = new Text(new Vector(-11.33961756865867, 22.194974149015426), "P");
+			text.halign = "1";
+			text.valign = "1";
+			text.font = "Arial";
+			text.fontSize = 1;
+			text.color = "#000000";
+			text.angle = "0";
+			text.visible = true;
+			text.frozen = false;
+			text.maxWidth = 0.7234016828617472;
+			text.totalHeight = 1.023096665761614;
+			scene.addObject(text);
 
-
+			var ray = new BRDFRay(new Vector(-9, 14), new Vector(-0.9962994371648222, 3.5));
+			ray.showBRDF = true;
+			ray.bounceCount = 0;
+			ray.color = "#000000";
+			ray.visible = true;
+			ray.frozen = false;
+			scene.addObject(ray);
 
 			embeddedObj.zoomExtents();
 		}
 
-		function makeTexels(texels, offset)
+		function ShowCubemapFiltering_LightGather(divName)
 		{
-			if (offset==undefined)
-				offset = 0;
+			var embeddedObj = new EmbeddedDrawing(divName);
+			var scene = embeddedObj.getScene();
+			var camera = embeddedObj.camera;
 
-			embeddedObj.setRedrawOnChange(false);
+			scene.name = "BRDF Reciprocal";
+			camera.setViewPosition(3.6032858792516436, 6.9391729366825174); camera.setUnitScale(44.41308445635462);
 
-			scene.deleteObjects(texels);
+			var w = new Wall([new Vector(-12, 0), new Vector(12, 0)]);
+			w.closed = false;
+			w.roughness = 0;
+			w.metalness = 0;
+			w.intensity = 1;
+			w.BRDFIndex = 1;
+			w.color = "#000000";
+			w.visible = true;
+			w.frozen = false;
+			w.onChange(); scene.addObject(w);
 
-			var index = 0;
+			var light = new PointLight(new Vector(8, 8), 0);
+			light.bulbRadius = 1;
+			light.collisionOutline = true;
+			light.color = "#FFC000";
+			light.visible = true;
+			light.frozen = false;
+			scene.addObject(light);
 
-			var p = cubemapRect.points[3];
+			var cam = new CameraObject(new Vector(-9, 10), new Vector(2, 0), 10);
+			cam.nearWidth = 3;
+			cam.farWidth = 16.81681984990781;
+			cam.fovDegrees = 49.84952316316994;
+			cam.collisionOutline = false;
+			cam.color = "rgb(57,244,255)";
+			cam.pixelCount = 0;
+			cam.showZBuffer = false;
+			cam.showMinZBuffer = false;
+			cam.showCenterLines = true;
+			cam.visible = true;
+			cam.frozen = false;
+			cam.onChange();
+			scene.addObject(cam);
 
-			for (var x=0; x<40; ++x)
-			{
-				texels[index] = new Rectangle( add(p, new Vector(x+0.5, 40.5+offset)) );
-				texels[index].setSize(1,1);
-				texels[index].color = "#000000";
-				texels[index].width = 0.5;
-				texels[index].fillColor = "#A0A0A0";
-				texels[index].fillAlpha = 1;
-				scene.addObject(texels[index]);
-				++index;
-			}
+			var hemi = new BRDFHemisphere(new Vector(0, 0), 2, new Vector(0, 1));
+			hemi.visible = true;
+			hemi.frozen = false;
+			hemi.showBRDF = true;
+			hemi.metalness = 0;
+			hemi.roughness = 0;
+			hemi.intensity = 5.4;
+			hemi.BRDFIndex = 0;
+			hemi.onChange(); scene.addObject(hemi);
 
-			for (var y=40-1; y>=0; --y)
-			{
-				texels[index] = new Rectangle( add(p, new Vector(40.5+offset, y+0.5)) );
-				texels[index].setSize(1,1);
-				texels[index].color = "#000000";
-				texels[index].width = 0.5;
-				texels[index].fillColor = "#A0A0A0";
-				texels[index].fillAlpha = 1;
-				scene.addObject(texels[index]);
-				++index;
-			}
+			var ray = new BRDFRay(new Vector(8, 8), new Vector(-2.0000000000000004, -2.0000000000000004));
+			ray.showBRDF = false;
+			ray.bounceCount = 3;
+			ray.color = "#000000";
+			ray.visible = true;
+			ray.frozen = false;
+			scene.addObject(ray);
 
-			for (var x=40-1; x>=0; --x)
-			{
-				texels[index] = new Rectangle( add(p, new Vector(x+0.5, -0.5-offset)) );
-				texels[index].setSize(1,1);
-				texels[index].color = "#000000";
-				texels[index].width = 0.5;
-				texels[index].fillColor = "#A0A0A0";
-				texels[index].fillAlpha = 1;
-				scene.addObject(texels[index]);
-				++index;
-			}
+			var lineObject = new Line([new Vector(0, 0), new Vector(-6.759929941369362, 7.224628407957438)]);
+			lineObject.closed = false;
+			lineObject.color = "#f47313";
+			lineObject.fillColor = "#000000";
+			lineObject.fillAlpha = 0.2;
+			lineObject.pixelMip = -1;
+			lineObject.arrowStart = false;
+			lineObject.arrowEnd = true;
+			lineObject.handDrawn = false;
+			lineObject.dashed = false;
+			lineObject.width = 5;
+			lineObject.visible = true;
+			lineObject.frozen = false;
+			scene.addObject(lineObject);
 
-			for (var y=0; y<40; ++y)
-			{
-				texels[index] = new Rectangle( add(p, new Vector(-0.5-offset, y+0.5)) );
-				texels[index].setSize(1,1);
-				texels[index].color = "#000000";
-				texels[index].width = 0.5;
-				texels[index].fillColor = "#A0A0A0";
-				texels[index].fillAlpha = 1;
-				scene.addObject(texels[index]);
-				++index;
-			}
+			var light = new PointLight(new Vector(2, 12), 0);
+			light.bulbRadius = 1;
+			light.collisionOutline = true;
+			light.color = "#FFC000";
+			light.visible = true;
+			light.frozen = false;
+			scene.addObject(light);
 
-			embeddedObj.setRedrawOnChange(true);
-			embeddedObj.draw();
+			var light = new PointLight(new Vector(-2, 11), 0);
+			light.bulbRadius = 1;
+			light.collisionOutline = true;
+			light.color = "#FFC000";
+			light.visible = true;
+			light.frozen = false;
+			scene.addObject(light);
+
+			var ray = new BRDFRay(new Vector(2, 12), new Vector(-0.4864864864864864, -2.918918918918919));
+			ray.showBRDF = false;
+			ray.bounceCount = 3;
+			ray.color = "#000000";
+			ray.visible = true;
+			ray.frozen = false;
+			scene.addObject(ray);
+
+			var ray = new BRDFRay(new Vector(-2, 11), new Vector(0.56, -3.08));
+			ray.showBRDF = false;
+			ray.bounceCount = 3;
+			ray.color = "#000000";
+			ray.visible = true;
+			ray.frozen = false;
+			scene.addObject(ray);
+
+			var lineObject = new Line([new Vector(-6.759929941369362, 7.224628407957438), new Vector(-11.38839330312469, 12.171266639204251)]);
+			lineObject.closed = false;
+			lineObject.color = "#000000";
+			lineObject.fillColor = "#000000";
+			lineObject.fillAlpha = 0.2;
+			lineObject.pixelMip = -1;
+			lineObject.arrowStart = false;
+			lineObject.arrowEnd = false;
+			lineObject.handDrawn = false;
+			lineObject.dashed = true;
+			lineObject.width = 2;
+			lineObject.visible = true;
+			lineObject.frozen = false;
+			scene.addObject(lineObject);
+
+			var text = new Text(new Vector(-9.236286308947184, 11.845249125781237), "camera");
+			text.halign = "1";
+			text.valign = "1";
+			text.font = "Arial";
+			text.fontSize = 0.6000000000000001;
+			text.color = "#000000";
+			text.angle = "0";
+			text.visible = true;
+			text.frozen = false;
+			text.maxWidth = 2.000678380330404;
+			text.totalHeight = 0.5497835477193197;
+			scene.addObject(text);
+
+			var text = new Text(new Vector(0.07624444762588833, -0.6641721124234669), "shading point");
+			text.halign = "1";
+			text.valign = "1";
+			text.font = "Arial";
+			text.fontSize = 0.6000000000000001;
+			text.color = "#000000";
+			text.angle = "0";
+			text.visible = true;
+			text.frozen = false;
+			text.maxWidth = 3.569521903991699;
+			text.totalHeight = 0.5497835477193197;
+			scene.addObject(text);
+
+			var text = new Text(new Vector(5.372740005340857, 10.226492468463208), "lighting environment");
+			text.halign = "1";
+			text.valign = "1";
+			text.font = "Arial";
+			text.fontSize = 0.6000000000000001;
+			text.color = "#000000";
+			text.angle = "0";
+			text.visible = true;
+			text.frozen = false;
+			text.maxWidth = 5.36980946858724;
+			text.totalHeight = 0.5497835477193197;
+			scene.addObject(text);
+
+			embeddedObj.zoomExtents();
 		}
-
-		function getTexelIndex(dir)
-		{
-			var index = 0;
-
-			var origin = cubemapRect.points[3];
-
-			if (Math.abs(dir.x) > Math.abs(dir.y))
-			{
-				if (dir.x > 0)
-				{
-					var d = cubemapRect.points[1].x - probe.center.x;
-					var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
-
-					index = 40 + 40 - Math.floor(p.y - origin.y);
-				}
-				else
-				{
-					var d = probe.center.x - cubemapRect.points[0].x;
-					var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
-
-					index = 120 + Math.floor(p.y - origin.y);
-				}
-			}
-			else
-			{
-				if (dir.y > 0)
-				{
-					var d = cubemapRect.points[0].y - probe.center.y;
-					var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
-
-					index = 0 + Math.floor(p.x - origin.x);
-				}
-				else
-				{
-					var d = probe.center.y - cubemapRect.points[2].y;
-					var p = mad(dir, d / Math.max(Math.abs(dir.x), Math.abs(dir.y)), probe.center, dir);
-
-					index = 80 + 40 - Math.floor(p.x - origin.x);
-				}
-			}
-
-			return index;
-		}
-
-		function computeAllRadiance()
-		{
-			precomputeRadiance = true;
-
-			embeddedObj.setRedrawOnChange(false);
-
-			for (var i=0; i!=radianceTexels.length; ++i)
-			{
-				ray.setDragPointPos(1, avg(radianceTexels[i].getBoundsMin(), radianceTexels[i].getBoundsMax()));
-
-				if (ray.intersectionPoints.length)
-				{
-					radianceTexels[i].fillColor = ray.intersectionPoints[0].color;
-					radianceTexels[i].fillAlpha = 1;
-				}
-				else
-				{
-					radianceTexels[i].fillAlpha = 0;
-				}
-			}
-
-			updateVisibility();
-
-			embeddedObj.setRedrawOnChange(true);
-			embeddedObj.draw();
-		}
-
-		function solidAngle(index)
-		{
-			var p = avg(radianceTexels[index].getBoundsMin(), radianceTexels[index].getBoundsMax());
-
-			var L = sub(p, probe.center);
-
-			var d = (Math.abs(L.x) > Math.abs(L.y)) ? L.y : L.x;
-			var t = (Math.abs(L.x) > Math.abs(L.y)) ? L.x : L.y;
-
-			var di = 1.0 * Math.sqrt( 1 - d*d/L.lengthSqr() );
-
-			return di;
-		}
-
-		function computeIrradiance(index, drawLines)
-		{
-			var rayDir = sub(avg(radianceTexels[index].getBoundsMin(), radianceTexels[index].getBoundsMax()), probe.center).unit();
-
-			var irradiance = {r:0, g:0, b:0, weight:0};
-
-			for (var i=0; i!=radianceTexels.length; ++i)
-			{
-				var p = avg(radianceTexels[i].getBoundsMin(), radianceTexels[i].getBoundsMax());
-
-				var Li = sub(p, probe.center).unit();
-
-				var brdf = BRDF(F0, rayDir, rayDir, Li, roughness);
-
-				var weight = brdf * solidAngle(i);
-
-				var rgb = hexToRgb(radianceTexels[i].fillColor);
-
-				irradiance.r += rgb.r * weight;
-				irradiance.g += rgb.g * weight;
-				irradiance.b += rgb.b * weight;
-				irradiance.weight += weight;
-
-				if (drawLines)
-				{
-					a = Math.min(1, brdf);
-					var color = "rgba(" + rgb.r + ", " + rgb.g + ", " + rgb.b + ", " + a + ")";
-
-					if (a>0)
-					{
-						camera.drawLine(probe.center, p, color, 1.5);
-					}
-				}
-			}
-
-			irradiance.r /= irradiance.weight;
-			irradiance.g /= irradiance.weight;
-			irradiance.b /= irradiance.weight;
-
-			irradianceTexels[index].fillColor = rgbToHex(irradiance.r, irradiance.g, irradiance.b);
-			irradianceTexels[index].fillAlpha = 1;
-
-			return irradiance;
-		}
-
-		function computeAllIrradiance()
-		{
-			precomputeIrradiance = true;
-			embeddedObj.setRedrawOnChange(false);
-
-			computeAllRadiance();
-
-			for (var i=0; i!=irradianceTexels.length; ++i)
-			{
-				computeIrradiance(i, false);
-			}
-
-			embeddedObj.setRedrawOnChange(true);
-			embeddedObj.draw();
-			drawFancyProbe();
-		}
-
-		function drawFancyProbe()
-		{
-			if (!precomputeIrradiance)
-				return;
-
-			for (var i=0; i!=irradianceTexels.length; ++i)
-			{
-				var i_prev = (i+irradianceTexels.length-1) % irradianceTexels.length;
-				var i_next = (i+1) % irradianceTexels.length;
-
-				var ray_prev = sub(avg(radianceTexels[i_prev].getBoundsMin(), radianceTexels[i_prev].getBoundsMax()), probe.center).unit();
-				var ray_next = sub(avg(radianceTexels[i_next].getBoundsMin(), radianceTexels[i_next].getBoundsMax()), probe.center).unit();
-
-				var a_prev = toAngle(ray_prev);
-				var a_next = toAngle(ray_next);
-
-				camera.drawArc(probe.center, 4, a_next, a_prev, "#000000", 0, irradianceTexels[i].fillColor);
-			}
-		}
-
-		embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey)
-		{
-			embeddedObj.setRedrawOnChange(false);
-
-			if (ray == undefined)
-				return;
-
-			if (ray.isVisible() != showMouseRay)
-				ray.toggleVisibility();
-
-			if (buttons & 2)
-			{
-				probe.setOrigin(m);
-				ray.setOrigin(m);
-
-				if (precomputeIrradiance)
-				{
-					computeAllIrradiance();
-				}
-				else if (precomputeRadiance)
-				{
-					computeAllRadiance();
-				}
-			}
-
-			if (showMouseRay)
-			{
-				ray.setDragPointPos(1, m);
-
-				// Radiance
-				if (!precomputeRadiance)
-				{
-					if (!probe.isVisible())
-						probe.toggleVisibility();
-
-					if (ray.intersectionPoints.length)
-					{
-						probe.fillColor = ray.intersectionPoints[0].color;
-						probe.fillAlpha = 1;
-					}
-					else
-					{
-						probe.fillAlpha = 0;
-					}
-
-					var texelIndex = getTexelIndex(ray.dir);
-
-					radianceTexels[texelIndex].fillColor = probe.fillColor;
-					radianceTexels[texelIndex].fillAlpha = probe.fillAlpha;
-
-					embeddedObj.draw();
-				}
-
-				// Irradiance
-				else if (showIrradiance && precomputeRadiance && !precomputeIrradiance)
-				{
-					if (probe.isVisible())
-						probe.toggleVisibility();
-
-					embeddedObj.draw();
-					drawFancyProbe();
-
-					var texelIndex = getTexelIndex(ray.dir);
-					var irradiance = computeIrradiance(texelIndex, true);
-
-					camera.drawBRDFGraph(BRDF, ray.dir.unit(), ray.dir.unit(), F0, roughness, probe.center, 2, "#008000", 1, "rgba(0,255,0,1)");
-				}
-				else
-				{
-					drawFancyProbe();
-				}
-			}
-
-			embeddedObj.setRedrawOnChange(true);
-		}
-
-		embeddedObj.onMouseLeave = function ()
-		{
-			if (ray.isVisible())
-				ray.toggleVisibility();
-
-			embeddedObj.draw();
-			drawFancyProbe();
-		}
-
-		function updateVisibility()
-		{
-			embeddedObj.setRedrawOnChange(false);
-
-			if (radianceTexels.length>0 && radianceTexels[0].isVisible() != showRadiance)
-			{
-				for (var i=0; i!=radianceTexels.length; ++i)
-				{
-					radianceTexels[i].toggleVisibility();
-				}
-			}
-
-			if (irradianceTexels.length>0 && irradianceTexels[0].isVisible() != (showIrradiance && precomputeRadiance))
-			{
-				for (var i=0; i!=irradianceTexels.length; ++i)
-				{
-					irradianceTexels[i].toggleVisibility();
-				}
-			}
-
-			if (!precomputeRadiance)
-			{
-				if (!probe.isVisible())
-					probe.toggleVisibility();
-			}
-			else if (precomputeRadiance && !precomputeIrradiance)
-			{
-				if (probe.isVisible())
-					probe.toggleVisibility();
-			}
-
-			if (ray.isVisible() != showMouseRay)
-				ray.toggleVisibility();
-
-			if (cubemapRect.isVisible() != showCubemap)
-			{
-				cubemapRect.toggleVisibility();
-				cubemapLabel.toggleVisibility();
-			}
-			
-			if (probe.isVisible() != showCubemap)
-			{
-				probe.toggleVisibility();
-			}
-
-			if (probeLabel.isVisible() != showCubemap)
-			{
-				probeLabel.toggleVisibility();
-			}
-
-			embeddedObj.setRedrawOnChange(true);
-			embeddedObj.draw();
-			drawFancyProbe();
-		}
-
-		addControls();
-		makeScene();
-		makeTexels(radianceTexels);
-		makeTexels(irradianceTexels, 1);
-		embeddedObj.zoomExtents();
-		updateVisibility();
-
-		if (precomputeRadiance)
-		{
-			computeAllRadiance();
-		}
-	}
-
-	function ShowCubemapFiltering_SamplePoint(divName)
-	{
-		var embeddedObj = new EmbeddedDrawing(divName);
-		var scene = embeddedObj.getScene();
-		var camera = embeddedObj.camera;
-
-		scene.name = "BRDF Example";
-		camera.setViewPosition(-13.094875162046673, 13.466994886016069); camera.setUnitScale(50.42404280973971);
-
-		var w = new Wall([new Vector(-4, 21), new Vector(-25, 21)]);
-		w.closed = false;
-		w.roughness = 0.7000000000000001;
-		w.metalness = 0.6000000000000001;
-		w.intensity = 4;
-		w.BRDFIndex = 1;
-		w.color = "#000000";
-		w.visible = true;
-		w.frozen = false;
-		w.onChange(); scene.addObject(w);
-
-		var ray = new BRDFRay(new Vector(-13, 10), new Vector(0.3854484153749337, 2.1121501402508054));
-		ray.showBRDF = false;
-		ray.bounceCount = 0;
-		ray.color = "#000000";
-		ray.visible = true;
-		ray.frozen = false;
-		scene.addObject(ray);
-
-		var w = new Wall([new Vector(-25, 5), new Vector(-4, 5)]);
-		w.closed = false;
-		w.roughness = 0;
-		w.metalness = 0;
-		w.intensity = 1;
-		w.BRDFIndex = 1;
-		w.color = "#000000";
-		w.visible = true;
-		w.frozen = false;
-		w.onChange(); scene.addObject(w);
-
-		var light = new PointLight(new Vector(-9, 14), 7.810249675906654);
-		light.bulbRadius = 1;
-		light.collisionOutline = false;
-		light.color = "#FFC000";
-		light.visible = true;
-		light.frozen = false;
-		scene.addObject(light);
-
-		var w = new Wall([new Vector(-25, 21), new Vector(-25, 5)]);
-		w.closed = false;
-		w.roughness = 0;
-		w.metalness = 0;
-		w.intensity = 1;
-		w.BRDFIndex = 1;
-		w.color = "#000000";
-		w.visible = true;
-		w.frozen = false;
-		w.onChange(); scene.addObject(w);
-
-		var w = new Wall([new Vector(-4.05444534748811, 4.739015623016712), new Vector(-4, 21)]);
-		w.closed = false;
-		w.roughness = 0;
-		w.metalness = 0;
-		w.intensity = 1;
-		w.BRDFIndex = 1;
-		w.color = "#000000";
-		w.visible = true;
-		w.frozen = false;
-		w.onChange(); scene.addObject(w);
-
-		var ngon = new NGon(new Vector(-13, 10), 1);
-		ngon.sideCount = 60;
-		ngon.rotationAngle = 0.20943951023931953;
-		ngon.color = "#900090";
-		ngon.fillColor = "#000000";
-		ngon.fillAlpha = 0;
-		ngon.dashed = false;
-		ngon.width = 2;
-		ngon.visible = true;
-		ngon.frozen = false;
-		scene.addObject(ngon);
-
-		var lineObject = new Line([new Vector(-9, 14), new Vector(-10.992598874329644, 21)]);
-		lineObject.closed = false;
-		lineObject.color = "#d3ce05";
-		lineObject.fillColor = "#000000";
-		lineObject.fillAlpha = 0.2;
-		lineObject.pixelMip = -1;
-		lineObject.arrowStart = false;
-		lineObject.arrowEnd = true;
-		lineObject.handDrawn = false;
-		lineObject.dashed = false;
-		lineObject.width = 2;
-		lineObject.visible = true;
-		lineObject.frozen = false;
-		scene.addObject(lineObject);
-
-		var ngon = new NGon(new Vector(-19, 10), 1);
-		ngon.sideCount = 60;
-		ngon.rotationAngle = 0.20943951023931953;
-		ngon.color = "#900090";
-		ngon.fillColor = "#000000";
-		ngon.fillAlpha = 0;
-		ngon.dashed = false;
-		ngon.width = 2;
-		ngon.visible = true;
-		ngon.frozen = false;
-		scene.addObject(ngon);
-
-		var ray = new BRDFRay(new Vector(-19, 10), new Vector(1.644351132310454, 2.2588930130436955));
-		ray.showBRDF = false;
-		ray.bounceCount = 0;
-		ray.color = "#000000";
-		ray.visible = true;
-		ray.frozen = false;
-		scene.addObject(ray);
-
-		var text = new Text(new Vector(-11.33961756865867, 22.194974149015426), "P");
-		text.halign = "1";
-		text.valign = "1";
-		text.font = "Arial";
-		text.fontSize = 1;
-		text.color = "#000000";
-		text.angle = "0";
-		text.visible = true;
-		text.frozen = false;
-		text.maxWidth = 0.7234016828617472;
-		text.totalHeight = 1.023096665761614;
-		scene.addObject(text);
-
-		var ray = new BRDFRay(new Vector(-9, 14), new Vector(-0.9962994371648222, 3.5));
-		ray.showBRDF = true;
-		ray.bounceCount = 0;
-		ray.color = "#000000";
-		ray.visible = true;
-		ray.frozen = false;
-		scene.addObject(ray);
-
-		embeddedObj.zoomExtents();
-	}
-
-	function ShowCubemapFiltering_LightGather(divName)
-	{
-		var embeddedObj = new EmbeddedDrawing(divName);
-		var scene = embeddedObj.getScene();
-		var camera = embeddedObj.camera;
-
-		scene.name = "BRDF Reciprocal";
-		camera.setViewPosition(3.6032858792516436, 6.9391729366825174); camera.setUnitScale(44.41308445635462);
-
-		var w = new Wall([new Vector(-12, 0), new Vector(12, 0)]);
-		w.closed = false;
-		w.roughness = 0;
-		w.metalness = 0;
-		w.intensity = 1;
-		w.BRDFIndex = 1;
-		w.color = "#000000";
-		w.visible = true;
-		w.frozen = false;
-		w.onChange(); scene.addObject(w);
-
-		var light = new PointLight(new Vector(8, 8), 0);
-		light.bulbRadius = 1;
-		light.collisionOutline = true;
-		light.color = "#FFC000";
-		light.visible = true;
-		light.frozen = false;
-		scene.addObject(light);
-
-		var cam = new CameraObject(new Vector(-9, 10), new Vector(2, 0), 10);
-		cam.nearWidth = 3;
-		cam.farWidth = 16.81681984990781;
-		cam.fovDegrees = 49.84952316316994;
-		cam.collisionOutline = false;
-		cam.color = "rgb(57,244,255)";
-		cam.pixelCount = 0;
-		cam.showZBuffer = false;
-		cam.showMinZBuffer = false;
-		cam.showCenterLines = true;
-		cam.visible = true;
-		cam.frozen = false;
-		cam.onChange();
-		scene.addObject(cam);
-
-		var hemi = new BRDFHemisphere(new Vector(0, 0), 2, new Vector(0, 1));
-		hemi.visible = true;
-		hemi.frozen = false;
-		hemi.showBRDF = true;
-		hemi.metalness = 0;
-		hemi.roughness = 0;
-		hemi.intensity = 5.4;
-		hemi.BRDFIndex = 0;
-		hemi.onChange(); scene.addObject(hemi);
-
-		var ray = new BRDFRay(new Vector(8, 8), new Vector(-2.0000000000000004, -2.0000000000000004));
-		ray.showBRDF = false;
-		ray.bounceCount = 3;
-		ray.color = "#000000";
-		ray.visible = true;
-		ray.frozen = false;
-		scene.addObject(ray);
-
-		var lineObject = new Line([new Vector(0, 0), new Vector(-6.759929941369362, 7.224628407957438)]);
-		lineObject.closed = false;
-		lineObject.color = "#f47313";
-		lineObject.fillColor = "#000000";
-		lineObject.fillAlpha = 0.2;
-		lineObject.pixelMip = -1;
-		lineObject.arrowStart = false;
-		lineObject.arrowEnd = true;
-		lineObject.handDrawn = false;
-		lineObject.dashed = false;
-		lineObject.width = 5;
-		lineObject.visible = true;
-		lineObject.frozen = false;
-		scene.addObject(lineObject);
-
-		var light = new PointLight(new Vector(2, 12), 0);
-		light.bulbRadius = 1;
-		light.collisionOutline = true;
-		light.color = "#FFC000";
-		light.visible = true;
-		light.frozen = false;
-		scene.addObject(light);
-
-		var light = new PointLight(new Vector(-2, 11), 0);
-		light.bulbRadius = 1;
-		light.collisionOutline = true;
-		light.color = "#FFC000";
-		light.visible = true;
-		light.frozen = false;
-		scene.addObject(light);
-
-		var ray = new BRDFRay(new Vector(2, 12), new Vector(-0.4864864864864864, -2.918918918918919));
-		ray.showBRDF = false;
-		ray.bounceCount = 3;
-		ray.color = "#000000";
-		ray.visible = true;
-		ray.frozen = false;
-		scene.addObject(ray);
-
-		var ray = new BRDFRay(new Vector(-2, 11), new Vector(0.56, -3.08));
-		ray.showBRDF = false;
-		ray.bounceCount = 3;
-		ray.color = "#000000";
-		ray.visible = true;
-		ray.frozen = false;
-		scene.addObject(ray);
-
-		var lineObject = new Line([new Vector(-6.759929941369362, 7.224628407957438), new Vector(-11.38839330312469, 12.171266639204251)]);
-		lineObject.closed = false;
-		lineObject.color = "#000000";
-		lineObject.fillColor = "#000000";
-		lineObject.fillAlpha = 0.2;
-		lineObject.pixelMip = -1;
-		lineObject.arrowStart = false;
-		lineObject.arrowEnd = false;
-		lineObject.handDrawn = false;
-		lineObject.dashed = true;
-		lineObject.width = 2;
-		lineObject.visible = true;
-		lineObject.frozen = false;
-		scene.addObject(lineObject);
-
-		var text = new Text(new Vector(-9.236286308947184, 11.845249125781237), "camera");
-		text.halign = "1";
-		text.valign = "1";
-		text.font = "Arial";
-		text.fontSize = 0.6000000000000001;
-		text.color = "#000000";
-		text.angle = "0";
-		text.visible = true;
-		text.frozen = false;
-		text.maxWidth = 2.000678380330404;
-		text.totalHeight = 0.5497835477193197;
-		scene.addObject(text);
-
-		var text = new Text(new Vector(0.07624444762588833, -0.6641721124234669), "shading point");
-		text.halign = "1";
-		text.valign = "1";
-		text.font = "Arial";
-		text.fontSize = 0.6000000000000001;
-		text.color = "#000000";
-		text.angle = "0";
-		text.visible = true;
-		text.frozen = false;
-		text.maxWidth = 3.569521903991699;
-		text.totalHeight = 0.5497835477193197;
-		scene.addObject(text);
-
-		var text = new Text(new Vector(5.372740005340857, 10.226492468463208), "lighting environment");
-		text.halign = "1";
-		text.valign = "1";
-		text.font = "Arial";
-		text.fontSize = 0.6000000000000001;
-		text.color = "#000000";
-		text.angle = "0";
-		text.visible = true;
-		text.frozen = false;
-		text.maxWidth = 5.36980946858724;
-		text.totalHeight = 0.5497835477193197;
-		scene.addObject(text);
-
-		embeddedObj.zoomExtents();
-	}
 
 	</script></pre>
 
 	Rendering engines often use cubemaps to store some form of lighting. There are a myriad of techniques that use them ranging from static to dynamic, direct and indirect, diffuse and specular lighting and so on. In this post we'll try to illustrate some of the common steps in capturing, filtering and using cubemaps to achieve some form of lighting.
 
-	<h2>Cubemap Capturing</h2>
-	Let's start with the cubemap capturing process, starting with just a simple environment (full of awesome programmer art). I've added a few random colorful objects just to make things a bit more interesting!
+	<h3>Cubemap Capturing</h3>
+	Let's start with the cubemap capturing process, using the a simple environment (full of awesome programmer art) below. I've added a few random colorful objects just to make things a bit more interesting!
 
 	<div id="embeddedDrawing_cubemapfilter_scene" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
@@ -1088,7 +1114,7 @@
 		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_scene", undefined, false, false, false, false, false, false);
 	</script></pre>
 
-	Next, let's define our cubemap's boundary as well as the capture point. It's quite common to have the capture point being at the center of the cubemap, but it's not always necessary to do so. In some cases the center of the cubemap might lie inside some scene geometry so moving it a bit further away would help. Use the right mouse button to move the capture point.
+	Next, let's define our cubemap's boundary as well as the capture point. It's quite common to have the capture point being at the center of the cubemap, but it's not always necessary to do so. In some cases the center of the cubemap might lie inside some scene geometry so moving it a bit further away would help. You can use the right mouse button to move the capture point.
 
 	<div id="embeddedDrawing_cubemapfilter_cubemap" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
@@ -1107,15 +1133,15 @@
 		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_capture", "controls_cubemapfilter_capture", true, true, false, true, false, false);
 	</script></pre>
 
-	In a real rendering engine we probably wouldn't be firing rays from the capture point, but rather setup 6 cameras (for a 3D cubemap), each pointing at the center of each cube face, with a 90° field of view and an aspect ratio of 1 (square). We'd then render the scene from each camera and store the results (e.g. render to texture) on each cube face.
+	In a real rendering engine we probably wouldn't be firing rays from the capture point, but rather setup 6 cameras (for a 3D cubemap), each pointing at the center of each cube face, with a 90° field of view and a square aspect ratio. We'd then render the scene from each camera and store the results (e.g. render to texture) on each cube face.
 
-	But what is it that we're capturing? In the case of the diagram above when the ray hits an object we just copy that object's color into the cubemap texel that corresponds to that direction. In that case we have assumed that the entire object has a constant color, i.e. it's the same across the entire surface and doesn't vary with the incident vector. This would be the case if all the object in the scene were purely emissive.
+	But what is it we're capturing? In the case of the diagram above when the ray hits an object we just copy that object's color into the cubemap texel that corresponds to that direction. In that case we have assumed that the entire object has a constant color, i.e. it's the same across the entire surface and doesn't vary with the incident vector. This would be the case if all the objects in the scene were purely emissive.
 
-	A more realistic model would be one where the color we capture is based on the lighting that affects the object as well the material properties and shading model (BRDF) of the surface at the point where the ray hits. 
+	A more realistic model would be one where the color we capture is based on the lighting that affects the object as well the material properties and shading model (<a href="https://en.wikipedia.org/wiki/Bidirectional_reflectance_distribution_function" rel="noopener" target="_blank">BRDF</a>) of the surface at the point where the ray hits.
 
-	Take a look at the example below. The scene is illuminated by a single point light and we're interested in a single point of the ceiling, P. The surface properties (BRDF) at P indicate that the any light arriving there is not reflected equally in every direction (as would be the case for a purerly Lambertian surface). Instead there is a predominant reflection vector where the relfection intensity is highest and it falls off on vectors further away from it. If point P was captured by the two probes shown below, they would each get a different color value since the amount of light reflected in each of the probe rays is different.
+	Take a look at the example below. The scene is illuminated by a single point light and we're interested in a single point of the ceiling, P. The surface properties at P indicate that the any light arriving there is not reflected equally in every direction (as would be the case for a purerly Lambertian surface). Instead there is a predominant reflection vector where the relfection intensity is highest and it falls off on vectors further away from it. If point P was captured by the two probes shown below, they would each get a different color value since the amount of light reflected along each of the probe rays is different.
 
-	One implication of this is that the lighting stored in the cubemap is only correct at the capture point. The further away we are from the sampling point, the more incorrect the stored lighting becomes. 
+	One implication of this is that the lighting stored in the cubemap is only correct at the capture point. The further away we are from the sampling point, the more incorrect the stored lighting becomes.
 
 	<div id="embeddedDrawing_cubemapfilter_samplePoint" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
@@ -1123,20 +1149,61 @@
 		ShowCubemapFiltering_SamplePoint("embeddedDrawing_cubemapfilter_samplePoint");
 	</script></pre>
 
-	So what does that mean when capturing a cubemap using a render-to-texture camera? A first attempt would probably be to use the normal rendering pipeline to render the scene from the probe's point of view. This means that the usual lighting shaders would be used, which, presumably, would do specular, as well as diffuse, illumination and therefore produce results similar to the 'raytraced' examples above. That's not necessarily a problem, but rather something to be aware of. What's more important is to be aware of any image post processing that the normal rendering pipeline performs. A typical linear lighting pipeline would include some tonemapping and gamma correction that takes a linear HDR buffer to an sRGB LDR one. That's fine when it comes to showing images on screen but probably not what you want when doing a cubemap capture. We'd generally want to keep the lighting values in linear color space and in high precision and only do any transforms necessary to take them to whichever storage format we wish to use.
+	So what does that mean when capturing a cubemap using a render-to-texture camera? A first attempt would probably be to use the normal rendering pipeline to render the scene from the probe's point of view. This means that the usual lighting shaders would be used, which, presumably, would do both diffuse and specular illumination and therefore produce results similar to the 'raytraced' examples above. That's not necessarily a problem but rather something to be aware of. 
+	
+	What's more important to be aware of is any image post processing the normal rendering pipeline performs. A typical linear lighting pipeline would include some tonemapping and gamma correction that transforms a linear HDR buffer to an sRGB LDR one. That's fine when it comes to showing images on screen but probably not when doing a cubemap capture. We'd generally want to keep the lighting values in linear color space and in high precision and only do any transforms necessary to take them to whichever storage format we wish to use.
 
 	At this point it should also be obvious that the process described above captures <em>indirect</em> lighting. Lights aren't rendered directly into the cubemap, but rather the light that bounces off the surfaces of the scene is. We're capturing both diffusely and specularly bounced lighting. That has nothing to do with how we're going to use the cubemap (e.g. to provide indirect diffuse or specular illumination), it's just to clarify that both types of bounced lighting are captured. The contribution from emissive surfaces would also be handled in the same way.
 
-	<h2>Indirect Illumination</h2>
+	<h3>Indirect Illumination</h3>
 	So now we have a cubemap that has been fully populated to contain the incoming radiance along the direction vector corresponding to each texel. In its current form it cannot really be used for any form of indirect illumination, at least not in a <a href="https://en.wikipedia.org/wiki/Physically_based_rendering" rel="noopener" target="_blank">PBR</a> pipeline. We need to do some preprocessing first. More specifically we need to apply a bit of intelligent blurring!
 
-	Earlier we saw how the BRDF of a shading point tells us how much of the lighting coming from a particular direction is reflection in any other direction. In a sense it tells us how light going <em>into</em> the surface is <em>scaterred</em> outwards. We now want to do the reverse, given a particular <em>outgoing</em> direction, we'd like to know how much light we can <em>gather</em> from each direction along the hemisphere.
-	
+	Earlier we saw how the BRDF of a shading point tells us how much of the lighting coming from a particular direction is reflected in any other direction. In a sense it tells us how light going <em>into</em> the surface is <em>scaterred</em> outwards. We now want to do the reverse, given a particular <em>outgoing</em> direction, we'd like to know how much light we can <em>gather</em> from each direction along the hemisphere.
+
+	In the scene below the shading point is illuminated by 3 discrete lights. The BRDF will give us the contribution of each light along the orange vector pointing towards the camera. Summing these up (i.e. integrating over the hemisphere)  will gives us the total amount of light in the direction of the camera vector.
+
 	<div id="embeddedDrawing_cubemapfilter_lightGather" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
 
 	<pre style="display:none;"><script>
 		ShowCubemapFiltering_LightGather("embeddedDrawing_cubemapfilter_lightGather");
 	</script></pre>
+
+	We'll use the same principle to gather the contributions from each of the radiance cubemap texels to calculate the total illumination (irradiance) along a given viewing direction. The diagram below illustrates this process. The mouse cursor controls the view direction and the colored lines are the contribution of each radiance texel based on the BRDF. The sum of these contributions represents the irradiance on that surface and we store it on a texel of a separate, irradiance, cubemap.
+
+	<div id="embeddedDrawing_cubemapfilter_irradiance_single_nocontrols" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+
+	<pre style="display:none;"><script>
+		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_irradiance_single_nocontrols", undefined, true, true, true, true, true, false);
+	</script></pre>
+
+	In a sense this is the same as having a chrome sphere positioned at the capture point and having the camera looking straight down on it along the direction of the mouse vector. The roughness of the sphere will have a significant effect on the reflections, the rougher the surface, the blurrier the reflections.
+
+	You can use the controls below to change the BRDF properties. Click the Populate Irradiance button to fully populate the irradiance cubemap, which will show a disc that simulates sampling the entire map. Have a play with the roughness slider using the Phong BRDF to see how the reflections change. Also note how when using the Lambert BRDF the roughness doesn't make a difference.
+
+	<div id="embeddedDrawing_cubemapfilter_irradiance_single_controls" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter_irradiance_single" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+
+	<pre style="display:none;"><script>
+		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_irradiance_single", "embeddedDrawing_cubemapfilter_irradiance_single_controls", true, true, true, true, true, false);
+	</script></pre>
+
+	It's worth noting that the above <em>gather</em> operation was done by pretending there was a flat white surface element oriented along the mouse vector and we have a camera looking straight down on it, i.e. the normal, N and the view vector, V are aligned. The importance of this will be explained further down.
+
+	We're almost there now! We have an irradiance cubemap that was generated using a particular BRDF. If have an object located at the capture point and that has the exact same BRDF as we used to generate the cubemap and it's facing along the camera view vector, then we're all set! However, chances are at least one of those things won't be true. The object, or rather the shading point, probably isn't at the capture point, its BRDF isn't exactly the same as the one we did the integration with and its orientation probably isn't along the camera vector. We need to either account  or accept all these differences.
+
+	We already came across the issue of sampling a cubemap away from the capture point when discussing the capturing process. Sampling away from the capture point suffers from incorrect specular radiance being used, incorrect occlusion and incorrect parallax. Of those, incorrect occlusion is probably the most noticable (reflections being picked up when they should have been occluded). There is no straighforward solution involving just the cubemap alone. Often additional structures are used to capture the occlusion information and/or use alternate cubemaps.
+
+	Incorrect parallax on the other hand is fairly straightforward to fix in some of the simpler cases and involves simply some bounding box information. We'll cover this in a future post.
+
+	The incorrect specular radiance is something we can just probably live with.
+
+	The other issues occur when the BRDF of the surface we need to shade isn't the same as the BRDF we used for the radiance integration and when the surface orientation is not aligned to the view vector. There are couple of very good SIGGRAPH papers that describe a split-sum approximation the lighting integral for image based lighting (<a href="http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf" rel="noopener" target="_blank">Karis13</a>, <a href="http://blog.selfshadow.com/publications/s2013-shading-course/lazarov/s2013_pbs_black_ops_2_notes.pdf" rel="noopener" target="_blank">Lazarov13</a>, <a href="https://seblagarde.wordpress.com/2015/07/14/siggraph-2014-moving-frostbite-to-physically-based-rendering/" rel="noopener" target="_blank">Lagarde14</a>). As part of that approximation we integrate the radiance for a particular roughness and a look up table provides a runtime scale and bias factors based on roughness and viewing angle. In terms of precomputation all we need to do is perform the cubemap integration for a range of roughness values.
+
+	One approach would be generate a unique cubemap per discrete roughness value that we need to support (roughness is typically expressed as a scalar in the [0,1] range). However it's worth noting that with increasing roughness the cubemap becomes more and more blurry and we therefore need less texels to capture it accurately. One conventient approach then is to store the irradiace of each roughness at the mip of a mipmapped cubemap. Mip 0 (the highest resolution) stores the lowest rouhgness (i.e. the least blurry) and subsequent ones store increasingly higher roughness values. This also has the advantage that we can leverage trilinear filtering to interpolate between mip maps giving us a continuous range of roughness values.
+
+	While the emphasis has been on indirect specular illumination using the cubemap, all the principles described here are equally applicable to diffuse illumination. Computing the irradiance cubemap using a Lambert BRDF (basically a cosine lobe) would result in a cubemap suitable for that. As described in this great paper by <a href="https://cseweb.ucsd.edu/~ravir/papers/envmap/envmap.pdf" rel="noopener" target="_blank">Ramamoorthi</a> however, a Spherical Harmonic is a much more compact and efficient way of achieving the same result. One potential exception to this is using the last mip (lowest resolution) of the specular cubemap mip chain to store the diffuse irradiance. Then a single cubemap can be used for both diffuse and specular indirect illumination.
+
+	There is still a lot to cover of course but hopefully these diagrams have given you a better understanding of what's involved in capturing and using a cubemap for indirect environment lighting. Feel free to post questions and topic requests in the comments below!
 
 </body>
 </html>
