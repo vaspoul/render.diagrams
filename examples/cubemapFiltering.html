@@ -646,10 +646,10 @@
 
 			embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey)
 			{
-				embeddedObj.setRedrawOnChange(false);
-
 				if (ray == undefined)
 					return;
+
+				embeddedObj.setRedrawOnChange(false);
 
 				if (ray.isVisible() != showMouseRay)
 					ray.toggleVisibility();
@@ -697,7 +697,7 @@
 						embeddedObj.draw();
 					}
 
-						// Irradiance
+					// Irradiance
 					else if (showIrradiance && precomputeRadiance && !precomputeIrradiance)
 					{
 						if (probe.isVisible())
