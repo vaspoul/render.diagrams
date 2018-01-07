@@ -644,7 +644,7 @@
 				}
 			}
 
-			embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey)
+			embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey, shiftKey)
 			{
 				if (ray == undefined)
 					return;
@@ -654,7 +654,7 @@
 				if (ray.isVisible() != showMouseRay)
 					ray.toggleVisibility();
 
-				if (buttons & 2)
+				if ( (buttons & 1) && shiftKey )
 				{
 					probe.setOrigin(m);
 					ray.setOrigin(m);
@@ -1109,15 +1109,15 @@
 	<h3>Cubemap Capturing</h3>
 	Let's start with the cubemap capturing process, using the a simple environment (full of awesome programmer art) below. I've added a few random colorful objects just to make things a bit more interesting!
 
-	<div id="embeddedDrawing_cubemapfilter_scene" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter_scene" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_scene", undefined, false, false, false, false, false, false);
 	</script></pre>
 
-	Next, let's define our cubemap's boundary as well as the capture point. It's quite common to have the capture point being at the center of the cubemap, but it's not always necessary to do so. In some cases the center of the cubemap might lie inside some scene geometry so moving it a bit further away would help. You can use the right mouse button to move the capture point.
+	Next, let's define our cubemap's boundary as well as the capture point. It's quite common to have the capture point being at the center of the cubemap, but it's not always necessary to do so. In some cases the center of the cubemap might lie inside some scene geometry so moving it a bit further away would help. You can use the Shift + mouse drag to move the capture point.
 
-	<div id="embeddedDrawing_cubemapfilter_cubemap" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter_cubemap" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_cubemap", undefined, true, true, false, false, false, false);
@@ -1128,7 +1128,7 @@
 	The simplest capture we can make is to simply record the color value of the scene at each texel location. We can visualise this by firing a ray from the capture point to the center of each texel. Have a go at doing this by moving the mouse cursor through the diagram below.
 
 	<div id="controls_cubemapfilter_capture" style="width: 70%; margin:0 auto;"></div>
-	<div id="embeddedDrawing_cubemapfilter_capture" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter_capture" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_capture", "controls_cubemapfilter_capture", true, true, false, true, false, false);
@@ -1144,7 +1144,7 @@
 
 	One implication of this is that the lighting stored in the cubemap is only correct at the capture point. The further away we are from the sampling point, the more incorrect the stored lighting becomes.
 
-	<div id="embeddedDrawing_cubemapfilter_samplePoint" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter_samplePoint" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowCubemapFiltering_SamplePoint("embeddedDrawing_cubemapfilter_samplePoint");
@@ -1163,7 +1163,7 @@
 
 	In the scene below the shading point is illuminated by 3 discrete lights. The BRDF will give us the contribution of each light along the orange vector pointing towards the camera. Summing these up (i.e. integrating over the hemisphere)  will gives us the total amount of light in the direction of the camera vector.
 
-	<div id="embeddedDrawing_cubemapfilter_lightGather" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter_lightGather" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowCubemapFiltering_LightGather("embeddedDrawing_cubemapfilter_lightGather");
@@ -1171,7 +1171,7 @@
 
 	We'll use the same principle to gather the contributions from each of the radiance cubemap texels to calculate the total illumination (irradiance) along a given viewing direction. The diagram below illustrates this process. The mouse cursor controls the view direction and the colored lines are the contribution of each radiance texel based on the BRDF. The sum of these contributions represents the irradiance on that surface and we store it on a texel of a separate, irradiance, cubemap.
 
-	<div id="embeddedDrawing_cubemapfilter_irradiance_single_nocontrols" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter_irradiance_single_nocontrols" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_irradiance_single_nocontrols", undefined, true, true, true, true, true, false);
@@ -1182,7 +1182,7 @@
 	You can use the controls below to change the BRDF properties. Click the Populate Irradiance button to fully populate the irradiance cubemap, which will show a disc that simulates sampling the entire map. Have a play with the roughness slider using the Phong BRDF to see how the reflections change. Also note how when using the Lambert BRDF the roughness doesn't make a difference.
 
 	<div id="embeddedDrawing_cubemapfilter_irradiance_single_controls" style="width: 70%; margin:0 auto;"></div>
-	<div id="embeddedDrawing_cubemapfilter_irradiance_single" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_cubemapfilter_irradiance_single" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowCubemapFiltering("embeddedDrawing_cubemapfilter_irradiance_single", "embeddedDrawing_cubemapfilter_irradiance_single_controls", true, true, true, true, true, false);

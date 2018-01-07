@@ -423,7 +423,7 @@
 			embeddedObj.draw();
 		}
 
-		embeddedObj.onMouseMove = function (m, mp, buttons)
+		embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey, shiftKey)
 		{
 			if (shape == undefined)
 				return;
@@ -436,7 +436,7 @@
 			//	needUpdate = true;
 			//}
 
-			if (buttons & 2)
+			if ( (buttons & 1) && shiftKey )
 			{
 				shape.setOrigin(add(m, dragOffset));
 				needUpdate = true;
@@ -544,7 +544,7 @@
 
 	We'll start with the surface shown below. It's a closed surface so that we can tell whether a point is inside or outside its perimeter.
 
-	<div id="embeddedDrawing_sdf_shape" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_sdf_shape" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowSDF("embeddedDrawing_sdf_shape", undefined, false, false, false, true, false, false);
@@ -552,7 +552,7 @@
 
 	Next, we'll overlay a regular grid over the surface. As you might expect, the size of the grid is important, the finer it is, the better the approximation will be.
 
-	<div id="embeddedDrawing_sdf_grid" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_sdf_grid" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowSDF("embeddedDrawing_sdf_grid", undefined, true, false, false, true, false, false);
@@ -560,9 +560,9 @@
 
 	For each grid cell, we can calculate the distance of the cell center to the nearest point of the surface. We'll represent that with a circle. We'll also indicate whether the cell center is inside the shape or not by coloring in the circle. Note that we only store one value per cell, calculated at its center, so while a cell may overlap the surface boundary, we only care about its center.
 
-	Go ahead and move the shape around (right mouse drag) to see how the cell distance values change.
+	Go ahead and move the shape around (shift + mouse drag) to see how the cell distance values change.
 
-	<div id="embeddedDrawing_sdf_circle" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_sdf_circle" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowSDF("embeddedDrawing_sdf_circle", undefined, true, true, false, true, false, false);
@@ -574,7 +574,7 @@
 
 	Let's have a look at the diagram without the original shape.
 
-	<div id="embeddedDrawing_sdf_circles_only" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_sdf_circles_only" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowSDF("embeddedDrawing_sdf_circles_only", undefined, true, true, false, false, false, false);
@@ -584,7 +584,7 @@
 
 	Let's see what that looks like! Move the mouse cursor over the image.
 
-	<div id="embeddedDrawing_sdf_interpolation" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_sdf_interpolation" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
 		ShowSDF("embeddedDrawing_sdf_interpolation", undefined, true, true, false, false, false, true);
@@ -594,11 +594,11 @@
 
 	We could for example paint anywhere where the distance is &le; 0 to shade the interior of the shape. In the diagram below we're drawing an approximation of the outline of the surface by painting anywhere where the absolute distance is within a threshold. The threshold value controls the 'thickness' of the approximate outline.
 
-	Have a play with the controls to see what effect it has on the approximation. Use the right mouse button to move the shape within the grid.
+	Have a play with the controls to see what effect it has on the approximation. Use shift + mouse drag to move the shape within the grid.
 
 	<div id="controls_sdf" style="width: 100%;"></div>
 	<p />
-	<div id="embeddedDrawing_sdf2" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_sdf2" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 	<pre style="display:none;"><script>
 		ShowSDF("embeddedDrawing_sdf2", "controls_sdf", true, true, false, true, true, true);
 	</script></pre>
@@ -610,7 +610,7 @@
 
 	<div id="controls_shapeImage" style="width: 100%;"></div>
 	<p />
-	<div id="embeddedDrawing_shapeImage" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_shapeImage" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 	<pre style="display:none;"><script>
 		ShowSDF("embeddedDrawing_shapeImage", "controls_shapeImage", true, false, false, false, true, false, true);
 	</script></pre>

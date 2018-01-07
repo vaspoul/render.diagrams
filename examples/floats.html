@@ -18,9 +18,19 @@
 
 <body style="width:750px; margin:0 auto">
 
+	Let's kick things off with an interactive diagram explaining floating point numbers! There are many ways to explain this, but I've always found that diagrams help. The <a href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format">Wikipedia page</a> on single-precision floats has all the details on how they work, including links to external tools allowing you to convert decimal to binary and vice versa.
+
+	The diagram below is a visualization of the mantissa and exponent parts of a floating point number. The <font color="#f97171"><strong>exponent</strong></font> part gives you the large steps, that keep getting bigger. The <font color="#2ed18f"><strong>mantissa</strong></font> part gives a fixed number of equal subdivisions between two exponent steps.
+
+	Use the sliders below to control the number of bits used for the exponent and mantissa. The more bits you have for exponent, the higher values you can represent. The more bits you have for mantissa, the more steps you get between exponent values, giving you greater precision.
+
+	Each exponent is a power of 2, so every step is 2x bigger than the previous. As the number of subdivisions between two successive exponent values is fixed (mantissa bits), as the exponents get larger, so do the subdivisions between them, which means the precision is reduced.
+
+	The exponent bias is subtracted from the exponent, which allows for values less than 2.
+
 	<div id="controls_floats" style="width: 100%;"></div>
 	<p />
-	<div id="embeddedDrawing_floats" style="width: 70%; padding-bottom: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_floats" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 	<p />
 	<div id="tableContainer" style="width: 70%; margin:0 auto;">
 		<table id="table_floats" class="valuesTable w3-striped" align="center" style="text-align: center;">
