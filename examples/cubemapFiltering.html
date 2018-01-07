@@ -709,7 +709,7 @@
 						var texelIndex = getTexelIndex(ray.dir);
 						var irradiance = computeIrradiance(texelIndex, true);
 
-						camera.drawBRDFGraph(BRDF, ray.dir.unit(), ray.dir.unit(), F0, roughness, probe.center, 2, "#008000", 1, "rgba(0,255,0,1)");
+						camera.drawBRDFGraph(BRDF, ray.dir.unit(), ray.dir.unit(), F0, false, roughness, probe.center, 2, "#008000", 1, "rgba(0,255,0,1)");
 					}
 					else
 					{
