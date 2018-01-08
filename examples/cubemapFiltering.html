@@ -578,7 +578,7 @@
 
 					var weight = brdf * solidAngle(i);
 
-					var rgb = hexToRgb(radianceTexels[i].fillColor);
+					var rgb = hex2rgb(radianceTexels[i].fillColor);
 
 					irradiance.r += rgb.r * weight;
 					irradiance.g += rgb.g * weight;
@@ -601,7 +601,7 @@
 				irradiance.g /= irradiance.weight;
 				irradiance.b /= irradiance.weight;
 
-				irradianceTexels[index].fillColor = rgbToHex(irradiance.r, irradiance.g, irradiance.b);
+				irradianceTexels[index].fillColor = rgb2hex(irradiance.r, irradiance.g, irradiance.b);
 				irradianceTexels[index].fillAlpha = 1;
 
 				return irradiance;
