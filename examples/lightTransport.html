@@ -1,0 +1,367 @@
+<html>
+<head>
+
+	<script type="text/javascript" src="../lib/maths.js"></script>
+	<script type="text/javascript" src="../lib/graphics.js"></script>
+	<script type="text/javascript" src="../lib/camera.js"></script>
+	<script type="text/javascript" src="../lib/scene.js"></script>
+	<script type="text/javascript" src="../lib/sceneObjects.js"></script>
+	<script type="text/javascript" src="../lib/brdf.js"></script>
+	<script type="text/javascript" src="../lib/ui.js"></script>
+	<script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
+
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+	<link rel="stylesheet" href="http://renderdiagrams.org/wp-content/themes/structural/style.css" />
+	<link rel="stylesheet" href="../styles.css" />
+</head>
+
+
+<body style="width:750px; margin:0 auto">
+
+	<pre style="display:none;"><script>
+		function ShowLightTransport(divName, controlsDivName, showMouseRay)
+		{
+			var embeddedObj = new EmbeddedDrawing(divName);
+			var scene = embeddedObj.getScene();
+			var camera = embeddedObj.camera;
+
+			var cameraObj = undefined;
+			var light = undefined;
+			var rayFromLight = undefined;
+			var rayToCamera = undefined;
+
+			function addControls()
+			{
+				if (controlsDivName == undefined)
+					return;
+
+				var controls = new PropertyGrid(document.getElementById(controlsDivName));
+			}
+
+			function makeScene()
+			{
+				scene.deleteAllObjects();
+
+				scene.name = "Light Transport";
+				camera.setViewPosition(-3.7345613543428122, 11.67499501146912);camera.setUnitScale(13.081515030749209);
+
+				light = new PointLight(new Vector(1, 22), 51.088159097779204);
+				light.bulbRadius = 1;
+				light.collisionOutline = true;
+				light.color = "#FFC000";
+				light.visible = true;
+				light.frozen = false;
+				scene.addObject(light);
+
+				var w = new Wall([new Vector(-4, 10), new Vector(-1, 10), new Vector(-1, 8), new Vector(-4, 8)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 0;
+				w.color = "#dc3e10";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				var w = new Wall([new Vector(6, 10), new Vector(9, 10), new Vector(9, 8), new Vector(6, 8)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 0;
+				w.color = "#11ee2d";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				var w = new Wall([new Vector(1, 10), new Vector(4, 10), new Vector(4, 8), new Vector(1, 8)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 0;
+				w.color = "#1dbab3";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				var w = new Wall([new Vector(-9, 7), new Vector(-6, 7), new Vector(-6, 5), new Vector(-9, 5)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 0;
+				w.color = "#db1edb";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				var w = new Wall([new Vector(-13, 4), new Vector(-10, 4), new Vector(-10, 2), new Vector(-13, 2)]);
+				w.closed = true;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 0;
+				w.color = "#4b50fa";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				var w = new Wall([new Vector(-33, 0), new Vector(14, 0)]);
+				w.closed = false;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 0;
+				w.color = "#0f6a02";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				var w = new Wall([new Vector(14, 0), new Vector(21, 0), new Vector(21, 5), new Vector(25, 5), new Vector(25, 9)]);
+				w.closed = false;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 0;
+				w.color = "#ff8000";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				var w = new Wall([new Vector(25, 9), new Vector(28, 12), new Vector(28, 21), new Vector(25, 28)]);
+				w.closed = false;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 0;
+				w.color = "#3f6c9e";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				var w = new Wall([new Vector(25, 28), new Vector(19, 28), new Vector(19, 44)]);
+				w.closed = false;
+				w.roughness = 0;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 0;
+				w.color = "#ff3333";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				var w = new Wall([new Vector(-24, 0), new Vector(-24, 5), new Vector(-22, 5), new Vector(-22, 0), new Vector(-24, 0)]);
+				w.closed = false;
+				w.roughness = 0.1;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 1;
+				w.color = "#9d5309";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				var w = new Wall([new Vector(-24, 5), new Vector(-27, 7), new Vector(-27, 9), new Vector(-28, 11), new Vector(-27, 13), new Vector(-27, 15), new Vector(-24.513182824792842, 15.6149344555104), new Vector(-23, 17), new Vector(-19.92980740038109, 16.187856383561872), new Vector(-19.118168002308174, 13.70519469533884), new Vector(-17.35165872414948, 11.699967947158697), new Vector(-18.974937520295306, 9.503767222961393), new Vector(-19.26139848432104, 6.49592710069118), new Vector(-22, 5), new Vector(-24, 5)]);
+				w.closed = false;
+				w.roughness = 0.6000000000000001;
+				w.metalness = 0;
+				w.intensity = 1;
+				w.BRDFIndex = 0;
+				w.color = "#54e416";
+				w.visible = true;
+				w.frozen = false;
+				w.onChange();scene.addObject(w);
+
+				cameraObj = new CameraObject(new Vector(-44.46786878896354, 26.308893206564754), new Vector(29.814697817051336, 12.486694103926544), 10);
+				cameraObj.nearWidth = 16.119742706645717;
+				cameraObj.farWidth = 65.63465295985966;
+				cameraObj.fovDegrees = 36.284139864510344;
+				cameraObj.collisionOutline = false;
+				cameraObj.color = "rgb(57,244,255)";
+				cameraObj.pixelCount = 20;
+				cameraObj.showZBuffer = true;
+				cameraObj.showMinZBuffer = false;
+				cameraObj.showCenterLines = true;
+				cameraObj.spanCount = 1;
+				cameraObj.visible = true;
+				cameraObj.frozen = false;
+				cameraObj.onChange();
+				scene.addObject(cameraObj);
+
+				var aw = new ArcWall(new Vector(-68.65080389184016, 30.808755814315212), 1.4278036280693016, -183.60 * Math.PI/180, 176.13 * Math.PI/180);
+				aw.convex = false;
+				aw.roughness = 0;
+				aw.metalness = 0;
+				aw.color = "#000000";
+				aw.intensity = 1;
+				aw.BRDFIndex = 1;
+				aw.visible = true;
+				aw.frozen = false;
+				aw.onChange();
+				scene.addObject(aw);
+
+				rayFromLight = new BRDFRay(new Vector(1, 22), new Vector(2, -6));
+				rayFromLight.showBRDF = true;
+				rayFromLight.originIsLight = 1;
+				rayFromLight.bounceCount = 0;
+				rayFromLight.color = "#000000";
+				rayFromLight.intensity = 1;
+				rayFromLight.visible = true;
+				rayFromLight.frozen = false;
+				scene.addObject(rayFromLight);
+
+				rayToCamera = new BRDFRay(new Vector(8.333333333333329, 0), new Vector(-5.63192913345958, 2.253876391817847));
+				rayToCamera.showBRDF = false;
+				rayToCamera.originIsLight = 1;
+				rayToCamera.bounceCount = 0;
+				rayToCamera.color = "#000000";
+				rayToCamera.intensity = 1;
+				rayToCamera.visible = true;
+				rayToCamera.frozen = false;
+				scene.addObject(rayToCamera);
+
+				embeddedObj.zoomExtents();
+			}
+
+			function drawLiveStuff()
+			{
+				if (showMouseRay)
+				{
+					if (rayFromLight.intersectionPoints.length>0)
+					{
+						var dist2 = sub(rayFromLight.intersectionPoints[0].P, light.O).lengthSqr();
+						var dist = Math.sqrt(dist2);
+
+						var lightIntensity = (dist<=light.radius) ? (1 / dist2) : 0;
+
+						var cosFOV = dot(sub(rayFromLight.intersectionPoints[0].P, cameraObj.apexPoint).unit(), cameraObj.dir);
+
+						//rayFromLight.showBRDF = (lightIntensity>0) && (dot(cameraObj.dir, rayFromLight.intersectionPoints[0].N)<0) * (cosFOV>=Math.cos(cameraObj.fovDegrees*0.5*Math.PI/180));
+
+						rayFromLight.showBRDF = 0;
+						//if (rayFromLight.showBRDF)
+						{
+							var V = sub(cameraObj.apexPoint, rayFromLight.intersectionPoints[0].P).unit();
+							var L = sub(light.O, rayFromLight.intersectionPoints[0].P).unit();
+
+							var F0 = 0.04 + rayFromLight.intersectionPoints[0].metalness * (1 - 0.04);
+
+							var brdf = rayFromLight.intersectionPoints[0].BRDF(F0, rayFromLight.intersectionPoints[0].N, V, L, rayFromLight.intersectionPoints[0].roughness);
+
+							var color3 = hex2rgb(rayFromLight.intersectionPoints[0].color);
+
+							color3.r *= brdf * rayFromLight.intersectionPoints[0].intensity;
+							color3.g *= brdf * rayFromLight.intersectionPoints[0].intensity;
+							color3.b *= brdf * rayFromLight.intersectionPoints[0].intensity;
+
+							var color = "rgba(" + Math.floor(color3.r) + ", " + Math.floor(color3.g) + ", " + Math.floor(color3.b) + ", " + Math.min(1, brdf) + ")";
+
+							camera.drawArrow(rayFromLight.intersectionPoints[0].P, mad(V, 5, rayFromLight.intersectionPoints[0].P), 15, color, 2);
+
+							//line2Cam.setDragPointPos(0, arrow2Cam.getDragPoints()[1]);
+							//line2Cam.setDragPointPos(1, cameraObj.apexPoint);
+						}
+					}
+				}
+			}
+
+			embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey, shiftKey)
+			{
+				if (rayFromLight == undefined)
+					return;
+
+				embeddedObj.setRedrawOnChange(false);
+
+				rayFromLight.toggleVisibility(showMouseRay);
+				rayToCamera.toggleVisibility(showMouseRay);
+
+				if ( (buttons & 1) && shiftKey )
+				{
+					light.setOrigin(m);
+					rayFromLight.setOrigin(m);
+				}
+
+				if (showMouseRay)
+				{
+					rayFromLight.setDragPointPos(1, mad(sub(m, rayFromLight.O).unit(), 5, rayFromLight.O));
+
+					if (rayFromLight.intersectionPoints.length>0)
+					{
+						var V = sub(cameraObj.apexPoint, rayFromLight.intersectionPoints[0].P).unit();
+						var L = sub(light.O, rayFromLight.intersectionPoints[0].P).unit();
+
+						var F0 = lerp(0.04, 1, rayFromLight.intersectionPoints[0].metalness);
+
+						var brdf = rayFromLight.intersectionPoints[0].BRDF(F0, rayFromLight.intersectionPoints[0].N, V, L, rayFromLight.intersectionPoints[0].roughness);
+
+						var alpha = Math.min(1, brdf);
+
+						var color3 = hex2rgb(rayFromLight.intersectionPoints[0].color);
+
+						color3.r *= brdf * rayFromLight.intersectionPoints[0].intensity;
+						color3.g *= brdf * rayFromLight.intersectionPoints[0].intensity;
+						color3.b *= brdf * rayFromLight.intersectionPoints[0].intensity;
+
+						color3.r = Math.min(255, color3.r);
+						color3.g = Math.min(255, color3.g);
+						color3.b = Math.min(255, color3.b);
+
+						color3.r = lerp(255, color3.r, alpha);
+						color3.g = lerp(255, color3.g, alpha);
+						color3.b = lerp(255, color3.b, alpha);
+
+						var color = rgb2hex(color3.r, color3.g, color3.b);
+
+						rayToCamera.toggleVisibility(true);
+						rayToCamera.color = color;
+						rayToCamera.setDragPointPos(0, rayFromLight.intersectionPoints[0].P);
+						rayToCamera.setDragPointPos(1, mad(V, 5, rayFromLight.intersectionPoints[0].P));
+					}
+					else
+					{
+						rayToCamera.toggleVisibility(false);
+					}
+				}
+
+				embeddedObj.setRedrawOnChange(true);
+
+				//drawLiveStuff();
+			}
+
+			embeddedObj.onMouseLeave = function ()
+			{
+				rayFromLight.toggleVisibility(false);
+
+				embeddedObj.draw();
+			}
+
+			function updateVisibility()
+			{
+				embeddedObj.setRedrawOnChange(false);
+
+				rayFromLight.toggleVisibility(showMouseRay);
+
+				embeddedObj.setRedrawOnChange(true);
+				embeddedObj.draw();
+			}
+
+			addControls();
+			makeScene();
+			embeddedObj.zoomExtents();
+			updateVisibility();
+		}
+
+	</script></pre>
+
+
+	<div id="embeddedDrawing_lightTransport_controls" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_lightTransport" style="width: 100%; padding-bottom: 100%; margin:0 auto;"></div>
+
+	<pre style="display:none;"><script>
+		ShowLightTransport("embeddedDrawing_lightTransport", "embeddedDrawing_lightTransport_controls", true);
+	</script></pre>
+
+</body>
+</html>
