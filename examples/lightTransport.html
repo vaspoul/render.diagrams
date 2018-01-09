@@ -227,44 +227,6 @@
 
 			function drawLiveStuff()
 			{
-				if (showMouseRay)
-				{
-					if (rayFromLight.intersectionPoints.length>0)
-					{
-						var dist2 = sub(rayFromLight.intersectionPoints[0].P, light.O).lengthSqr();
-						var dist = Math.sqrt(dist2);
-
-						var lightIntensity = (dist<=light.radius) ? (1 / dist2) : 0;
-
-						var cosFOV = dot(sub(rayFromLight.intersectionPoints[0].P, cameraObj.apexPoint).unit(), cameraObj.dir);
-
-						//rayFromLight.showBRDF = (lightIntensity>0) && (dot(cameraObj.dir, rayFromLight.intersectionPoints[0].N)<0) * (cosFOV>=Math.cos(cameraObj.fovDegrees*0.5*Math.PI/180));
-
-						rayFromLight.showBRDF = 0;
-						//if (rayFromLight.showBRDF)
-						{
-							var V = sub(cameraObj.apexPoint, rayFromLight.intersectionPoints[0].P).unit();
-							var L = sub(light.O, rayFromLight.intersectionPoints[0].P).unit();
-
-							var F0 = 0.04 + rayFromLight.intersectionPoints[0].metalness * (1 - 0.04);
-
-							var brdf = rayFromLight.intersectionPoints[0].BRDF(F0, rayFromLight.intersectionPoints[0].N, V, L, rayFromLight.intersectionPoints[0].roughness);
-
-							var color3 = hex2rgb(rayFromLight.intersectionPoints[0].color);
-
-							color3.r *= brdf * rayFromLight.intersectionPoints[0].intensity;
-							color3.g *= brdf * rayFromLight.intersectionPoints[0].intensity;
-							color3.b *= brdf * rayFromLight.intersectionPoints[0].intensity;
-
-							var color = "rgba(" + Math.floor(color3.r) + ", " + Math.floor(color3.g) + ", " + Math.floor(color3.b) + ", " + Math.min(1, brdf) + ")";
-
-							camera.drawArrow(rayFromLight.intersectionPoints[0].P, mad(V, 5, rayFromLight.intersectionPoints[0].P), 15, color, 2);
-
-							//line2Cam.setDragPointPos(0, arrow2Cam.getDragPoints()[1]);
-							//line2Cam.setDragPointPos(1, cameraObj.apexPoint);
-						}
-					}
-				}
 			}
 
 			embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey, shiftKey)
@@ -289,45 +251,58 @@
 
 					if (rayFromLight.intersectionPoints.length>0)
 					{
-						var V = sub(cameraObj.apexPoint, rayFromLight.intersectionPoints[0].P).unit();
-						var L = sub(light.O, rayFromLight.intersectionPoints[0].P).unit();
+						var dist = sub(light.O, rayFromLight.intersectionPoints[0].P).length();
 
-						var F0 = lerp(0.04, 1, rayFromLight.intersectionPoints[0].metalness);
+						if (dist <= light.radius)
+						{
+							var V = sub(cameraObj.apexPoint, rayFromLight.intersectionPoints[0].P).unit();
+							var L = sub(light.O, rayFromLight.intersectionPoints[0].P).unit();
 
-						var brdf = rayFromLight.intersectionPoints[0].BRDF(F0, rayFromLight.intersectionPoints[0].N, V, L, rayFromLight.intersectionPoints[0].roughness);
+							var F0 = lerp(0.04, 1, rayFromLight.intersectionPoints[0].metalness);
 
-						var alpha = Math.min(1, brdf);
+							var brdf = rayFromLight.intersectionPoints[0].BRDF(F0, rayFromLight.intersectionPoints[0].N, V, L, rayFromLight.intersectionPoints[0].roughness);
 
-						var color3 = hex2rgb(rayFromLight.intersectionPoints[0].color);
+							var alpha = Math.min(1, brdf);
 
-						color3.r *= brdf * rayFromLight.intersectionPoints[0].intensity;
-						color3.g *= brdf * rayFromLight.intersectionPoints[0].intensity;
-						color3.b *= brdf * rayFromLight.intersectionPoints[0].intensity;
+							var color3 = hex2rgb(rayFromLight.intersectionPoints[0].color);
 
-						color3.r = Math.min(255, color3.r);
-						color3.g = Math.min(255, color3.g);
-						color3.b = Math.min(255, color3.b);
+							color3.r *= brdf * rayFromLight.intersectionPoints[0].intensity;
+							color3.g *= brdf * rayFromLight.intersectionPoints[0].intensity;
+							color3.b *= brdf * rayFromLight.intersectionPoints[0].intensity;
 
-						color3.r = lerp(255, color3.r, alpha);
-						color3.g = lerp(255, color3.g, alpha);
-						color3.b = lerp(255, color3.b, alpha);
+							color3.r = Math.min(255, color3.r);
+							color3.g = Math.min(255, color3.g);
+							color3.b = Math.min(255, color3.b);
 
-						var color = rgb2hex(color3.r, color3.g, color3.b);
+							color3.r = lerp(255, color3.r, alpha);
+							color3.g = lerp(255, color3.g, alpha);
+							color3.b = lerp(255, color3.b, alpha);
 
-						rayToCamera.toggleVisibility(true);
-						rayToCamera.color = color;
-						rayToCamera.setDragPointPos(0, rayFromLight.intersectionPoints[0].P);
-						rayToCamera.setDragPointPos(1, mad(V, 5, rayFromLight.intersectionPoints[0].P));
+							var color = rgb2hex(color3.r, color3.g, color3.b);
+
+							rayFromLight.showBRDF = true;
+	
+							rayToCamera.toggleVisibility(true);
+							rayToCamera.color = color;
+							rayToCamera.setDragPointPos(0, rayFromLight.intersectionPoints[0].P);
+							rayToCamera.setDragPointPos(1, mad(V, 5, rayFromLight.intersectionPoints[0].P));
+						}
+						else
+						{
+							rayFromLight.showBRDF = false;
+							rayToCamera.toggleVisibility(false);
+						}
 					}
 					else
 					{
+						rayFromLight.showBRDF = false;
 						rayToCamera.toggleVisibility(false);
 					}
 				}
 
 				embeddedObj.setRedrawOnChange(true);
 
-				//drawLiveStuff();
+				drawLiveStuff();
 			}
 
 			embeddedObj.onMouseLeave = function ()
