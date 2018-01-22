@@ -20,10 +20,163 @@
 
 <body>
 
-<div id="generalDrawing"></div>
+<div id="Editor">
+
+	<!-- Canvas -->
+	<canvas id="mainCanvas" tabindex="-1" style="position:fixed;
+												left:0;
+												top:0;
+												cursor:none;">
+
+	</canvas>
+
+	<!-- Property Grid -->
+	<div id="propertyGridDock" class="toolbar" style="border:1px solid #DDDDDD;
+													position:fixed;
+													right:8;
+													bottom:8;
+													width :400;
+													max-height:250;
+													overflow:auto;
+													padding:5px 5px;
+													box-shadow:3px 3px 5px #999999;">
+
+	</div>
+
+
+	<!-- Object List -->
+	<div id="objectListDock" class="toolbar" style="border:1px solid #DDDDDD; 
+													position:fixed; 
+													right:8px; 
+													top:100px; 
+													width :250px; 
+													height :550px; 
+													min-height:150px; 
+													padding:5px 5px; 
+													box-shadow:3px 3px 5px #999999;
+													display:flex;
+													flex-direction:column;">
+
+		<div id="objectList" style="flex:2;
+									overflow:auto;
+									border-top:2px solid #999999;
+									border-left:2px solid #999999;
+									border-bottom:2px solid #FFFFFF;
+									border-right:2px solid #FFFFFF;
+									user-select:none;
+									-ms-user-select:none;
+									-webkit-user-select:none;">
+			<!--objectList.onmousedown = function(e) { if(e.preventDefault) e.preventDefault(); }-->
+		</div>
+
+		<div id="buttonAreaDock" class="toolbar" style="text-align:center;
+														padding:5px 0;
+														user-select:none;
+														-ms-user-select:none;
+														-webkit-user-select:none;">
+
+			<div id="objectListButtonArea" class="toolbar" style="display:inline-flex">
+			</div>
+		</div>
+
+		<div id="objectListResizeGrip" class="toolbar" style="height:3px; cursor:ns-resize; border:1px solid black;">
+
+			<!--<img src="images/more-1.svg" height="15"/>-->
+
+		</div>
+	</div>
+
+	<!-- File Controls -->
+	<div id="fileControlsDock" class="toolbar" style="position:fixed;
+														right:5px;
+														top:5px;
+														padding:5px 0;
+														box-shadow:3px 3px 5px #999999;">
+	</div>
+
+	<!-- Tool Palette -->
+	<div id = "toolPaletteDock" class="toolbar" style="position:fixed;
+													left:5px;
+													display:block;
+													top:5px;
+													padding:5px 0;
+													border:1px solid #DDDDDD;
+													box-shadow:3px 3px 5px #999999;">
+	</div>
+
+	<!-- Canvas Controls -->
+	<div id="canvasControlsDock" class="toolbar" style="bottom:8px;
+															position:fixed;
+															left:0;
+															right:0;
+															margin-left:auto;
+															margin-right:auto;
+															width:330px;
+															padding:0 5px;
+															border:1px solid #DDDDDD;
+															box-shadow:3px 3px 5px #999999;
+															text-align:center;">
+
+		<div id = "canvasControls" class="toolbar" style="display:inline-flex;
+															padding:2px 0;">
+
+		</div>
+
+	</div>
+
+	<!-- File Open Dialog -->
+
+	<div id="fileManagerSampleEntry" class="appearOnHover" style="margin:10px 10px; visibility:hidden;">
+
+		<div id="details" style="position:relative; text-align:center;">
+
+			<img id="thumbnail" width="256" height="256" src="images/archive-2.svg" class="background" style="" />
+
+			<div id="title" style="text-align:center;">Screen Space Reflections</div>
+			<input id="titleEdit" type="text" style="display:inline" value="sample text"/>
+
+			<div id="date" style="text-align:center; font-size:small">19 Aug 2017, 19:35</div>
+
+			<div id ="details1" class="foreground" style="position:absolute;
+							bottom:100px;
+							left:0;
+							top:0;
+							width:256px;
+							height:256px;
+							text-align:center;">
+
+				<div id ="details2" style="position:relative; top:80px">
+					<img id="fileOpen" src="images/pencil.svg" width="64" height="64" class="fileButton" style="margin:0 5px"/>
+					<img id="fileRename" src="images/refresh.svg" width="64" height="64" class="fileButton" style="margin:0 5px" />
+					<img id="fileDelete" src="images/delete.svg" width="64" height="64" class="fileButton" style="margin:0 5px" />
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<div id = "fileManagerDock" tabIndex = 0 style="border:1px solid black;
+													background:#DDDDDD;
+													margin:auto auto;
+													position:fixed;
+													display:flex;
+													flex-wrap:wrap;
+													top:100px;
+													left:0;
+													right:0;
+													height:600px;
+													min-width:266px;
+													max-width:858px;
+													max-height:532px;
+													box-shadow:3px 3px 5px #999999;
+													overflow:auto;
+													display:none;">
+	</div>
+
+</div>
 
 <script>
-var obj = new GeneralDrawing("generalDrawing");
+var obj = new GeneralDrawing("Editor");
 </script>
 
 

@@ -36,6 +36,15 @@ table.contextMenuTable tr:hover
     background-color: #EEEEEE;
 }
 
+input.toolbar {
+    background:#F5F5E5;
+}
+
+input {
+    background:#F5F5E5;
+}
+
+
 *.hint 
 {
     background-color: rgba(0,0,0,0.7);
@@ -51,4 +60,55 @@ h1.HintTitle
 p.HintTitle
 {
     color: white;
+}
+
+.appearOnHover {
+    border:1px solid transparent;
+    transition:border 0.3s ease;
+}
+
+.appearOnHover:hover {
+    border:1px solid black;
+}
+
+.appearOnHover .foreground {
+    opacity:0;
+    transition:opacity 0.3s ease;
+}
+
+.appearOnHover:hover .foreground {
+    opacity:1;
+}
+
+.appearOnHover .background {
+    opacity:1;
+    transition:opacity 0.3s ease;
+}
+
+.appearOnHover:hover .background {
+    opacity:0.1;
+}
+
+.button {
+    background:#EEEEEE;
+}
+
+.button:hover {
+    background:#AAAAAA;
+}
+
+.button:active{
+    background:#FFFFFF;
+}
+
+.fileButton {
+    background:none;
+}
+
+.fileButton:hover {
+    background:#AAAAAA;
+}
+
+.fileButton:active{
+    background:#FFFFFF;
 }
