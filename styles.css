@@ -31,12 +31,16 @@ table.contextMenuTable tr:hover
     background-color: #BBBBBB;
 }
 
-*.toolbar
+.toolbar
 {
     background-color: #EEEEEE;
 }
 
-input.toolbar {
+.toolbar input {
+    background:#F5F5E5;
+}
+
+.toolbar textarea {
     background:#F5F5E5;
 }
 
@@ -45,21 +49,29 @@ input {
 }
 
 
-*.hint 
+.hint 
 {
     background-color: rgba(0,0,0,0.7);
+    border-radius:8px;
+    padding:0 10px;
+    color:white;
+    pointer-events:none;
+    border:1px solid black;
+    box-shadow:3px 3px 5px #999999;
+    font-size:small;
 }
 
-h1.HintTitle 
+.hint h1
 {
     color: #ffd800;
     text-align: center;
     text-shadow: 1px 1px 0px #000000;
 }
 
-p.HintTitle
+.hint p
 {
     color: white;
+    font-size:small;
 }
 
 .appearOnHover {
@@ -68,12 +80,14 @@ p.HintTitle
 }
 
 .appearOnHover:hover {
-    border:1px solid black;
+    border:1px solid transparent;
 }
 
 .appearOnHover .foreground {
     opacity:0;
     transition:opacity 0.3s ease;
+    background:rgba(41, 213, 237, 0.5);
+
 }
 
 .appearOnHover:hover .foreground {
@@ -86,7 +100,7 @@ p.HintTitle
 }
 
 .appearOnHover:hover .background {
-    opacity:0.1;
+    opacity:1;
 }
 
 .button {
@@ -103,12 +117,18 @@ p.HintTitle
 
 .fileButton {
     background:none;
+    border-radius:10px; 
+    padding:5px;
+    box-shadow:none;
 }
 
 .fileButton:hover {
-    background:#AAAAAA;
+    background:rgba(41, 213, 237, 1);
+    box-shadow:3px 3px 5px #999999;
 }
 
 .fileButton:active{
-    background:#FFFFFF;
+    left:3px;
+    top:3px;
+    box-shadow:none;
 }
