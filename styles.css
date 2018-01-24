@@ -53,12 +53,20 @@ input {
 {
     background-color: rgba(0,0,0,0.7);
     border-radius:8px;
-    padding:0 10px;
-    color:white;
+    padding:0px 10px 10px;
     pointer-events:none;
     border:1px solid black;
     box-shadow:3px 3px 5px #999999;
+    color: white;
     font-size:small;
+    max-width:250px;
+}
+
+.subtleHint *
+{
+    pointer-events:none;
+    color: grey;
+    font-size:14px;
 }
 
 .hint h1
@@ -68,11 +76,35 @@ input {
     text-shadow: 1px 1px 0px #000000;
 }
 
-.hint p
+.hint *
 {
     color: white;
-    font-size:small;
+    font-size:14px;
 }
+
+.hintCloseButton {
+    pointer-events:auto;
+}
+
+.hintCloseButton:hover {
+    -webkit-filter: invert(100%);
+    filter: invert(100%)
+}
+
+.subtleHint .hintCloseButton {
+    pointer-events:auto;
+    visibility:visible;
+    opacity:0.3;
+}
+
+.subtleHint .hintCloseButton:hover {
+    visibility:visible;
+    -webkit-filter: none;
+    filter: none;
+    opacity:1;
+}
+
+
 
 .appearOnHover {
     border:1px solid transparent;
@@ -113,6 +145,11 @@ input {
 
 .button:active{
     background:#FFFFFF;
+}
+
+.button .buttonLabel {
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .fileButton {
