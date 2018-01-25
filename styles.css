@@ -94,7 +94,7 @@ input {
 .subtleHint .hintCloseButton {
     pointer-events:auto;
     visibility:visible;
-    opacity:0.3;
+    opacity:0.2;
 }
 
 .subtleHint .hintCloseButton:hover {
