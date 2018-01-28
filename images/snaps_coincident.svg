@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="70555.6mm" height="66158.7mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 512887 480925"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str2 {stroke:#4D4D4D;stroke-width:76580.8}
+    .str3 {stroke:gray;stroke-width:76580.8}
+    .str1 {stroke:#4D4D4D;stroke-width:38290.4}
+    .str0 {stroke:gray;stroke-width:38290.4}
+    .fil0 {fill:none}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_838903184">
+   <line class="fil0 str0" x1="146948" y1="17123" x2="504325" y2= "195812" />
+   <circle class="fil0 str1" cx="379856" cy="133577" r="89344"/>
+   <g>
+    <path class="fil0 str2" d="M319903 351268l-48353 48359c-55345,55350 -142805,57629 -195342,5090 -52539,-52540 -50260,-139998 5088,-195345l48355 -48356"/>
+    <line class="fil0 str3" x1="376323" y1="294859" x2="327967" y2= "343212" />
+    <line class="fil0 str3" x1="186446" y1="104979" x2="138090" y2= "153335" />
+   </g>
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="20mm" height="20mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 179 179"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:#4D4D4D;stroke-width:6.72646}
+    .fil0 {fill:none}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_505900752">
+   <circle class="fil0 str0" cx="90" cy="90" r="23"/>
+   <circle class="fil0 str0" cx="90" cy="90" r="41"/>
+   <circle class="fil0 str0" cx="90" cy="90" r="59"/>
+   <circle class="fil0 str0" cx="90" cy="90" r="77"/>
+   <line class="fil0 str0" x1="90" y1="179" x2="90" y2= "0" />
+   <line class="fil0 str0" x1="135" y1="167" x2="45" y2= "12" />
+   <line class="fil0 str0" x1="167" y1="135" x2="12" y2= "45" />
+   <line class="fil0 str0" x1="179" y1="90" x2="0" y2= "90" />
+   <line class="fil0 str0" x1="45" y1="167" x2="135" y2= "12" />
+   <line class="fil0 str0" x1="12" y1="135" x2="167" y2= "45" />
+  </g>
+ </g>
+</svg>

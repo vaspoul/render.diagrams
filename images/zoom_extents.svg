@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="70555.6mm" height="70555.6mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 598466 598466"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:#4D4D4D;stroke-width:31498;stroke-linecap:round;stroke-linejoin:round}
+    .str2 {stroke:#4D4D4D;stroke-width:47247.1;stroke-linecap:round;stroke-linejoin:round}
+    .str1 {stroke:#4D4D4D;stroke-width:6299.61;stroke-linecap:round;stroke-linejoin:round}
+    .fil0 {fill:none}
+    .fil1 {fill:#4D4D4D}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_391320696">
+   <polyline class="fil0 str0" points="425227,47247 582714,15752 551219,173239 "/>
+   <polyline class="fil0 str0" points="173239,551219 15752,582714 47247,425227 "/>
+   <g>
+    <rect class="fil1 str1" transform="matrix(0.707107 -0.707107 0.707107 0.707107 297149 349084)" width="94494" height="220486"/>
+    <g>
+     <circle class="fil0 str0" transform="matrix(0.984576 -0.984576 0.984576 0.984576 206509 191626)" r="125992"/>
+     <line class="fil0 str0" x1="144485" y1="253651" x2="268533" y2= "129602" />
+     <line class="fil0 str0" x1="268533" y1="253651" x2="144485" y2= "129602" />
+    </g>
+   </g>
+   <line class="fil0 str2" x1="27822" y1="570644" x2="150583" y2= "447880" />
+   <line class="fil0 str2" x1="458145" y1="140324" x2="567296" y2= "31170" />
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="20mm" height="18.4116mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 1433 1319"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:#666666;stroke-width:161.958;stroke-linecap:round;stroke-linejoin:round}
+    .str1 {stroke:#666666;stroke-width:121.468;stroke-linecap:round;stroke-linejoin:round}
+    .fil0 {fill:none}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_764459360">
+   <line class="fil0 str0" x1="717" y1="81" x2="717" y2= "1238" />
+   <g>
+    <line class="fil0 str0" x1="1313" y1="240" x2="121" y2= "1079" />
+    <polyline class="fil0 str1" points="1093,98 1034,436 1372,495 "/>
+    <polyline class="fil0 str1" points="340,1222 399,883 61,824 "/>
+   </g>
+   <g>
+    <line class="fil0 str0" x1="121" y1="240" x2="1313" y2= "1079" />
+    <polyline class="fil0 str1" points="340,98 399,436 61,495 "/>
+    <polyline class="fil0 str1" points="1093,1222 1034,883 1372,824 "/>
+   </g>
+  </g>
+ </g>
+</svg>

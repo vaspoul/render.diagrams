@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="20mm" height="20.0001mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 335 335"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:#4D4D4D;stroke-width:24.4898}
+    .fil0 {fill:none}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_847492672">
+   <line class="fil0 str0" x1="20" y1="167" x2="314" y2= "167" />
+   <polyline class="fil0 str0" points="249,118 314,167 249,216 "/>
+   <polyline class="fil0 str0" points="86,118 20,167 86,216 "/>
+   <line class="fil0 str0" x1="167" y1="314" x2="167" y2= "20" />
+   <polyline class="fil0 str0" points="118,86 167,20 216,86 "/>
+   <polyline class="fil0 str0" points="118,249 167,314 216,249 "/>
+  </g>
+ </g>
+</svg>

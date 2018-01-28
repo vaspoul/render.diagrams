@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="20.104mm" height="20mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 1773 1764"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str1 {stroke:#4D4D4D;stroke-width:176.413;stroke-linecap:round}
+    .str2 {stroke:#4D4D4D;stroke-width:264.619;stroke-linecap:round}
+    .str0 {stroke:#4D4D4D;stroke-width:176.413;stroke-linecap:round;stroke-linejoin:round}
+    .fil1 {fill:none}
+    .fil2 {fill:#4D4D4D}
+    .fil0 {fill:black;fill-rule:nonzero}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_836216024">
+   <path class="fil0" d="M0 493l0 -95c16,16 33,29 51,37 18,9 36,13 55,13 21,0 37,-5 47,-16 10,-11 15,-28 15,-52l0 -209 -100 0 0 -73 182 0 0 282c0,51 -11,87 -32,109 -21,21 -56,32 -105,32 -17,0 -36,-2 -55,-7 -19,-5 -39,-12 -58,-21z"/>
+   <path id="1" class="fil0" d="M454 331c-41,-15 -69,-32 -84,-49 -14,-18 -22,-41 -22,-70 0,-38 12,-67 37,-89 24,-21 57,-32 99,-32 19,0 38,2 57,6 19,5 38,11 57,20l0 80c-18,-13 -36,-22 -54,-28 -18,-7 -36,-10 -54,-10 -20,0 -35,4 -46,12 -10,8 -15,19 -15,34 0,11 4,21 11,28 8,8 24,16 48,25l36 14c33,12 58,28 73,48 16,20 24,46 24,77 0,42 -12,73 -37,93 -25,21 -62,31 -112,31 -21,0 -41,-2 -62,-7 -21,-5 -41,-12 -60,-22l0 -84c22,15 43,27 64,34 20,8 40,12 60,12 21,0 36,-5 47,-14 11,-9 17,-22 17,-39 0,-12 -4,-23 -11,-32 -8,-10 -18,-17 -32,-22l-41 -16z"/>
+   <path class="fil1 str0" d="M1685 1676l-882 0 0 -58m0 -876l0 -654 529 0 353 353 0 1235"/>
+   <g>
+    <polygon class="fil2 str1" points="1424,1155 1246,1272 1068,1389 1068,1155 1068,921 1246,1038 "/>
+    <line class="fil1 str2" x1="1068" y1="1155" x2="232" y2= "1155" />
+   </g>
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="70555.6mm" height="67041.9mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 1110915 1055590"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str1 {stroke:#4D4D4D;stroke-width:166672;stroke-linecap:round}
+    .str0 {stroke:#333333;stroke-width:55557.4;stroke-dasharray:55557.392887 55557.392887}
+    .fil0 {fill:none}
+    .fil1 {fill:#4D4D4D;fill-rule:nonzero}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_835279136">
+   <rect class="fil0 str0" x="55441" y="27779" width="1000033" height="1000033"/>
+   <g>
+    <g>
+     <path class="fil1" d="M101664 558396c-16895,25529 -51296,32518 -76824,15623 -25529,-16895 -32518,-51296 -15623,-76825 58946,-88430 145810,-162222 240069,-214585 100814,-56013 211218,-88158 306171,-88158 28551,0 58497,2911 89159,8500l-102893 102892c-73869,2967 -159155,29413 -238613,73558 -79786,44324 -152755,105954 -201446,178995zm864746 -205868c52446,41668 99120,90409 135288,144666 16895,25529 9905,59930 -15623,76825 -25529,16895 -59930,9906 -76825,-15623 -31829,-47746 -74036,-90619 -121737,-126971l78897 -78897z"/>
+     <path class="fil1" d="M9217 558396c-16895,-25528 -9906,-59930 15623,-76825 25528,-16895 59929,-9905 76824,15623 31829,47746 74036,90620 121738,126971l-78897 78897c-52446,-41668 -99120,-90408 -135288,-144666zm559974 191351c73869,-2967 159155,-29412 238613,-73558 79786,-44324 152756,-105953 201446,-178995 16895,-25528 51296,-32518 76825,-15623 25528,16895 32518,51297 15623,76825 -58947,88431 -145811,162222 -240070,214585 -100814,56013 -211218,88159 -306171,88159 -28551,0 -58496,-2912 -89158,-8501l102892 -102892z"/>
+    </g>
+    <line class="fil0 str1" x1="160166" y1="923086" x2="950748" y2= "132504" />
+   </g>
+  </g>
+ </g>
+</svg>

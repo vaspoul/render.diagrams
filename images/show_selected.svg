@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="20.0002mm" height="19mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 226 215"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:#4D4D4D;stroke-width:22.5985}
+    .str1 {stroke:#4D4D4D;stroke-width:22.5985;stroke-linecap:round}
+    .str2 {stroke:#333333;stroke-width:11.2993;stroke-dasharray:11.299267 11.299267}
+    .fil1 {fill:none}
+    .fil0 {fill:#4D4D4D}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_836213456">
+   <g>
+    <circle class="fil0 str0" cx="113" cy="107" r="23"/>
+    <g>
+     <path class="fil1 str1" d="M11 107c23,-34 68,-56 102,-56 34,0 79,22 102,56"/>
+     <path class="fil1 str1" d="M11 107c23,34 68,57 102,57 34,0 79,-23 102,-57"/>
+    </g>
+   </g>
+   <rect class="fil1 str2" x="11" y="6" width="203" height="203"/>
+  </g>
+ </g>
+</svg>
