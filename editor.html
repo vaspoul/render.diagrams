@@ -42,7 +42,7 @@
 
 		<div id="propertyGridResizeGrip" class="toolbar" style="cursor:ns-resize; text-align:center;">
 
-			<img src="images/horizontal_grip.svg" height="15" style="pointer-events:none; user-select:none; -ms-user-select:none; -webkit-user-select:none;" />
+			<img src="images/horizontal_grip.svg" width="20" style="pointer-events:none; user-select:none; -ms-user-select:none; -webkit-user-select:none;" />
 
 		</div>
 
@@ -64,6 +64,22 @@
 													display:flex;
 													flex-direction:column;">
 
+		<div id="buttonAreaDockTop" class="toolbar" style="text-align:center;
+														padding:5px 0;
+														display:flex;
+														text-align:center;
+														user-select:none;
+														-ms-user-select:none;
+														-webkit-user-select:none;">
+
+			<div id="objectListButtonAreaTop" class="toolbar" style="display:inline-flex;
+																	flex-wrap:wrap;
+																	width:170px;
+																	margin:0 auto;
+																	justify-content: center;">
+			</div>
+		</div>
+
 		<div id="objectList" style="flex:2;
 									overflow:auto;
 									border-top:2px solid #999999;
@@ -78,17 +94,23 @@
 
 		<div id="buttonAreaDock" class="toolbar" style="text-align:center;
 														padding:5px 0;
+														display:flex;
+														text-align:center;
 														user-select:none;
 														-ms-user-select:none;
 														-webkit-user-select:none;">
 
-			<div id="objectListButtonArea" class="toolbar" style="display:inline-flex">
+			<div id="objectListButtonArea" class="toolbar" style="display:inline-flex;
+																	flex-wrap:wrap;
+																	width:170px;
+																	margin:0 auto;
+																	justify-content: center;">
 			</div>
 		</div>
 
 		<div id="objectListResizeGrip" class="toolbar" style="cursor:ns-resize; text-align:center;">
 
-			<img src="images/horizontal_grip.svg" height="15" style="pointer-events:none; user-select:none; -ms-user-select:none; -webkit-user-select:none;"/>
+			<img src="images/horizontal_grip.svg" width="20" style="pointer-events:none; user-select:none; -ms-user-select:none; -webkit-user-select:none;"/>
 
 		</div>
 	</div>
@@ -160,7 +182,7 @@
 							text-align:center;">
 
 				<div id ="details2" style="position:relative; top:170px">
-					<img id="fileOpen"   src="images/open_drawing.svg"  width="64" height="64" class="fileButton" style="position:relative; margin:0 2px"/>
+					<img id="fileOpen"   src="images/load_drawing_localstorage.svg"  width="64" height="64" class="fileButton" style="position:relative; margin:0 2px"/>
 					<img id="fileRename" src="images/rename_drawing.svg" width="64" height="64" class="fileButton" style="position:relative; margin:0 2px" />
 					<img id="fileDelete" src="images/delete_drawing.svg"  width="64" height="64" class="fileButton" style="position:relative; margin:0 2px" />
 				</div>
@@ -197,7 +219,7 @@
 		<p>Sample Text
 		</div>
 
-		<img id="closeButton" src="images/close_popup.svg" width="18" class="hintCloseButton" style="position:absolute; top:2px; right:2px" />
+		<img id="closeButton" src="images/close_popup.svg" width="12" class="hintCloseButton" style="position:absolute; margin: 4px; top:2px; right:2px" />
 
 	</div>
 
