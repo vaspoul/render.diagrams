@@ -4,6 +4,12 @@
     font-size: 16px;
 }
 
+button
+{
+    font-size: 14px;
+    padding: 0;
+}
+
 table.valuesTable, table.valuesTable tr, table.valuesTable tr td 
 {
 	border: none;

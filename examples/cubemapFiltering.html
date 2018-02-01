@@ -59,7 +59,7 @@
 					updateVisibility();
 				});
 
-				var clearRadianceButton = new Button("Clear Radiance", function (value)
+				var clearRadianceButton = new PlainButton("Clear Radiance", function (value)
 				{
 					precomputeRadiance = false;
 					precomputeIrradiance = false;
@@ -67,19 +67,19 @@
 					updateVisibility();
 				});
 
-				var clearIrradianceButton = new Button("Clear Irradiance", function (value)
+				var clearIrradianceButton = new PlainButton("Clear Irradiance", function (value)
 				{
 					precomputeIrradiance = false;
 					makeTexels(irradianceTexels, 1);
 					updateVisibility();
 				});
 
-				var populateRadianceButton = new Button("Populate Radiance", function (value)
+				var populateRadianceButton = new PlainButton("Populate Radiance", function (value)
 				{
 					computeAllRadiance();
 				});
 
-				var populateIrradianceButton = new Button("Populate Irradiance", function (value)
+				var populateIrradianceButton = new PlainButton("Populate Irradiance", function (value)
 				{
 					computeAllIrradiance();
 					drawFancyProbe();
