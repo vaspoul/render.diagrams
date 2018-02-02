@@ -24,6 +24,18 @@ table.valuesTable tr th
 table.toolbar, table.toolbar tr, table.toolbar tr td 
 {
 	border: none;
+    white-space:nowrap;
+}
+
+table.toolbar tr
+{
+    display:table-row;
+    overflow:visible;
+}
+
+table.toolbar td 
+{
+    display:table-cell;
 }
 
 table.toolbar tr th
@@ -44,6 +56,11 @@ table.contextMenuTable tr:hover
 
 .toolbar input {
     background:#F5F5E5;
+}
+
+.toolbar input[type=range] {
+    background:#F5F5E5;
+    max-width:130px;
 }
 
 .toolbar textarea {
