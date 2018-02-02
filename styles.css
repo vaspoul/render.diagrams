@@ -54,7 +54,17 @@ table.contextMenuTable tr:hover
     background-color: #EEEEEE;
 }
 
-.toolbar input {
+.toolbar .resizeGrip 
+{
+    border:1px solid transparent;
+}
+
+.toolbar .resizeGrip:hover {
+    border:1px solid black;
+}
+
+.toolbar input 
+{
     background:#F5F5E5;
 }
 
@@ -85,7 +95,7 @@ input {
     max-width:250px;
 }
 
-.subtleHint *
+.subtleHint
 {
     pointer-events:none;
     color: grey;
@@ -117,7 +127,7 @@ input {
 .subtleHint .hintCloseButton {
     pointer-events:auto;
     visibility:visible;
-    opacity:0.2;
+    opacity:0.1;
 }
 
 .subtleHint .hintCloseButton:hover {
