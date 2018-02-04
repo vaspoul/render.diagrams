@@ -1,4 +1,10 @@
-*
+.toolbar
+{
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+}
+
+.hint
 {
     font-family: 'Open Sans', sans-serif;
     font-size: 16px;

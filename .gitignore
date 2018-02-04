@@ -1,3 +1,6 @@
 *.suo
 *.sln
 *.config
+downloads/
+ace/
+test.html

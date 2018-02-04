@@ -14,7 +14,8 @@
 <script type="text/javascript" src="lib/brdf.js"></script>
 <script type="text/javascript" src="lib/ui.js"></script>
 <script type="text/javascript" src="lib/editor.js"></script>
-
+<script src="ace/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="ace/src-min/mode-javascript.js" type="text/javascript" charset="utf-8"></script>
 </head>
 
 
@@ -207,6 +208,41 @@
 													box-shadow:3px 3px 5px #999999;
 													overflow:auto;
 													display:none;">
+	</div>
+
+	<!-- JavaScript panel -->
+	<div id="javascriptDock" tabIndex=0 style="margin:auto auto;
+													position:fixed;
+													background:#DDDDDD;
+													border:1px solid #999999;
+													top:100px;
+													left:0;
+													right:0;
+													width:60%;
+													height:600px;
+													border-radius:15px;
+													box-shadow:3px 3px 5px #999999;
+													display:none;">
+
+		<div id="javascriptCodeblock" style="position:absolute; 
+												left:0; 
+												right:0; 
+												top:15px; 
+												bottom:35px; 
+												font-size:14px;">
+		</div>
+
+		<div id="buttonPanel" style="position:absolute; 
+										left:0; 
+										right:0; 
+										bottom:0; 
+										margin:5px; 
+										text-align:center;">
+			<button id="OKButton">OK</button>
+			<button id="CancelButton">Cancel</button>
+		</div>
+
+
 	</div>
 
 	<!-- Global Hint -->
