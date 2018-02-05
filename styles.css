@@ -10,6 +10,12 @@
     font-size: 16px;
 }
 
+.subtleHint
+{
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+}
+
 button
 {
     font-size: 14px;
@@ -105,7 +111,11 @@ input {
 {
     pointer-events:none;
     color: grey;
-    font-size:14px;
+}
+
+.subtleHint h1
+{
+    font-size: 15px;
 }
 
 .hint h1
