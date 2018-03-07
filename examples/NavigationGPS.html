@@ -1,0 +1,224 @@
+<html>
+<head>
+
+	<script type="text/javascript" src="../lib/maths.js"></script>
+	<script type="text/javascript" src="../lib/graphics.js"></script>
+	<script type="text/javascript" src="../lib/camera.js"></script>
+	<script type="text/javascript" src="../lib/scene.js"></script>
+	<script type="text/javascript" src="../lib/sceneObjects.js"></script>
+	<script type="text/javascript" src="../lib/brdf.js"></script>
+	<script type="text/javascript" src="../lib/ui.js"></script>
+	<script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
+
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+	<link rel="stylesheet" href="http://renderdiagrams.org/wp-content/themes/structural/style.css" />
+	<link rel="stylesheet" href="../styles.css" />
+</head>
+
+
+<body style="width:1200; margin:0 auto">
+
+	<pre style="display:none;"><script>
+		function ShowLightTransport(divName, controlsDivName, showMouseRay)
+		{
+			var embeddedObj = new EmbeddedDrawing(divName);
+			var scene = embeddedObj.getScene();
+			var camera = embeddedObj.camera;
+			var mapImage;
+			var mapImageReady = false;
+
+			var minRadius = 5.0;
+			var maxRadius = 22.0;
+			var radiusStep = 1.0;
+
+			var locations = 
+			[
+				{ x:11.045, y:12.6084},		// N
+				{ x:6.1191, y:22.032},		// A
+				{ x:17.0333, y:13.5213},	// I
+				{ x:19.4013, y:10.677},		// G
+				{ x:7.3318, y:17.2166},		// A
+				{ x:9.2456, y:6.4614},		// T
+				{ x:5.3189, y:35.9338},		// I
+				{ x:25.2949, y:15.2124},	// O
+				{ x:17.3706, y:20.2704},	// N
+			];
+
+			function makeScene()
+			{
+				scene.deleteAllObjects();
+
+				scene.name = "Light Transport";
+				camera.setViewPosition(-3.7345613543428122, 11.67499501146912);
+				camera.setUnitScale(13.081515030749209);
+
+				var pageOutline = new PageOutline(new Vector(0, 0));
+				pageOutline.sizeIndex = 2;
+				pageOutline.visible = true;
+				pageOutline.frozen = false;
+				pageOutline.portrait = 1;
+				pageOutline.margin = 2.5;
+				pageOutline.onChange();
+				scene.addObject(pageOutline);
+
+				embeddedObj.zoomExtents();
+			}
+
+			function drawLiveStuff()
+			{
+				if (mapImageReady)
+				{
+					embeddedObj.camera.drawImage(new Vector(14.85 - 27/2, 21 + 36.2/2), mapImage, 27.0, 36.2);
+				}
+
+				for (var i=0; i!=locations.length; ++i)
+				{
+					embeddedObj.camera.drawCross(new Vector(locations[i].x, locations[i].y), 1, 0, "#FF0000", 4);
+					embeddedObj.camera.drawArc(locations[i], 1, 0, Math.PI*2, "#000000", 1);
+				}
+
+				gridSearch();
+
+				return;
+
+				for (var i=0; i!=locations.length; ++i)
+				{
+					var pi = locations[i];
+
+					for (var j=i+1; j<locations.length; ++j)
+					{
+						var pj = locations[j];
+
+						var dist = distance(pi, pj);
+						var distQ = Math.ceil(dist/radiusStep) * radiusStep;
+
+						if (distQ / 2 > maxRadius)
+							continue;
+
+						var dir = sub(pi, pj).unit();
+						var tan = transpose(dir);
+
+						for (var radius_i=minRadius; radius_i<=maxRadius; radius_i += radiusStep)
+						{
+							for (var radius_j=minRadius; radius_j<=maxRadius; radius_j += radiusStep)
+							{
+								if (radius_i+radius_j < dist)
+									continue;
+
+								if (radius_i+dist < radius_j)
+									continue;
+
+								if (radius_j+dist < radius_i)
+									continue;
+
+								var t = (dist*dist - radius_j * radius_j + radius_i * radius_i) / (2 * dist * dist);
+								var midPoint = lerp(pi, pj, t);
+								var distMid = t * dist;
+
+								var tanLength = Math.sqrt(radius_i*radius_i - distMid*distMid);
+
+								var p0 = mad(tan, tanLength, midPoint);
+								var p1 = mad(tan, -tanLength, midPoint);
+
+								//embeddedObj.camera.drawCross(p0, 0.1, 0, "#0044FF", 2);
+								//embeddedObj.camera.drawCross(p1, 0.1, 0, "#0044FF", 2);
+								embeddedObj.camera.drawArc(p0, radiusStep/6, 0, Math.PI*2, "#000000", 0, "rgba(0,0,0,0.1)");
+								embeddedObj.camera.drawArc(p1, radiusStep/6, 0, Math.PI*2, "#000000", 0, "rgba(0,0,0,0.1)");
+								//embeddedObj.camera.drawArc(pi, radius_i, 0, Math.PI*2, "rgba(0,0,0,0.1)", 5);
+								//embeddedObj.camera.drawArc(pj, radius_j, 0, Math.PI*2, "rgba(0,0,0,0.1)", 5);
+
+								//embeddedObj.camera.drawArc(pi, radius_i, 0, Math.PI*2, "#000000", 1);
+								//embeddedObj.camera.drawArc(pj, radius_j, 0, Math.PI*2, "#000000", 1);
+							}
+						}
+					}
+				}
+			}
+
+			function gridSearchP(m, drawDetails)
+			{
+				var threshold = 0.2;
+				var minCount = 6;
+
+				var validPoints = [];
+
+				for (var i=0; i!=locations.length; ++i)
+				{
+					var p = locations[i];
+
+					var dist = distance(p, m);
+
+					var error = dist/radiusStep - Math.floor(dist/radiusStep);
+
+					if (error < threshold && dist >= minRadius && dist <= maxRadius)
+					{
+						validPoints.push(p);
+					}
+				}
+
+				if (validPoints.length>=minCount)
+				{
+					embeddedObj.camera.drawRectangle(m, 0.5, "#000000", 1);
+
+					if (drawDetails)
+					{
+						for (var i=0; i!=validPoints.length; ++i)
+						{
+							var p = validPoints[i];
+
+							var dist = distance(p, m);
+							embeddedObj.camera.drawArc(p, dist, 0, Math.PI*2, "#000000", 1);
+							embeddedObj.camera.drawLine(p, m);
+							embeddedObj.camera.drawText(new Vector(m.x, m.y - i * embeddedObj.camera.invScale(20)), dist.toFixed(2));
+						}
+					}
+
+					embeddedObj.camera.drawText(m, i);
+				}
+			}
+
+			function gridSearch()
+			{
+				for (var x=0; x<=29.7; x+=0.1)
+				{
+					for (var y=0; y<=42.0; y+=0.1)
+					{
+						gridSearchP(new Vector(x,y), false);
+					}
+				}
+			}
+
+			embeddedObj.onDraw = function()
+			{
+				drawLiveStuff();
+			}
+
+			embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey, shiftKey)
+			{
+				gridSearchP(m, true);
+			}
+
+			makeScene();
+			embeddedObj.zoomExtents();
+
+			mapImage = new Image();
+			mapImage.src = "map.jpg";
+			mapImage.onload = function() 
+							{
+								mapImageReady = true;
+								embeddedObj.zoomExtents();
+							};
+		}
+
+	</script></pre>
+
+
+	<div id="embeddedDrawing_lightTransport_controls" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_lightTransport" style="width: 100%; padding-bottom: 100%; margin:0 auto;"></div>
+
+	<pre style="display:none;"><script>
+		ShowLightTransport("embeddedDrawing_lightTransport", "embeddedDrawing_lightTransport_controls", true);
+	</script></pre>
+
+</body>
+</html>
