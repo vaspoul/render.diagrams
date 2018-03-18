@@ -1,0 +1,137 @@
+<html>
+<head>
+
+	<script type="text/javascript" src="../lib/maths.js"></script>
+	<script type="text/javascript" src="../lib/graphics.js"></script>
+	<script type="text/javascript" src="../lib/camera.js"></script>
+	<script type="text/javascript" src="../lib/scene.js"></script>
+	<script type="text/javascript" src="../lib/sceneObjects.js"></script>
+	<script type="text/javascript" src="../lib/brdf.js"></script>
+	<script type="text/javascript" src="../lib/ui.js"></script>
+	<script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
+
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+	<link rel="stylesheet" href="http://renderdiagrams.org/wp-content/themes/structural/style.css" />
+	<link rel="stylesheet" href="../styles.css" />
+</head>
+
+
+<body style="width:750px; margin:0 auto">
+
+	<script type="text/javascript" src="/examples/SchoolGPS.js"></script>
+
+	Last week was <a href="https://www.britishscienceweek.org/" target="_blank">British Science Week</a> and like every year my wife and I both <a href="https://www.stem.org.uk/stem-ambassadors" title="STEM Ambassadors" target="_blank">volunteer</a> to run an activity at the local Primary school. The theme this year was 'Exploration &amp; Discovery' and I thought it would be fun to introduce Year 4 children (ages 8-9) to the basic principles of GPS. The focus was on <a href="https://en.wikipedia.org/wiki/Trilateration" title="Wikipedia link" target="_blank">trilateration</a>, i.e. draw three circles, see where they intersect. 
+
+	The activity itself was quite simple: "A few explorers have found themselves lost somewhere around the UK. Their GPS devices are malfunctioning and do not report their exact position. They only show their distance from a few satellites. Can you use trilateration to help locate them?".
+
+	Preparing the material for the activity seemed quite simple at first, just print off a map, mark the location of the satellites, pick the location of the explorers and measure some distances. In practice though, there were some complications.
+
+	<h3>Map Projection</h3>
+
+	My original idea was to have the explorers lost in different cities around the world. For that I would need to get hold of a world map...but what projection method do I use? As you may be aware there are <a href="https://en.wikipedia.org/wiki/List_of_map_projections" title="Wikipedia link" target="_blank">many</a> different ways to project a sphere onto a 2D plane, each with different properties. Some are designed to preserve areas, some to preserve distances, and so on. Fun fact, did you know that Google actually came up with their own projection method to use on Google Maps? It's called <a href="https://en.wikipedia.org/wiki/Web_Mercator" title="Wikipedia link" target="_blank">Web Mercator</a> and it's a variant of the <a href="https://en.wikipedia.org/wiki/Mercator_projection" title="Wikipedia link" target="_blank">Mercator projection</a> method. Unfortunately one of the properties of this projection is that converting straight line distance measurements (e.g. what you'd measure using a ruler) to true, i.e. great circle, distance is not trivial because the distortion changes with latitude.
+
+	One alternative would be to use a <a href="https://en.wikipedia.org/wiki/Gnomonic_projection" title="Wikipedia link" target="_blank">Gnomonic projection</a> where great circles are represented as straight lines. That would work, but it makes getting hold of a map a bit more difficult.
+
+	In the end I decided to restrict myself to just UK (in fact just England and a bit of Scotland). The small extents of the area make the projection distortions largely irrelevant and makes city and town names easier to read when printed off on A3 paper. I <i>could</i> have just printed off any old world map and let the kids draw cirlces on that and it wouldn't have impacted on the learning outcome of the activity, but I felt I should <i>try</i> and present correct information.
+
+	<h3>Satellite Positions</h3>
+
+	With the map area selected it was then time to pick the locations of the explorers and from that determine suitable satellite positions. To make the activity a bit more fun I wanted to pick cities and towns the first letters of which would spell out a word meaningful the kids of that particular school. This required me to pick 9 locations, each starting with a particular letter of the alphabet. To avoid confusion I had to avoid locations with more than one word (e.g. Isle of Man) and prefer somewhat isolated locations to allow for errors when the kids draw the circles.
+
+	This gave me the following locations:
+	<div id="embeddedDrawing_schoolGPS_1" style="width: 100%; padding-bottom: 100%; margin:0 auto 15px auto;"></div>
+
+	<pre style="display:none;"><script>
+		SchoolGPS("embeddedDrawing_schoolGPS_1", undefined, true, false);
+	</script></pre>
+
+	With the locations set all I needed to do was figure out the satellite positions. This would be really easy, just pick any 3 spots on the map and then make a list of distances to each of the explorer locations. Alas, this would give me distances with decimal points. Location i from satellite j might 11.2 cm away. In a calm &amp; quiet environment, on a one-on-one setting, providing help and supervision I'm sure I can get an 8 year old to draw a circle 11.2cm in radius. A group of 10+ of them though, probably not!
+
+	Let's make things easier and require that all locations are an integer number of cm away from at least 3 satellites. Drawing a circle at whole numbers shouldn't be too difficult, provided you have the right instruments.
+
+	<div style="border-left:7px dotted #808080; padding-left: 30px; margin-left:30px">
+		<h3>Interlude: Drawing Circles</h3>
+		How do you get an 8yo to draw a circle? Assume they don't have a drawing compass (either for health &amp; safety reasons or because there aren't enough to go around).
+
+		My first thought was a piece of string. Tie a small loop around one end, that's where the pencil goes. They measure the length using a ruler, hold the other end at the center with their thumb and draw the circle. Simple! Couple of problems...for starters with normal (rather than mechanical) pencils the string kind of bunches up under the pencil lead and you end up scraping it along the paper without the lead making contact. 
+
+		You can move the loop higher up the pencil so that the string doesn't bunch up under it....but then there is no guarantee that they'll keep the pencil vertical, it will most likely swivel around the height at which the string is sitting on, causing the radius to fluctuate.
+		
+		You could put an attachment of sorts at the end of the string to stop it bunching up while also keeping the string near the paper, but there is anoter, more fundamental problem. A string only enforces half of the circle constraint; that no point will be further away that the radius. As the kids are tracing the circle through they don't maintain the tension on the string and they end up drawing something like an inwards spiral! We need something rigid, so that both halves of the contraint are honoured.
+
+		I did a few experiments with 3D printed bits and bamboo skewers (which by the way don't have uniform thickness) and looked online for cheap rulers (I needed 30 of them), but in the end I went with a simple low-tech solution. I drew out a 22cm ruler at 1cm increments and had printed onto the thickest card my local print shop could do. I then punched holes at each 1cm mark. To draw a circle the kids would put one pencil through the 0cm hole (the center), another through the X cm hole and then just trace through. The card had just about enough rigidity to stop them moving inwards, though if I had to do it again I'd glue each ruler onto a second layer of card. It was a simple, cheap, disposable solution with the main downside being that it involved a fair bit of manual labour on my part (23 holes x 30 rulers).
+	</div>
+	
+	So, 9 locations, 3 satellites per location, at integer distances. That's a lot of satellites! I <i>could</i> create 9 sets of maps, each with just 3 satellites, but that would make the logistics of printing and running the activity more difficult. More importantly, that would not be <i>the way of the programmer</i>, certainly not one with a few evenings to spare before the activity day! Let's think this through...how can we work out the least number of satellites that each have an integer distance away from as many locations as possible?
+
+	My first instict was to fire up Visual Studio and start writing from C++ code to do all the number crunching. Then I remembered that I'm a graphics programmer and that I have a programmer friendly, JavaScript based, 2D visualisation framework all setup!
+
+	<h3>Visualising Things</h3>
+	For each location, we can visualise the valid satellite positions by drawing concentric circles, 1cm apart. Take any pair of locations and where their circles meet, that's a satellite location that is an integer distance away from both of them. Drawing a 1mm radius dot on each intersection allows us to factor in a bit of tolerance. Placing a satellite anywhere inside the dot will give us <i>near</i> integer distance to the locations.
+
+	<div id="embeddedDrawing_schoolGPS_2" style="width: 100%; padding-bottom: 100%; margin:0 auto 15px auto;"></div>
+
+	<pre style="display:none;"><script>
+		SchoolGPS("embeddedDrawing_schoolGPS_2", undefined, true, false, 0, 2);
+	</script></pre>
+
+	At this point I started thinking I might be able to get away with a purely visual solution. Just draw a black disc at each intersection point, but use a low alpha value, something like 0.1. Each disc represents a point that is integer distance away from 2 locations. Where more than one disc overlap, ever partially, then we have a point that is an integer distance away from 2, 3 or 4 locations. The more overlapping discs the darker that pixel would be. Let's see what that looks like :
+
+	<div id="embeddedDrawing_schoolGPS_3_controls" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_schoolGPS_3" style="width: 100%; padding-bottom: 100%; margin:0 auto 15px auto;"></div>
+
+	<pre style="display:none;"><script>
+		SchoolGPS("embeddedDrawing_schoolGPS_3", "embeddedDrawing_schoolGPS_3_controls", true, false, 1, 0);
+	</script></pre>
+
+	Ok, that's pretty good. We can see that there are some fairly dark spots, indicating good candidates for satellite locations. It was encouraging to see that there are indeed more than a few suitable points as I was worried that I wouldn't get enough points unless I increase the tolerance by quite a bit.
+
+	I could have stopped here. I could save out the canvas, put it in Photoshop and do some image space manipulation. A bit brightness &amp; contrast adjustment would isolate the most suitable candidates. It would however be a very manual process. To get the satellite positions I'd need to note down the pixel coordinates in the image and convert those back to diagram coordinates. I'd also not have any correlation between the positions and which locations they are an integer distance away from. I could easily find that out by measuring, but the whole process felt a bit manual.
+
+	<h3>Brute Force</h3>
+	I decided to press on and look for a more analytical solution. The image based approach had served its purpose, showing me that there is a viable solution. It also gave me the idea to just brute force this. Given a position on the map, calculate its distance to each of the explorer locations. If the distance falls inside the min/max values of the ruler and it's within a certain tolerance of an integer value (1mm) then we have a candidate. Loop around all the explorer locations and keep track of how many meet the distance criteria.
+
+	This gave some good answers! Searching the entire map at 1mm interval shows that there are lots of positions that are an integer distance away from at least 5 of the explorer locations. Increasing the limit to 6 locations however only gives 3 satellites, which isn't enough. We need 3 satellites per location. Reducing the search spacing to 0.1mm (making even more of a brute force!) reveals that there are in fact 7 satellite locations that each is an integer distance away from 6 of the locations. Furthermore, a visual inspection reveals that each location is covered by at least 3 satellites (and most by 4) so it's a viable overall solution as well! Perfect! 
+	
+	<div id="embeddedDrawing_schoolGPS_4_controls" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_schoolGPS_4" style="width: 100%; padding-bottom: 100%; margin:0 auto 15px auto;"></div>
+
+	<pre style="display:none;"><script>
+		SchoolGPS("embeddedDrawing_schoolGPS_4", "embeddedDrawing_schoolGPS_4_controls", true, false, 2, 0);
+	</script></pre>
+
+	Well almost...brute forcing this at 0.1mm intervals in JavaScript is quite slow. The A3 page that I'd be using has dimensions of 29.7cm x 42cm, giving a whopping 12.4 mil checks. Technically it doesn't matter, it was meant to be more or less a one-off activity, so waiting a couple of seconds to get the satellite locations wasn't that big a bother. But it did make the map navigation quite sluggish and it felt like I could do a bit better.
+
+	<h3>A bit better...</h3>
+	Taking a step back, given two explorer locations we can pick any two integer radius values and draw circles around them. The circles will generally intersect at two points. We know those two points are an integer distance away from the two locations we picked. How about the rest of the locations? Maybe they happen to be an integer distance away from some other locations too. 
+
+	So, we can improve the brute force check with an algorithm like this:
+<pre>
+For every pair of locations:
++- For every pair of integer radius values in [minRadius, maxRadius] range:
+&nbsp;&nbsp;&nbsp;+- If the sum of the radii is less than the distance between the location
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;->skip.
+&nbsp;&nbsp;&nbsp;+- For each of the 2 intersection points:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +- Loop through all other locations:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +- If the distance of the candidate point to the location is near integer
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> keep the point
+</pre>
+
+	This gives the following:
+	<div id="embeddedDrawing_schoolGPS_5_controls" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_schoolGPS_5" style="width: 100%; padding-bottom: 100%; margin:0 auto 15px auto;"></div>
+
+	<pre style="display:none;"><script>
+		SchoolGPS("embeddedDrawing_schoolGPS_5", "embeddedDrawing_schoolGPS_5_controls", true, false, 3, 0);
+	</script></pre>
+
+	That's pretty good! We get good answers at a fraction of the cost. You may notice that we have less satellites with 6 locations each than the super-fine (0.1mm) brute force approach. That's because the above algorithm picks the first point with zero tolerance (it's the intersection of the two circles) and I think that's missing out some near by good candidates.
+
+	At this point I decided to call it a day. I could improve the algorithm to do a bit of a search around those first couple of points, or better yet come up with a more direct algorithm altogether. However I was running out of time as I still needed to do all the printing, cutting, hole punching, etc as well as perpare a PowerPoint presentation!
+
+	I'm happy to say the activity went very well! All the children seemed to enjoy the presentation and they all managed to trilaterate at least 2 explorers in the 15 minute practical I had with each group. Hopefully the whole experience served as extra encouragement towards <a href="https://en.wikipedia.org/wiki/Science,_technology,_engineering,_and_mathematics" target="_blank" title="Wikipedia link">S.T.E.M. subjects</a>.
+
+
+
+</body>
+</html>
