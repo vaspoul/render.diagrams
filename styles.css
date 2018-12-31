@@ -39,21 +39,28 @@ table.valuesTable tr th
 	border-bottom: 2px solid black;
 }
 
-table.toolbar, table.toolbar tr, table.toolbar tr td 
+table.toolbar
 {
-	border: none;
     white-space:nowrap;
+    border-spacing:0px;
 }
 
 table.toolbar tr
 {
     display:table-row;
+    white-space:nowrap;
     overflow:visible;
 }
 
 table.toolbar td 
 {
+    white-space:nowrap;
+    text-align:center;
     display:table-cell;
+
+    border-right:1px solid #BBBBBB;
+    padding-left:5px;
+    padding-right:5px;
 }
 
 table.toolbar tr th
@@ -93,6 +100,41 @@ table.contextMenuTable tr:hover
 
 .toolbar textarea {
     background:#F5F5E5;
+}
+
+.toolbar .link {
+    color: dodgerblue;
+}
+
+.toolbar .link:hover {
+    font-weight: bold;
+}
+
+.toolbar input {
+    background:#F5F5E5;
+    border:1px solid dodgerblue;
+}
+
+.toolbar select {
+    border:1px solid dodgerblue;
+}
+
+.toolbar button {
+    border-left:2px solid lightskyblue;
+    border-top:2px solid lightskyblue;
+    border-right:2px solid #888888;
+    border-bottom:2px solid #888888;
+}
+
+.toolbar button:active {
+    border-left:2px solid #888888;
+    border-top:2px solid #888888;
+    border-right:2px solid lightskyblue;
+    border-bottom:2px solid lightskyblue;
+}
+
+.toolbar button:focus {
+    outline:0px;
 }
 
 input {
