@@ -113,10 +113,33 @@ table.contextMenuTable tr:hover
 .toolbar input {
     background:#F5F5E5;
     border:1px solid dodgerblue;
+    padding:1px;
+}
+
+.toolbar input:hover {
+    background:#F5F5E5;
+    border:2px solid dodgerblue;
+    padding:0px;
 }
 
 .toolbar select {
     border:1px solid dodgerblue;
+    padding:1px;
+}
+
+.toolbar select:hover {
+    border:2px solid dodgerblue;
+    padding:0px;
+}
+
+.toolbar .blueborder {
+    border:1px solid dodgerblue;
+    padding:1px;
+}
+
+.toolbar .blueborder:hover {
+    border:2px solid dodgerblue;
+    padding:0px;
 }
 
 .toolbar button {
@@ -124,6 +147,10 @@ table.contextMenuTable tr:hover
     border-top:2px solid lightskyblue;
     border-right:2px solid #888888;
     border-bottom:2px solid #888888;
+}
+
+.toolbar button:hover {
+    background:#AAAAAA;
 }
 
 .toolbar button:active {
