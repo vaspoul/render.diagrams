@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="17.061mm" height="17.1966mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 231 233"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str3 {stroke:#4D4D4D;stroke-width:13.5554}
+    .str0 {stroke:gray;stroke-width:13.5554}
+    .str2 {stroke:#999999;stroke-width:13.5554}
+    .str1 {stroke:#666666;stroke-width:2.71108}
+    .fil2 {fill:none}
+    .fil0 {fill:#F2EAC4}
+    .fil1 {fill:white}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_629001800">
+   <g>
+    <rect class="fil0 str0" x="7" y="7" width="122" height="170"/>
+    <rect class="fil1 str1" x="21" y="3" width="93.9483" height="24.134"/>
+    <line class="fil2 str2" x1="33" y1="11" x2="103" y2= "11" />
+   </g>
+   <rect class="fil2 str3" x="102" y="104" width="122" height="122"/>
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="18.5002mm" height="18mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 1426 1388"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:#4D4D4D;stroke-width:77.0842;stroke-dasharray:77.084167 77.084167}
+    .fil0 {fill:none}
+    .fil1 {fill:#4D4D4D}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_633175912">
+   <line class="fil0 str0" x1="39" y1="0" x2="39" y2= "1388" />
+   <rect class="fil1" x="116" width="617" height="308"/>
+   <polygon class="fil1" points="344,385 461,588 578,790 344,790 111,790 228,588 "/>
+   <circle class="fil1" cx="347" cy="1156" r="231"/>
+   <line class="fil0" x1="1426" y1="0" x2="1426" y2= "1388" />
+  </g>
+ </g>
+</svg>

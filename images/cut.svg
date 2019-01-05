@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="20mm" height="19.3245mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 1612 1557"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str2 {stroke:#4D4D4D;stroke-width:85.3293}
+    .str0 {stroke:#999999;stroke-width:85.3293}
+    .str3 {stroke:#4D4D4D;stroke-width:17.0659}
+    .str1 {stroke:#999999;stroke-width:17.0659}
+    .str4 {stroke:#CCCCCC;stroke-width:17.0659}
+    .fil0 {fill:none}
+    .fil2 {fill:#4D4D4D}
+    .fil1 {fill:#999999}
+    .fil3 {fill:#CCCCCC}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_627797104">
+   <g>
+    <ellipse class="fil0 str0" transform="matrix(0.388658 -0.779917 -0.779917 -0.388658 589.02 1330.11)" rx="222" ry="164"/>
+    <path class="fil1 str1" d="M696 1159c145,-385 380,-939 418,-1146 -83,-26 -157,60 -191,137l-346 1005 119 4z"/>
+   </g>
+   <g>
+    <ellipse class="fil0 str2" transform="matrix(0.820993 -0.292055 0.292055 0.820993 231.29 926.435)" rx="222" ry="164"/>
+    <path class="fil2 str3" d="M414 840c400,-97 978,-264 1188,-277 16,86 -79,149 -159,174l-1039 223 10 -120z"/>
+   </g>
+   <circle class="fil3 str4" transform="matrix(0.652163 -0.577935 0.577935 0.652163 749.761 817.901)" r="51"/>
+  </g>
+ </g>
+</svg>
