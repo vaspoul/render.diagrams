@@ -293,3 +293,27 @@ input {
     top:3px;
     box-shadow:none;
 }
+
+.keybutton {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    background-color: #EEEEEE;
+    border:1px solid #808080;
+    border-radius:8px;
+    display:inline-block;
+    width:80px;
+    text-align:center;
+    padding:5px;
+    margin-left:5px;
+    margin-right:5px;
+    box-shadow:3px 3px 5px #999999;
+    user-select:none;
+    -ms-user-select:none;
+    -webkit-user-select:none;
+}
+
+.keybutton.active {
+    transform: translateX(4px) translateY(4px);
+    box-shadow:1px 1px 3px #999999;
+    background-color: #AAAAAA;
+}
