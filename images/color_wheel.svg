@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW Home & Student X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="20.2496mm" height="20.2496mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 531 531"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:white;stroke-width:6.55334}
+    .fil13 {fill:none}
+    .fil14 {fill:black}
+    .fil2 {fill:blue}
+    .fil3 {fill:#007FFF}
+    .fil6 {fill:lime}
+    .fil5 {fill:springgreen}
+    .fil4 {fill:aqua}
+    .fil1 {fill:#7F00FF}
+    .fil7 {fill:chartreuse}
+    .fil10 {fill:red}
+    .fil11 {fill:#FF007F}
+    .fil0 {fill:fuchsia}
+    .fil9 {fill:#FF7F00}
+    .fil8 {fill:yellow}
+    .fil15 {fill:white}
+    .fil12 {fill:black;fill-opacity:0.501961}
+   ]]>
+  </style>
+ </defs>
+ <g id="Icons">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_496753632">
+   <path class="fil0 str0" d="M265 265l-253 -67c12,-45 36,-85 68,-118l185 185z"/>
+   <path class="fil1 str0" d="M265 265l-253 68c-12,-44 -12,-91 0,-135l253 67z"/>
+   <path class="fil2 str0" d="M265 265l-185 186c-32,-33 -56,-73 -68,-118l253 -68z"/>
+   <path class="fil3 str0" d="M265 265l-67 254c-45,-12 -85,-36 -118,-68l185 -186z"/>
+   <path class="fil4 str0" d="M265 265l68 254c-44,12 -91,12 -135,0l67 -254z"/>
+   <path class="fil5 str0" d="M265 265l186 186c-33,32 -73,56 -118,68l-68 -254z"/>
+   <path class="fil6 str0" d="M265 265l254 68c-12,45 -36,85 -68,118l-186 -186z"/>
+   <path class="fil7 str0" d="M265 265l254 -67c12,44 12,91 0,135l-254 -68z"/>
+   <path class="fil8 str0" d="M265 265l186 -185c32,33 56,73 68,118l-254 67z"/>
+   <path class="fil9 str0" d="M265 265l68 -253c45,12 85,36 118,68l-186 185z"/>
+   <path class="fil10 str0" d="M265 265l-67 -253c44,-12 91,-12 135,0l-68 253z"/>
+   <path class="fil11 str0" d="M265 265l-185 -185c33,-32 73,-56 118,-68l67 253z"/>
+   <g>
+    <path class="fil12" d="M265 92c96,0 173,78 173,173 0,96 -77,173 -173,173 -95,0 -173,-77 -173,-173 0,-95 78,-173 173,-173z"/>
+    <path id="1" class="fil13 str0" d="M265 92c96,0 173,78 173,173 0,96 -77,173 -173,173 -95,0 -173,-77 -173,-173 0,-95 78,-173 173,-173z"/>
+   </g>
+   <g>
+    <path class="fil12" d="M265 171c53,0 95,42 95,94 0,53 -42,95 -95,95 -52,0 -94,-42 -94,-95 0,-52 42,-94 94,-94z"/>
+    <path id="1" class="fil13 str0" d="M265 171c53,0 95,42 95,94 0,53 -42,95 -95,95 -52,0 -94,-42 -94,-95 0,-52 42,-94 94,-94z"/>
+   </g>
+   <path class="fil14" d="M265 265l0 37c-20,0 -37,-16 -37,-37 0,-20 17,-37 37,-37l0 37z"/>
+   <path class="fil15" d="M265 265l0 37c21,0 37,-16 37,-37 0,-20 -16,-37 -37,-37l0 37z"/>
+  </g>
+ </g>
+</svg>
