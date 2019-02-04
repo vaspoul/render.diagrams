@@ -264,7 +264,7 @@
 
 							var alpha = Math.min(1, brdf);
 
-							var color3 = hex2rgb(rayFromLight.intersectionPoints[0].color);
+							var color3 = parseColor(rayFromLight.intersectionPoints[0].color);
 
 							color3.r *= brdf * rayFromLight.intersectionPoints[0].intensity;
 							color3.g *= brdf * rayFromLight.intersectionPoints[0].intensity;

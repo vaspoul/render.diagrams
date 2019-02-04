@@ -4,10 +4,10 @@
 <script type="text/javascript" src="../lib/maths.js"></script>
 <script type="text/javascript" src="../lib/graphics.js"></script>
 <script type="text/javascript" src="../lib/camera.js"></script>
+<script type="text/javascript" src="../lib/ui.js"></script>
 <script type="text/javascript" src="../lib/scene.js"></script>
 <script type="text/javascript" src="../lib/sceneObjects.js"></script>
 <script type="text/javascript" src="../lib/brdf.js"></script>
-<script type="text/javascript" src="../lib/ui.js"></script>
 <script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
 
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
@@ -540,6 +540,8 @@
 					{
 						radianceTexels[i].fillAlpha = 0;
 					}
+
+					radianceTexels[i].onChange();
 				}
 
 				updateVisibility();
@@ -578,7 +580,7 @@
 
 					var weight = brdf * solidAngle(i);
 
-					var rgb = hex2rgb(radianceTexels[i].fillColor);
+					var rgb = parseColor(radianceTexels[i].appearance.GetFillColor());
 
 					irradiance.r += rgb.r * weight;
 					irradiance.g += rgb.g * weight;
@@ -603,6 +605,8 @@
 
 				irradianceTexels[index].fillColor = rgb2hex(irradiance.r, irradiance.g, irradiance.b);
 				irradianceTexels[index].fillAlpha = 1;
+
+				irradianceTexels[index].onChange();
 
 				return irradiance;
 			}
@@ -640,7 +644,7 @@
 					var a_prev = toAngle(ray_prev);
 					var a_next = toAngle(ray_next);
 
-					camera.drawArc(probe.center, 4, a_next, a_prev, "#000000", 0, irradianceTexels[i].fillColor);
+					camera.drawArc(probe.center, 4, a_next, a_prev, "#000000", 0, irradianceTexels[i].appearance.GetFillColor());
 				}
 			}
 
@@ -693,6 +697,9 @@
 
 						radianceTexels[texelIndex].fillColor = probe.fillColor;
 						radianceTexels[texelIndex].fillAlpha = probe.fillAlpha;
+
+						probe.onChange();
+						radianceTexels[texelIndex].onChange();
 
 						embeddedObj.draw();
 					}

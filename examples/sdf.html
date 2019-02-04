@@ -4,10 +4,10 @@
 <script type="text/javascript" src="../lib/maths.js"></script>
 <script type="text/javascript" src="../lib/graphics.js"></script>
 <script type="text/javascript" src="../lib/camera.js"></script>
+<script type="text/javascript" src="../lib/ui.js"></script>
 <script type="text/javascript" src="../lib/scene.js"></script>
 <script type="text/javascript" src="../lib/sceneObjects.js"></script>
 <script type="text/javascript" src="../lib/brdf.js"></script>
-<script type="text/javascript" src="../lib/ui.js"></script>
 <script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
 
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"/>
@@ -241,6 +241,8 @@
 
 			var centroid = new Vector(1.1235678, 3.45612453446);//avg(shape.getBoundsMin(), shape.getBoundsMax());
 
+			embeddedObj.setRedrawOnChange(false);
+
 			for (var i=0; i!=circles.length; ++i)
 			{
 				var c = circles[i].center;
@@ -278,7 +280,11 @@
 					circles[i].color = "rgba(223,149,38, " + (showBigCircles ? 1 : 0) + ")";
 					circles[i].fillAlpha = inside ? (showBigCircles ? 0.5 : 0.00001) : 0;
 				}
+
+				circles[i].onChange();
 			}
+
+			embeddedObj.setRedrawOnChange(true);
 
 			embeddedObj.draw();
 		}
@@ -337,7 +343,7 @@
 							{
 								if ((iy+j)>=0 && (iy+j)<gridSize)
 								{
-									height = circles[(iy+j)*gridSize + (ix+i)].radius * (circles[(iy+j)*gridSize + (ix+i)].fillAlpha>0 ? -1 : 1);
+									height = circles[(iy+j)*gridSize + (ix+i)].radius * (circles[(iy+j)*gridSize + (ix+i)].appearance.fillAlpha>0 ? -1 : 1);
 								}
 							}
 
@@ -402,7 +408,7 @@
 					pixels[index*4+0] = 0;
 					pixels[index*4+1] = 60;
 					pixels[index*4+2] = 0;
-					pixels[index*4+3] = (circles[py*gridSize + px].fillAlpha>0) ? 200 : 0;
+					pixels[index*4+3] = (circles[py*gridSize + px].appearance.fillAlpha>0) ? 200 : 0;
 				}
 			}
 
@@ -481,7 +487,7 @@
 						{
 							if ((iy+j)>=0 && (iy+j)<gridSize)
 							{
-								height = circles[(iy+j)*gridSize + (ix+i)].radius * (circles[(iy+j)*gridSize + (ix+i)].fillAlpha>0 ? -1 : 1);
+								height = circles[(iy+j)*gridSize + (ix+i)].radius * (circles[(iy+j)*gridSize + (ix+i)].appearance.fillAlpha>0 ? -1 : 1);
 							}
 						}
 
