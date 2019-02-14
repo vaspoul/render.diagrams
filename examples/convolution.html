@@ -1,0 +1,403 @@
+<html>
+<head>
+
+<script type="text/javascript" src="../lib/maths.js"></script>
+<script type="text/javascript" src="../lib/graphics.js"></script>
+<script type="text/javascript" src="../lib/camera.js"></script>
+<script type="text/javascript" src="../lib/ui.js"></script>
+<script type="text/javascript" src="../lib/scene.js"></script>
+<script type="text/javascript" src="../lib/sceneObjects.js"></script>
+<script type="text/javascript" src="../lib/brdf.js"></script>
+<script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
+
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+	<link rel="stylesheet" href="http://renderdiagrams.org/wp-content/themes/structural/style.css" />
+	<link rel="stylesheet" href="../styles.css" />
+</head>
+
+
+<body style="width:750px; margin:0 auto">
+
+	<pre style="display:none;"><script>
+
+								  function ShowVisibilityExample(divName,controlsDivName,polar)
+								  {
+									  var embeddedObj=new EmbeddedDrawing(divName);
+									  var scene=embeddedObj.getScene();
+									  var camera=embeddedObj.camera;
+									  var functionGraph=undefined;
+
+									  function addControls()
+									  {
+										  if(controlsDivName==undefined)
+											  return;
+
+										  var controls=new PropertyGrid(document.getElementById(controlsDivName));
+									  }
+
+									  function makeScene()
+									  {
+										  var w=new Wall([new Vector(-5.5,14),new Vector(-8.5,12),new Vector(-10.5,14),new Vector(-8.5,17),new Vector(-5.5,16)]);
+										  w.closed=true;
+										  w.roughness=0;
+										  w.metalness=0;
+										  w.intensity=1;
+										  w.BRDFIndex=1;
+										  w.appearance.lineWidth=1;
+										  w.appearance.lineRGB[0]=0;
+										  w.appearance.lineRGB[1]=0;
+										  w.appearance.lineRGB[2]=0;
+										  w.appearance.lineAlpha=1;
+										  w.appearance.lineDashIndex=0;
+										  w.appearance.fillRGB[0]=127;
+										  w.appearance.fillRGB[1]=127;
+										  w.appearance.fillRGB[2]=127;
+										  w.appearance.fillAlpha=0.2;
+										  w.visible=true;
+										  w.frozen=false;
+										  w.onChange();
+										  scene.addObject(w);
+
+										  var w=new Wall([new Vector(2.5,17),new Vector(-0.5,15),new Vector(-2.5,17),new Vector(-0.5,20),new Vector(2.5,19)]);
+										  w.closed=true;
+										  w.roughness=0;
+										  w.metalness=0;
+										  w.intensity=1;
+										  w.BRDFIndex=1;
+										  w.appearance.lineWidth=1;
+										  w.appearance.lineRGB[0]=0;
+										  w.appearance.lineRGB[1]=0;
+										  w.appearance.lineRGB[2]=0;
+										  w.appearance.lineAlpha=1;
+										  w.appearance.lineDashIndex=0;
+										  w.appearance.fillRGB[0]=127;
+										  w.appearance.fillRGB[1]=127;
+										  w.appearance.fillRGB[2]=127;
+										  w.appearance.fillAlpha=0.2;
+										  w.visible=true;
+										  w.frozen=false;
+										  w.onChange();
+										  scene.addObject(w);
+
+										  var w=new Wall([new Vector(11,10),new Vector(8,8),new Vector(6,10),new Vector(8,13),new Vector(11,12)]);
+										  w.closed=true;
+										  w.roughness=0;
+										  w.metalness=0;
+										  w.intensity=1;
+										  w.BRDFIndex=1;
+										  w.appearance.lineWidth=1;
+										  w.appearance.lineRGB[0]=0;
+										  w.appearance.lineRGB[1]=0;
+										  w.appearance.lineRGB[2]=0;
+										  w.appearance.lineAlpha=1;
+										  w.appearance.lineDashIndex=0;
+										  w.appearance.fillRGB[0]=127;
+										  w.appearance.fillRGB[1]=127;
+										  w.appearance.fillRGB[2]=127;
+										  w.appearance.fillAlpha=0.2;
+										  w.visible=true;
+										  w.frozen=false;
+										  w.onChange();
+										  scene.addObject(w);
+
+										  var w=new Wall([new Vector(-9.5,-3),new Vector(-12.5,-5),new Vector(-14.5,-3),new Vector(-12.5,0),new Vector(-9.5,-1)]);
+										  w.closed=true;
+										  w.roughness=0;
+										  w.metalness=0;
+										  w.intensity=1;
+										  w.BRDFIndex=1;
+										  w.appearance.lineWidth=1;
+										  w.appearance.lineRGB[0]=0;
+										  w.appearance.lineRGB[1]=0;
+										  w.appearance.lineRGB[2]=0;
+										  w.appearance.lineAlpha=1;
+										  w.appearance.lineDashIndex=0;
+										  w.appearance.fillRGB[0]=127;
+										  w.appearance.fillRGB[1]=127;
+										  w.appearance.fillRGB[2]=127;
+										  w.appearance.fillAlpha=0.2;
+										  w.visible=true;
+										  w.frozen=false;
+										  w.onChange();
+										  scene.addObject(w);
+
+										  var w=new Wall([new Vector(3,-7),new Vector(0,-9),new Vector(-2,-7),new Vector(0,-4),new Vector(3,-5)]);
+										  w.closed=true;
+										  w.roughness=0;
+										  w.metalness=0;
+										  w.intensity=1;
+										  w.BRDFIndex=1;
+										  w.appearance.lineWidth=1;
+										  w.appearance.lineRGB[0]=0;
+										  w.appearance.lineRGB[1]=0;
+										  w.appearance.lineRGB[2]=0;
+										  w.appearance.lineAlpha=1;
+										  w.appearance.lineDashIndex=0;
+										  w.appearance.fillRGB[0]=127;
+										  w.appearance.fillRGB[1]=127;
+										  w.appearance.fillRGB[2]=127;
+										  w.appearance.fillAlpha=0.2;
+										  w.visible=true;
+										  w.frozen=false;
+										  w.onChange();
+										  scene.addObject(w);
+
+										  var w=new Wall([new Vector(17,-2),new Vector(14,-4),new Vector(12,-2),new Vector(14,1),new Vector(17,0)]);
+										  w.closed=true;
+										  w.roughness=0;
+										  w.metalness=0;
+										  w.intensity=1;
+										  w.BRDFIndex=1;
+										  w.appearance.lineWidth=1;
+										  w.appearance.lineRGB[0]=0;
+										  w.appearance.lineRGB[1]=0;
+										  w.appearance.lineRGB[2]=0;
+										  w.appearance.lineAlpha=1;
+										  w.appearance.lineDashIndex=0;
+										  w.appearance.fillRGB[0]=127;
+										  w.appearance.fillRGB[1]=127;
+										  w.appearance.fillRGB[2]=127;
+										  w.appearance.fillAlpha=0.2;
+										  w.visible=true;
+										  w.frozen=false;
+										  w.onChange();
+										  scene.addObject(w);
+
+										  functionGraph=new FunctionGraph(new Vector(0,0));
+										  functionGraph.appearance.lineWidth=2;
+										  functionGraph.appearance.lineRGB[0]=66;
+										  functionGraph.appearance.lineRGB[1]=134;
+										  functionGraph.appearance.lineRGB[2]=244;
+										  functionGraph.appearance.lineAlpha=1;
+										  functionGraph.appearance.lineDashIndex=0;
+										  functionGraph.appearance.fillRGB[0]=255;
+										  functionGraph.appearance.fillRGB[1]=127;
+										  functionGraph.appearance.fillRGB[2]=0;
+										  functionGraph.appearance.fillAlpha=0.5;
+										  functionGraph.functionStr=unescape("//%20Type%20your%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09x%3A%20%5BCartesian%5D%20The%20value%20on%20the%20X%20axis%20on%20which%20the%20function%20needs%20to%20be%20evaluated%20at.%0A//%20%09x%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20which%20the%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20%09hitDistance%3A%20%5BCartesian%5D%20A%20ray%20is%20shot%20along%20the%20Y%20axis%2C%20starting%20at%20each%20evaluation%20position.%0A//%20%09hitDistance%3A%20%5BPolar%5D%20A%20ray%20is%20shot%20for%20each%20evaluation%20direction.%0A//%09%09%09%09%09%20%20%20%20%20If%20it%20hits%20something%2C%20hitDistance%20containts%20the%20distance%20to%20the%20hit.%0A//%09%09%09%09%09%20%20%20%20%20If%20it%20doesn%27t%20hit%20anything%2C%20it%27s%20set%20to%20undefined.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20function%20for%20the%20specified%20input.%0A%0Areturn%20hitDistance%20%3F%200%20%3A%205%3B");
+										  functionGraph.convolutionFunctionStr=unescape("//%20Type%20your%20convolution%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09dx%3A%20%5BCartesian%5D%20The%20distance%20along%20the%20X%20axis%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.//%20%09dx%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20convolution%20function%20for%20the%20specified%20input.%0A%0Areturn%201-saturate%28Math.abs%28dx%29/1%29%3B");
+										  functionGraph.coordinateType=polar? 1:0;
+										  functionGraph.xAxis=new Vector(1,0);
+										  functionGraph.xMin=polar? 0:-15;
+										  functionGraph.xMax=polar? Math.PI*2:19;
+										  functionGraph.evalStep=polar? 1*Math.PI/180:0.25;
+										  functionGraph.xLabel=2;
+										  functionGraph.showXAxis=!polar;
+										  functionGraph.xLabelStep=1;
+										  functionGraph.xLabelDecimals=0;
+										  functionGraph.xGridlines=false;
+										  functionGraph.yLabel=2;
+										  functionGraph.showYAxis=true;
+										  functionGraph.yLabelStep=1;
+										  functionGraph.yLabelDecimals=0;
+										  functionGraph.yGridlines=false;
+										  functionGraph.evaluateOnMouseCursor=false;
+										  functionGraph.doConvolution=false;
+										  functionGraph.doRayCasting=true;
+										  functionGraph.yLimitMin=-5;
+										  functionGraph.yLimitMax=5;
+										  functionGraph.graphOriginLocal=new Vector(0,0);
+										  functionGraph.visible=true;
+										  functionGraph.frozen=false;
+										  functionGraph.onChange();
+										  scene.addObject(functionGraph);
+									  }
+
+									  embeddedObj.onMouseMove=function(m,mp,buttons,ctrlKey,shiftKey)
+									  {
+										  embeddedObj.setRedrawOnChange(false);
+
+										  if((buttons&1)&&shiftKey)
+										  {
+											  functionGraph.setOrigin(m);
+										  }
+
+										  embeddedObj.setRedrawOnChange(true);
+									  }
+
+									  embeddedObj.onMouseLeave=function()
+									  {
+										  embeddedObj.draw();
+									  }
+
+
+									  addControls();
+									  makeScene();
+									  embeddedObj.zoomExtents();
+								  }
+</script></pre>
+
+	A few days ago I added the Function Graph object in the <a href="https://renderdiagrams.org/editor.html" target="_blank" rel="noopener">editor</a>. While that's useful in itself, I've now added a couple of new features that allow for some interesting experiments: ray casting and convolution integrals.
+	<!--more-->
+	<h3>Ray Casting</h3>
+	At each point where the user function is to be evaluated we fire off a ray into the scene. For polar graphs the ray starts at the center of the graph and is shot along the evaluation direction. For cartesian graphs the ray starts at the evaluation point on the X axis and it's shot along the direction of the Y Axis. The results of the raycasting are made available via the '<code>hitDistance</code>' argument that is now passed to the user function. If the ray doesn't hit any scene geometry then <code>hitDistance</code> is set to <code>undefined</code>.
+
+	From a rendering perspective, the obvious use case for this functionality is to create a visibility function. Let's see an example of this. Use Shift + Mouse Drag to move the function graph around.
+
+	<div id="embeddedDrawing_visibility_example_cartesian" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
+
+	<pre style="display:none;"><script>
+								  ShowVisibilityExample("embeddedDrawing_visibility_example_cartesian");
+</script></pre>
+
+	The code for this function was simply this:
+	[code language="javascript"]
+	return hitDistance ? 0 : 5;
+	[/code]
+
+	If the <code>hitDistance</code> parameter is set to something (in this example it doesn't matter how far away the collision was) we return zero, otherwise we return 5. In other words, we're making a graph that has non-zero values whererever it's unobstructed.
+
+	Of course it makes more sense to present this as a polar graph! See how the graph changes as you move the origin around the scene (use Shift + mouse drag to move).
+
+	<div id="embeddedDrawing_visibility_example_polar" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
+
+	<pre style="display:none;"><script>
+								  ShowVisibilityExample("embeddedDrawing_visibility_example_polar",undefined,true);
+</script></pre>
+
+	Visibility graphs come up quite a lot in rendering theory and graphics programming, for example when working out ambient occlusion or sky dome visibility. Quite often though we don't just use that graph directly. We might process it in a manner that reduces it down to a single value (e.g. average visibility/obsurance) or might pre-process in a manner that makes subsequent computations simpler (e.g. convolve with a cosine lobe in preparation for lighting calculations).
+
+	<h3>Convolution Integrals</h3>
+	Wikipedia has a good page on <a href="https://en.wikipedia.org/wiki/Convolution" target="_blank" rel="noopener" title="Wikipedia link">convolution integrals</a> but I find them easier to understand in the context of 2D images. Let's work backwards a little and assume you want to blur a 2D image. As a graphics programmer you might write a pixel shader that samples a few texels around the position you're writing to, average them, and output the resulting color. You'd then run this shader over ever pixel of your target image. Intuitively, you'd understand that the wider your sampling pattern, the blurrier the resulting image would be.
+
+	Let's try and turn this into pseudo-code.
+
+	[code]
+	For each output pixel:
+		Sample a bunch of texels from image.
+		Average them.
+		Write to output.
+	[/code]
+
+	Those 'bunch of texels' aren't just anywhere in the source image though. They are in the vicinity of the pixel we're rendering. Let's amend the pseudo-code.
+
+	[code highlight=2]
+	For each output pixel p:
+		Sample all the texels that are in the vicinity of p.
+		Average them.
+		Write to output.
+	[/code]
+
+	What if we were to clarify what 'in the vicinity of p' meant? Let's express it as those texels that are within a certain distance threshold from p.
+
+	[code highlight=2]
+	For each output pixel p:
+		Sample all the texels whose distance from p is less than threshold.
+		Average them.
+		Write to output.
+	[/code]
+
+	Ok, how do we find all the texels that are within a certain distance of p? Let's pretend that performance isn't an issue and that reading every texel on the source image is free. We might then write code like this:
+
+	[code highlight=5,6]
+	For each output pixel p:
+	
+		average = 0;
+
+		For each input texel t:
+			if (distance(t,p)<=threshold)
+				average += image(t);
+
+		Average them.
+
+		Write to output.
+	[/code]
+
+	Based on the logic above we make a binary decision to either include or exclude a texel in our calculation. If it's within our distance threshold we include it, other we don't. What if we were to express that as a multiplier? We'll multiply by 1 if we want to include the texel, and by 0 if we want to exclude it.
+
+	[code highlight=7,9]
+	For each output pixel p:
+	
+		average = 0;
+
+		For each input texel t:
+			if (distance(t,p)<=threshold)
+				average += image(t) * 1;
+			else
+				average += image(t) * 0;
+
+		Average them.
+
+		Write to output.
+	[/code]
+
+	Let's start calling this mutliplier a 'weight'. Our algorithm works out the weight of each texel, i.e. how much it contributes towards that average.
+
+	[code highlight=8,10,12]
+	For each output pixel p:
+	
+		average = 0;
+
+		For each input texel t:
+			weight = 0;
+			if (distance(t,p)<=threshold)
+				weight = 1;
+			else
+				weight = 0;
+
+			average += image(t) * weight;
+
+		Average them.
+
+		Write to output.
+	[/code]
+
+	Now, let's take a look at that 'Average them' statement. The blur operation takes in contributions from many texels and produces a single color. As long as the contibution from each (participating) texel is the same, then combining them together simply means taking their average. Since participating texels have a weight of 1 and non-participating a weight of zero, then simply adding up the weights will give us the number of participating texels.
+
+	[code highlight=14,16]
+	For each output pixel p:
+	
+		average = 0;
+		totalWeight = 0;
+
+		For each input texel t:
+			weight = 0;
+			if (distance(t,p)<=threshold)
+				weight = 1;
+			else
+				weight = 0;
+
+			average += image(t) * weight;
+			totalWeight += weight;
+
+		average /= totalWeight;
+
+		Write to output.
+	[/code]
+
+	Expressing things via weight and totalWeight allows for an important mental leap. Not all contributions have to be the same. Each texel may contribute a different amount towards the final pixel. As long as we add up all the weights and divide the sum of the weighted texels by the sum of the contributions then we'll a (mathematically) correct answer. This is known as <a href="https://en.wikipedia.org/wiki/Weighted_arithmetic_mean" target="_blank" rel="noopener" title="Wikipedia link">weighted average</a>.
+
+	Let's rearrange the above pseudo-code a little to decouple the averaging process to the weight calculation.
+
+	[code highlight=1-5,13]
+	function TexelWeight(delta)
+		if (delta<=threshold)
+			return 1;
+		else
+			return 0;
+
+	For each output pixel p:
+	
+		average = 0;
+		totalWeight = 0;
+
+		For each input texel t:
+			weight = TexelWeight(distance(t,p));
+			average += image(t) * weight;
+			totalWeight += weight;
+
+		average /= totalWeight;
+
+		Write to output.
+	[/code]
+
+	The averaging process hold true regardless of the implementation of the <code>TexelWeight</code> function. We just need that function to return the contribution weight, given the distance of the texel being considered away from the pixel being rendered.
+
+	The input to the weight function is important. Rather than passing t and p, we're passing the (signed) distance between them. We'll visualize this in a bit, but this effectively means that the weight function moves/slides across the domain of the input function. Passing a distance of zero means we're asking for the contribution of the texel at the same location as the pixel we're writing to. Passing distances away from zero means we're asking for the contibution factors of the texels away from the pixel being shaded.
+
+	If we think of <code>TexelWeight</code> as more of mathematical rather than programming function, we should be able to plot its graph.
+
+
+
+</body>
+</html>
