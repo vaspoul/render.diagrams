@@ -1,4 +1,4 @@
-<html>
+﻿<html>
 <head>
 
 <script type="text/javascript" src="../lib/maths.js"></script>
@@ -20,245 +20,530 @@
 
 	<pre style="display:none;"><script>
 
-								  function ShowVisibilityExample(divName,controlsDivName,polar)
-								  {
-									  var embeddedObj=new EmbeddedDrawing(divName);
-									  var scene=embeddedObj.getScene();
-									  var camera=embeddedObj.camera;
-									  var functionGraph=undefined;
+			function ShowFilterFunctions(divName, controlsDivName, showBox, showTent, showGaussian)
+			{
+				var embeddedObj=new EmbeddedDrawing(divName);
+				var scene=embeddedObj.getScene();
+				var camera=embeddedObj.camera;
 
-									  function addControls()
-									  {
-										  if(controlsDivName==undefined)
-											  return;
+				var showBox = showBox;
+				var showTent = showTent;
+				var showGaussian = showGaussian;
 
-										  var controls=new PropertyGrid(document.getElementById(controlsDivName));
-									  }
+				function addControls()
+				{
+					if (controlsDivName == undefined)
+						return;
 
-									  function makeScene()
-									  {
-										  var w=new Wall([new Vector(-5.5,14),new Vector(-8.5,12),new Vector(-10.5,14),new Vector(-8.5,17),new Vector(-5.5,16)]);
-										  w.closed=true;
-										  w.roughness=0;
-										  w.metalness=0;
-										  w.intensity=1;
-										  w.BRDFIndex=1;
-										  w.appearance.lineWidth=1;
-										  w.appearance.lineRGB[0]=0;
-										  w.appearance.lineRGB[1]=0;
-										  w.appearance.lineRGB[2]=0;
-										  w.appearance.lineAlpha=1;
-										  w.appearance.lineDashIndex=0;
-										  w.appearance.fillRGB[0]=127;
-										  w.appearance.fillRGB[1]=127;
-										  w.appearance.fillRGB[2]=127;
-										  w.appearance.fillAlpha=0.2;
-										  w.visible=true;
-										  w.frozen=false;
-										  w.onChange();
-										  scene.addObject(w);
+					var showBoxControl = new TickBox(showBox, function (value)
+					{
+						showBox = value;
+						makeScene();
+					});
 
-										  var w=new Wall([new Vector(2.5,17),new Vector(-0.5,15),new Vector(-2.5,17),new Vector(-0.5,20),new Vector(2.5,19)]);
-										  w.closed=true;
-										  w.roughness=0;
-										  w.metalness=0;
-										  w.intensity=1;
-										  w.BRDFIndex=1;
-										  w.appearance.lineWidth=1;
-										  w.appearance.lineRGB[0]=0;
-										  w.appearance.lineRGB[1]=0;
-										  w.appearance.lineRGB[2]=0;
-										  w.appearance.lineAlpha=1;
-										  w.appearance.lineDashIndex=0;
-										  w.appearance.fillRGB[0]=127;
-										  w.appearance.fillRGB[1]=127;
-										  w.appearance.fillRGB[2]=127;
-										  w.appearance.fillAlpha=0.2;
-										  w.visible=true;
-										  w.frozen=false;
-										  w.onChange();
-										  scene.addObject(w);
+					var showTentControl = new TickBox(showTent, function (value)
+					{
+						showTent = value;
+						makeScene();
+					});
 
-										  var w=new Wall([new Vector(11,10),new Vector(8,8),new Vector(6,10),new Vector(8,13),new Vector(11,12)]);
-										  w.closed=true;
-										  w.roughness=0;
-										  w.metalness=0;
-										  w.intensity=1;
-										  w.BRDFIndex=1;
-										  w.appearance.lineWidth=1;
-										  w.appearance.lineRGB[0]=0;
-										  w.appearance.lineRGB[1]=0;
-										  w.appearance.lineRGB[2]=0;
-										  w.appearance.lineAlpha=1;
-										  w.appearance.lineDashIndex=0;
-										  w.appearance.fillRGB[0]=127;
-										  w.appearance.fillRGB[1]=127;
-										  w.appearance.fillRGB[2]=127;
-										  w.appearance.fillAlpha=0.2;
-										  w.visible=true;
-										  w.frozen=false;
-										  w.onChange();
-										  scene.addObject(w);
+					var showGaussianControl = new TickBox(showGaussian, function (value)
+					{
+						showGaussian = value;
+						makeScene();
+					});
 
-										  var w=new Wall([new Vector(-9.5,-3),new Vector(-12.5,-5),new Vector(-14.5,-3),new Vector(-12.5,0),new Vector(-9.5,-1)]);
-										  w.closed=true;
-										  w.roughness=0;
-										  w.metalness=0;
-										  w.intensity=1;
-										  w.BRDFIndex=1;
-										  w.appearance.lineWidth=1;
-										  w.appearance.lineRGB[0]=0;
-										  w.appearance.lineRGB[1]=0;
-										  w.appearance.lineRGB[2]=0;
-										  w.appearance.lineAlpha=1;
-										  w.appearance.lineDashIndex=0;
-										  w.appearance.fillRGB[0]=127;
-										  w.appearance.fillRGB[1]=127;
-										  w.appearance.fillRGB[2]=127;
-										  w.appearance.fillAlpha=0.2;
-										  w.visible=true;
-										  w.frozen=false;
-										  w.onChange();
-										  scene.addObject(w);
+					var controls = new PropertyGrid(document.getElementById(controlsDivName));
 
-										  var w=new Wall([new Vector(3,-7),new Vector(0,-9),new Vector(-2,-7),new Vector(0,-4),new Vector(3,-5)]);
-										  w.closed=true;
-										  w.roughness=0;
-										  w.metalness=0;
-										  w.intensity=1;
-										  w.BRDFIndex=1;
-										  w.appearance.lineWidth=1;
-										  w.appearance.lineRGB[0]=0;
-										  w.appearance.lineRGB[1]=0;
-										  w.appearance.lineRGB[2]=0;
-										  w.appearance.lineAlpha=1;
-										  w.appearance.lineDashIndex=0;
-										  w.appearance.fillRGB[0]=127;
-										  w.appearance.fillRGB[1]=127;
-										  w.appearance.fillRGB[2]=127;
-										  w.appearance.fillAlpha=0.2;
-										  w.visible=true;
-										  w.frozen=false;
-										  w.onChange();
-										  scene.addObject(w);
+					controls.addProperty("Show Box Filter", showBoxControl);
+					controls.addProperty("Show Tent Filter", showTentControl);
+					controls.addProperty("Show Gaussian Filter", showGaussianControl);
+				}
 
-										  var w=new Wall([new Vector(17,-2),new Vector(14,-4),new Vector(12,-2),new Vector(14,1),new Vector(17,0)]);
-										  w.closed=true;
-										  w.roughness=0;
-										  w.metalness=0;
-										  w.intensity=1;
-										  w.BRDFIndex=1;
-										  w.appearance.lineWidth=1;
-										  w.appearance.lineRGB[0]=0;
-										  w.appearance.lineRGB[1]=0;
-										  w.appearance.lineRGB[2]=0;
-										  w.appearance.lineAlpha=1;
-										  w.appearance.lineDashIndex=0;
-										  w.appearance.fillRGB[0]=127;
-										  w.appearance.fillRGB[1]=127;
-										  w.appearance.fillRGB[2]=127;
-										  w.appearance.fillAlpha=0.2;
-										  w.visible=true;
-										  w.frozen=false;
-										  w.onChange();
-										  scene.addObject(w);
+				function makeScene()
+				{
+					scene.deleteAllObjects();
 
-										  functionGraph=new FunctionGraph(new Vector(0,0));
-										  functionGraph.appearance.lineWidth=2;
-										  functionGraph.appearance.lineRGB[0]=66;
-										  functionGraph.appearance.lineRGB[1]=134;
-										  functionGraph.appearance.lineRGB[2]=244;
-										  functionGraph.appearance.lineAlpha=1;
-										  functionGraph.appearance.lineDashIndex=0;
-										  functionGraph.appearance.fillRGB[0]=255;
-										  functionGraph.appearance.fillRGB[1]=127;
-										  functionGraph.appearance.fillRGB[2]=0;
-										  functionGraph.appearance.fillAlpha=0.5;
-										  functionGraph.functionStr=unescape("//%20Type%20your%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09x%3A%20%5BCartesian%5D%20The%20value%20on%20the%20X%20axis%20on%20which%20the%20function%20needs%20to%20be%20evaluated%20at.%0A//%20%09x%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20which%20the%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20%09hitDistance%3A%20%5BCartesian%5D%20A%20ray%20is%20shot%20along%20the%20Y%20axis%2C%20starting%20at%20each%20evaluation%20position.%0A//%20%09hitDistance%3A%20%5BPolar%5D%20A%20ray%20is%20shot%20for%20each%20evaluation%20direction.%0A//%09%09%09%09%09%20%20%20%20%20If%20it%20hits%20something%2C%20hitDistance%20containts%20the%20distance%20to%20the%20hit.%0A//%09%09%09%09%09%20%20%20%20%20If%20it%20doesn%27t%20hit%20anything%2C%20it%27s%20set%20to%20undefined.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20function%20for%20the%20specified%20input.%0A%0Areturn%20hitDistance%20%3F%200%20%3A%205%3B");
-										  functionGraph.convolutionFunctionStr=unescape("//%20Type%20your%20convolution%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09dx%3A%20%5BCartesian%5D%20The%20distance%20along%20the%20X%20axis%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.//%20%09dx%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20convolution%20function%20for%20the%20specified%20input.%0A%0Areturn%201-saturate%28Math.abs%28dx%29/1%29%3B");
-										  functionGraph.coordinateType=polar? 1:0;
-										  functionGraph.xAxis=new Vector(1,0);
-										  functionGraph.xMin=polar? 0:-15;
-										  functionGraph.xMax=polar? Math.PI*2:19;
-										  functionGraph.evalStep=polar? 1*Math.PI/180:0.25;
-										  functionGraph.xLabel=2;
-										  functionGraph.showXAxis=!polar;
-										  functionGraph.xLabelStep=1;
-										  functionGraph.xLabelDecimals=0;
-										  functionGraph.xGridlines=false;
-										  functionGraph.yLabel=2;
-										  functionGraph.showYAxis=true;
-										  functionGraph.yLabelStep=1;
-										  functionGraph.yLabelDecimals=0;
-										  functionGraph.yGridlines=false;
-										  functionGraph.evaluateOnMouseCursor=false;
-										  functionGraph.doConvolution=false;
-										  functionGraph.doRayCasting=true;
-										  functionGraph.yLimitMin=-5;
-										  functionGraph.yLimitMax=5;
-										  functionGraph.graphOriginLocal=new Vector(0,0);
-										  functionGraph.visible=true;
-										  functionGraph.frozen=false;
-										  functionGraph.onChange();
-										  scene.addObject(functionGraph);
-									  }
+					if (showBox)
+					{
+						var functionGraph = new FunctionGraph(new Vector(0, 0));
+						functionGraph.appearance.lineWidth = 2;
+						functionGraph.appearance.lineRGB[0] = 66;
+						functionGraph.appearance.lineRGB[1] = 134;
+						functionGraph.appearance.lineRGB[2] = 244;
+						functionGraph.appearance.lineAlpha = 1;
+						functionGraph.appearance.lineDashIndex = 0;
+						functionGraph.appearance.fillRGB[0] = 255;
+						functionGraph.appearance.fillRGB[1] = 127;
+						functionGraph.appearance.fillRGB[2] = 0;
+						functionGraph.appearance.fillAlpha = 0.5;
+						functionGraph.functionStr = unescape("//%20Type%20your%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09x%3A%20%5BCartesian%5D%20The%20value%20on%20the%20X%20axis%20on%20which%20the%20function%20needs%20to%20be%20evaluated%20at.%0A//%20%09x%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20which%20the%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20%09hitDistance%3A%20%5BCartesian%5D%20A%20ray%20is%20shot%20along%20the%20Y%20axis%2C%20starting%20at%20each%20evaluation%20position.%0A//%20%09hitDistance%3A%20%5BPolar%5D%20A%20ray%20is%20shot%20for%20each%20evaluation%20direction.%0A//%09%09%09%09%09%20%20%20%20%20If%20it%20hits%20something%2C%20hitDistance%20containts%20the%20distance%20to%20the%20hit.%0A//%09%09%09%09%09%20%20%20%20%20If%20it%20doesn%27t%20hit%20anything%2C%20it%27s%20set%20to%20undefined.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20function%20for%20the%20specified%20input.%0A%0Areturn%20Math.abs%28x%29%3C1%20%3F%201%20%3A%200%3B");
+						functionGraph.convolutionFunctionStr = unescape("//%20Type%20your%20convolution%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09dx%3A%20%5BCartesian%5D%20The%20distance%20along%20the%20X%20axis%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.//%20%09dx%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20convolution%20function%20for%20the%20specified%20input.%0A%0Areturn%201-saturate%28Math.abs%28dx%29/1%29%3B");
+						functionGraph.coordinateType =  0;
+						functionGraph.xAxis = new Vector(1, 0);
+						functionGraph.xMin = -1.7000000000000002;
+						functionGraph.xMax = 1.7000000000000002;
+						functionGraph.evalStep = 0;
+						functionGraph.xLabel = 0;
+						functionGraph.showXAxis = true;
+						functionGraph.xLabelStep = 1;
+						functionGraph.xLabelDecimals = 0;
+						functionGraph.xGridlines = false;
+						functionGraph.yLabel = 0;
+						functionGraph.showYAxis = true;
+						functionGraph.yLabelStep = 1;
+						functionGraph.yLabelDecimals = 0;
+						functionGraph.yGridlines = false;
+						functionGraph.evaluateOnMouseCursor = false;
+						functionGraph.doConvolution = false;
+						functionGraph.doRayCasting = true;
+						functionGraph.yLimitMin = -0.1;
+						functionGraph.yLimitMax = 1.5;
+						functionGraph.graphOriginLocal = new Vector(0, 0);
+						functionGraph.visible = true;
+						functionGraph.frozen = false;
+						functionGraph.onChange();
+						scene.addObject(functionGraph);
+					}
 
-									  embeddedObj.onMouseMove=function(m,mp,buttons,ctrlKey,shiftKey)
-									  {
-										  embeddedObj.setRedrawOnChange(false);
+					if (showTent)
+					{
+						var functionGraph = new FunctionGraph(new Vector(0, 0));
+						functionGraph.appearance.lineWidth = 2;
+						functionGraph.appearance.lineRGB[0] = 66;
+						functionGraph.appearance.lineRGB[1] = 134;
+						functionGraph.appearance.lineRGB[2] = 244;
+						functionGraph.appearance.lineAlpha = 1;
+						functionGraph.appearance.lineDashIndex = 0;
+						functionGraph.appearance.fillRGB[0] = 0;
+						functionGraph.appearance.fillRGB[1] = 127;
+						functionGraph.appearance.fillRGB[2] = 255;
+						functionGraph.appearance.fillAlpha = 0.5;
+						functionGraph.functionStr = unescape("//%20Type%20your%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09x%3A%20%5BCartesian%5D%20The%20value%20on%20the%20X%20axis%20on%20which%20the%20function%20needs%20to%20be%20evaluated%20at.%0A//%20%09x%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20which%20the%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20%09hitDistance%3A%20%5BCartesian%5D%20A%20ray%20is%20shot%20along%20the%20Y%20axis%2C%20starting%20at%20each%20evaluation%20position.%0A//%20%09hitDistance%3A%20%5BPolar%5D%20A%20ray%20is%20shot%20for%20each%20evaluation%20direction.%0A//%09%09%09%09%09%20%20%20%20%20If%20it%20hits%20something%2C%20hitDistance%20containts%20the%20distance%20to%20the%20hit.%0A//%09%09%09%09%09%20%20%20%20%20If%20it%20doesn%27t%20hit%20anything%2C%20it%27s%20set%20to%20undefined.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20function%20for%20the%20specified%20input.%0A%0Areturn%20Math.max%281-Math.abs%28x/1%29%2C%200%29%3B");
+						functionGraph.convolutionFunctionStr = unescape("//%20Type%20your%20convolution%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09dx%3A%20%5BCartesian%5D%20The%20distance%20along%20the%20X%20axis%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.//%20%09dx%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20convolution%20function%20for%20the%20specified%20input.%0A%0Areturn%201-saturate%28Math.abs%28dx%29/1%29%3B");
+						functionGraph.coordinateType = 0;
+						functionGraph.xAxis = new Vector(1, 0);
+						functionGraph.xMin = -1.7000000000000002;
+						functionGraph.xMax = 1.7000000000000002;
+						functionGraph.evalStep = 0.1;
+						functionGraph.xLabel = 0;
+						functionGraph.showXAxis = true;
+						functionGraph.xLabelStep = 1;
+						functionGraph.xLabelDecimals = 0;
+						functionGraph.xGridlines = false;
+						functionGraph.yLabel = 0;
+						functionGraph.showYAxis = true;
+						functionGraph.yLabelStep = 1;
+						functionGraph.yLabelDecimals = 0;
+						functionGraph.yGridlines = false;
+						functionGraph.evaluateOnMouseCursor = false;
+						functionGraph.doConvolution = false;
+						functionGraph.doRayCasting = true;
+						functionGraph.yLimitMin = 0;
+						functionGraph.yLimitMax = 1.5;
+						functionGraph.graphOriginLocal = new Vector(0, 0);
+						functionGraph.visible = true;
+						functionGraph.frozen = false;
+						functionGraph.onChange();
+						scene.addObject(functionGraph);
+					}
 
-										  if((buttons&1)&&shiftKey)
-										  {
-											  functionGraph.setOrigin(m);
-										  }
+					if (showGaussian)
+					{
+						var functionGraph = new FunctionGraph(new Vector(0, 0));
+						functionGraph.appearance.lineWidth = 2;
+						functionGraph.appearance.lineRGB[0] = 66;
+						functionGraph.appearance.lineRGB[1] = 134;
+						functionGraph.appearance.lineRGB[2] = 244;
+						functionGraph.appearance.lineAlpha = 1;
+						functionGraph.appearance.lineDashIndex = 0;
+						functionGraph.appearance.fillRGB[0] = 0;
+						functionGraph.appearance.fillRGB[1] = 255;
+						functionGraph.appearance.fillRGB[2] = 0;
+						functionGraph.appearance.fillAlpha = 0.5;
+						functionGraph.functionStr = unescape("//%20Type%20your%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09x%3A%20%5BCartesian%5D%20The%20value%20on%20the%20X%20axis%20on%20which%20the%20function%20needs%20to%20be%20evaluated%20at.%0A//%20%09x%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20which%20the%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20%09hitDistance%3A%20%5BCartesian%5D%20A%20ray%20is%20shot%20along%20the%20Y%20axis%2C%20starting%20at%20each%20evaluation%20position.%0A//%20%09hitDistance%3A%20%5BPolar%5D%20A%20ray%20is%20shot%20for%20each%20evaluation%20direction.%0A//%09%09%09%09%09%20%20%20%20%20If%20it%20hits%20something%2C%20hitDistance%20containts%20the%20distance%20to%20the%20hit.%0A//%09%09%09%09%09%20%20%20%20%20If%20it%20doesn%27t%20hit%20anything%2C%20it%27s%20set%20to%20undefined.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20function%20for%20the%20specified%20input.%0A%0Avar%20sigma%20%3D%200.3%3B%0Avar%20sigmaSq%20%3D%20sigma*sigma%3B%0Areturn%20Math.exp%28-x*x/%282*sigmaSq%29%29");
+						functionGraph.convolutionFunctionStr = unescape("//%20Type%20your%20convolution%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09dx%3A%20%5BCartesian%5D%20The%20distance%20along%20the%20X%20axis%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.//%20%09dx%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20convolution%20function%20for%20the%20specified%20input.%0A%0Areturn%201-saturate%28Math.abs%28dx%29/1%29%3B");
+						functionGraph.coordinateType = 0;
+						functionGraph.xAxis = new Vector(1, 0);
+						functionGraph.xMin = -1.7000000000000002;
+						functionGraph.xMax = 1.7000000000000002;
+						functionGraph.evalStep = 0;
+						functionGraph.xLabel = 0;
+						functionGraph.showXAxis = true;
+						functionGraph.xLabelStep = 1;
+						functionGraph.xLabelDecimals = 0;
+						functionGraph.xGridlines = false;
+						functionGraph.yLabel = 0;
+						functionGraph.showYAxis = true;
+						functionGraph.yLabelStep = 1;
+						functionGraph.yLabelDecimals = 0;
+						functionGraph.yGridlines = false;
+						functionGraph.evaluateOnMouseCursor = false;
+						functionGraph.doConvolution = false;
+						functionGraph.doRayCasting = true;
+						functionGraph.yLimitMin = -0.2;
+						functionGraph.yLimitMax = 1.5;
+						functionGraph.graphOriginLocal = new Vector(0, 0);
+						functionGraph.visible = true;
+						functionGraph.frozen = false;
+						functionGraph.onChange();
+						scene.addObject(functionGraph);
+					}
+				}
 
-										  embeddedObj.setRedrawOnChange(true);
-									  }
+				addControls();
+				makeScene();
+				embeddedObj.zoomExtents();
+			}
 
-									  embeddedObj.onMouseLeave=function()
-									  {
-										  embeddedObj.draw();
-									  }
+			function ShowConvolutionExample(divName, controlsDivName, polar)
+			{
+				var embeddedObj=new EmbeddedDrawing(divName);
+				var scene=embeddedObj.getScene();
+				var camera=embeddedObj.camera;
 
+				var textObject = undefined;
+				var baseFunction = undefined;
+				var filterFunction = undefined;
+				var convolvedFunction = undefined;
 
-									  addControls();
-									  makeScene();
-									  embeddedObj.zoomExtents();
-								  }
+				var inputFunctionIndex = 0;
+				var filterIndex = 0;
+				var randomSeed = 1;
+
+				var xValuesRevealed;
+
+				function addControls()
+				{
+					if (controlsDivName == undefined)
+						return;
+
+					var inputFunctionControl = new Dropdown(["Square Wave", "Random"], inputFunctionIndex, function(value) { inputFunctionIndex = value; makeScene(); });
+
+					var randomSeedControl = new Slider(1, 10, randomSeed, 1, function(value) { randomSeed = value; makeScene(); });
+
+					var filterControl = new Dropdown(["Box", "Tent", "Gaussian"], filterIndex, function(value) { filterIndex = value; makeScene(); });
+
+					var controls = new PropertyGrid(document.getElementById(controlsDivName));
+
+					controls.addProperty("Base Function", inputFunctionControl);
+					controls.addProperty("Random Seed", randomSeedControl);
+					controls.addProperty("Filter Function", filterControl);
+				}
+
+				function makeScene()
+				{
+					scene.deleteAllObjects();
+
+					var baseFunctionStr;
+					var baseFunctionRevealedStr;
+					var filterFunctionStr;
+					var convolvedFunctionStr;
+
+					if (inputFunctionIndex == 1)
+					{
+						if (polar)
+						{
+							baseFunctionStr = "var result = 0; for (var power=-2; power!=8; ++power) { var cycle = Math.pow(2, power); result += Math.cos(x*8/cycle)*pseudoRandom.random(this.randomSeed) * Math.pow(1.1, power); } return result;";
+
+							baseFunctionRevealedStr = baseFunctionStr;
+						}
+						else
+						{
+							baseFunctionStr = "var result = 0; for (var power=-2; power!=8; ++power) { var cycle = Math.pow(2, power); result += Math.cos(x * Math.PI/cycle)*pseudoRandom.random(this.randomSeed) * Math.pow(1.1, power); } return result;";
+
+							baseFunctionRevealedStr = "var result = 0; for (var power=-2; power!=8; ++power) { var cycle = Math.pow(2, power); result += Math.cos(x * Math.PI/cycle)*pseudoRandom.random(this.randomSeed) * Math.pow(1.1, power); } var index = Math.round((x - this.xMin) / this.evalStep); result *= this.xValuesRevealed[index]; return result;";
+						}
+					}
+					else
+					{
+						baseFunctionStr = "return (Math.cos(x/4*Math.PI)>0)*5;"
+						baseFunctionRevealedStr = polar ? baseFunctionStr : "var index = Math.round((x - this.xMin) / this.evalStep); return (Math.cos(x/4*Math.PI)>0)*5*this.xValuesRevealed[index];"
+					}
+
+					if (filterIndex == 1)
+					{
+						filterFunctionStr = "return 1-saturate(abs(x)/1);"
+						convolvedFunctionStr = "return 1-saturate(abs(dx)/1);"
+					}
+					else if (filterIndex == 2)
+					{
+						filterFunctionStr = "var sigma = 0.3; var sigmaSq = sigma*sigma; return Math.exp(-x*x/(2*sigmaSq));"
+						convolvedFunctionStr = "var sigma = 0.3; var sigmaSq = sigma*sigma; return Math.exp(-dx*dx/(2*sigmaSq));"
+					}
+					else
+					{
+						filterFunctionStr = "return Math.abs(x)<1 ? 1 : 0;"
+						convolvedFunctionStr = "return Math.abs(dx)<1 ? 1 : 0;"
+					}
+
+					var text = new Text(new Vector(0, 12), unescape("Move%20mouse%20here%21"));
+					text.halign = "1";
+					text.valign = "1";
+					text.font = "Arial";
+					text.fontSize = 2;
+					text.appearance.lineWidth = 3;
+					text.appearance.lineRGB[0] = 255;
+					text.appearance.lineRGB[1] = 64;
+					text.appearance.lineRGB[2] = 0;
+					text.appearance.lineAlpha = 1;
+					text.appearance.lineDashIndex = 0;
+					text.appearance.fillRGB[0] = 127;
+					text.appearance.fillRGB[1] = 127;
+					text.appearance.fillRGB[2] = 127;
+					text.appearance.fillAlpha = 0;
+					text.angle = 0;
+					text.lineSpacing = 1.6;
+					text.visible = polar ? 0 : 1;
+					text.frozen = false;
+					text.maxWidth = 8.279567824469673;
+					text.totalHeight = 1.3324648539225261;
+					scene.addObject(text);
+					textObject = text;
+
+					var functionGraph = new FunctionGraph(new Vector(0, 15));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.5;
+					functionGraph.functionStr = baseFunctionStr;
+					functionGraph.convolutionFunctionStr = unescape("//%20Type%20your%20convolution%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09dx%3A%20%5BCartesian%5D%20The%20distance%20along%20the%20X%20axis%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.//%20%09dx%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20convolution%20function%20for%20the%20specified%20input.%0A%0Areturn%201-saturate%28Math.abs%28dx%29/1%29%3B");
+					functionGraph.coordinateType = polar ? 1 : 0;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = polar? 0:-11;
+					functionGraph.xMax = polar? Math.PI*2:11;
+					functionGraph.evalStep = polar ? 1 * Math.PI/180 : 0.1;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = true;
+					functionGraph.xLabelStep = polar ? 45 * Math.PI / 180 : 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = false;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = 0;
+					functionGraph.yLimitMax = 11;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.randomSeed = randomSeed;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					baseFunction = functionGraph;
+
+					var functionGraph = new FunctionGraph(new Vector(0, 11));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.5;
+					functionGraph.functionStr = filterFunctionStr;
+					functionGraph.convolutionFunctionStr = unescape("//%20Type%20your%20convolution%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09dx%3A%20%5BCartesian%5D%20The%20distance%20along%20the%20X%20axis%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.//%20%09dx%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20convolution%20function%20for%20the%20specified%20input.%0A%0Areturn%201-saturate%28Math.abs%28dx%29/1%29%3B");
+					functionGraph.coordinateType = polar ? 1 : 0;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = polar? 0:-2;
+					functionGraph.xMax = polar? Math.PI*2:2;
+					functionGraph.evalStep = 0.01;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = 0;
+					functionGraph.xLabelStep = polar ? 45 * Math.PI / 180 : 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = 0;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = false;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = 0;
+					functionGraph.yLimitMax = 1.9;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = polar ? 0 : 0;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+
+					filterFunction = functionGraph;
+
+					var functionGraph = new FunctionGraph(new Vector(0, 2));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.5;
+					functionGraph.functionStr = baseFunctionRevealedStr;
+					functionGraph.convolutionFunctionStr = convolvedFunctionStr;
+					functionGraph.coordinateType = polar ? 1 : 0;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = polar? 0:-11;
+					functionGraph.xMax = polar? Math.PI*2:11;
+					functionGraph.evalStep = polar ? 1 * Math.PI/180 : 0.1;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = true;
+					functionGraph.xLabelStep = polar ? 45 * Math.PI / 180 : 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = 0;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.randomSeed = randomSeed;
+
+					var count = Math.ceil( (functionGraph.xMax - functionGraph.xMin) / functionGraph.evalStep ) + 2;
+					xValuesRevealed = new Array(count);
+
+					for (var i=0; i!=xValuesRevealed.length; ++i)
+						xValuesRevealed[i] = 0;
+
+					functionGraph.xValuesRevealed = xValuesRevealed;
+
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+
+					convolvedFunction = functionGraph;
+				}
+
+				embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey, shiftKey)
+				{
+					if (!polar)
+					{
+						embeddedObj.setRedrawOnChange(false);
+
+						if (textObject!=undefined)
+						{
+							textObject.toggleVisibility(0);
+						}
+
+						if (filterFunction != undefined)
+						{
+							filterFunction.toggleVisibility(1);
+						}
+
+						//for (var x = m.x-0.5; x <= m.x + 0.5; x += convolvedFunction.evalStep)
+						//{
+						//	var index = Math.round((x - convolvedFunction.xMin) / convolvedFunction.evalStep); 
+						//	xValuesRevealed[index] = 1;
+						//}
+						var index = Math.round((m.x - convolvedFunction.xMin) / convolvedFunction.evalStep); 
+						xValuesRevealed[index] = 1;
+
+						//if ( buttons & 1 )
+						{
+							var p = filterFunction.getOrigin().copy();
+							p.x = m.x;
+							filterFunction.setOrigin(p);
+
+							var count = Math.round((convolvedFunction.convolutionFunctionMaxX - convolvedFunction.convolutionFunctionMinX) / camera.invScale(5));
+
+							var points = [];
+							var pointsDashed = [];
+
+							for (var i=0; i!=count; ++i)
+							{
+								var dx = lerp(convolvedFunction.convolutionFunctionMinX, convolvedFunction.convolutionFunctionMaxX, i/(count-1));
+								var x = m.x + dx;
+
+								var p0 = new Vector();
+								p0.x = x;
+								p0.y = filterFunction.getOrigin().y + filterFunction.yFunction(dx) + camera.invScale(5);
+
+								p1 = new Vector()
+								p1.x = x;
+								p1.y = baseFunction.getOrigin().y + baseFunction.yFunction(x);
+
+								if (baseFunction.yFunction(x)>0)
+								{
+									points.push(p0);
+									points.push(p1);
+								}
+								else
+								{
+									pointsDashed.push(p0);
+									pointsDashed.push(p1);
+								}
+							}
+
+							camera.drawLines(points, "#FF0000", 2);
+							camera.drawLines(pointsDashed, "rgba(255,0,0,0.3)", 2);
+
+							var p = new Vector();
+							p.x = m.x;
+							p.y = 0.5 * (filterFunction.getOrigin().y + baseFunction.getOrigin().y);
+							camera.drawText(p, "×", "#000000", "center");
+
+							var p0 = new Vector();
+							p0.x = m.x
+							p0.y = filterFunction.getOrigin().y - camera.invScale(10);
+
+							var p1 = new Vector();
+							p1.x = p0.x;
+							p1.y = convolvedFunction.getOrigin().y + convolvedFunction.graphFunction(p1.x);
+
+							var radius = 0.5 * (convolvedFunction.convolutionFunctionMaxX - convolvedFunction.convolutionFunctionMinX);
+							camera.drawArc(p0, radius, Math.PI, Math.PI*2, "#FF0000", 2);
+							camera.drawArc(p1, camera.invScale(5), 0, Math.PI*2, "#008000", 2);
+							camera.drawArrow(add(p0, new Vector(0, -radius)), add(p1, new Vector(0, -camera.invScale(2))), 8, "#FF0000", 2);
+							camera.drawText(add(p0, new Vector(0, -0.5*radius)), "Σ", "#000000", "center");
+						}
+
+						embeddedObj.setRedrawOnChange(true);
+					}
+
+					return true;
+				}
+
+				embeddedObj.onFrameTick = function(deltaTime_ms, accumulatedTime_ms)
+				{
+					if (textObject.isVisible())
+					{
+						textObject.fontSize = lerp(2, 2.2, (Math.sin(accumulatedTime_ms / 1000 * Math.PI * 2) * 0.5 + 0.5));
+						textObject.onChange();
+					}
+				}
+
+				addControls();
+				makeScene();
+				embeddedObj.zoomExtents();
+			}
+
 </script></pre>
 
-	A few days ago I added the Function Graph object in the <a href="https://renderdiagrams.org/editor.html" target="_blank" rel="noopener">editor</a>. While that's useful in itself, I've now added a couple of new features that allow for some interesting experiments: ray casting and convolution integrals.
+	I recently added support for convolution integrals on the Function Graph object in the <a href="https://renderdiagrams.org/editor.html" target="_blank" rel="noopener">editor</a>. I thought I'd take the opportunity to write a quick introduction on the topic and present a few interactive diagrams. As with previous posts this is not meant to be a complete teaching resource on convolution integrals. There are many excellent resources out there already. It's just another take on them with some, hopefully interesting, diagrams.
 	<!--more-->
-	<h3>Ray Casting</h3>
-	At each point where the user function is to be evaluated we fire off a ray into the scene. For polar graphs the ray starts at the center of the graph and is shot along the evaluation direction. For cartesian graphs the ray starts at the evaluation point on the X axis and it's shot along the direction of the Y Axis. The results of the raycasting are made available via the '<code>hitDistance</code>' argument that is now passed to the user function. If the ray doesn't hit any scene geometry then <code>hitDistance</code> is set to <code>undefined</code>.
 
-	From a rendering perspective, the obvious use case for this functionality is to create a visibility function. Let's see an example of this. Use Shift + Mouse Drag to move the function graph around.
-
-	<div id="embeddedDrawing_visibility_example_cartesian" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
-
-	<pre style="display:none;"><script>
-								  ShowVisibilityExample("embeddedDrawing_visibility_example_cartesian");
-</script></pre>
-
-	The code for this function was simply this:
-	[code language="javascript"]
-	return hitDistance ? 0 : 5;
-	[/code]
-
-	If the <code>hitDistance</code> parameter is set to something (in this example it doesn't matter how far away the collision was) we return zero, otherwise we return 5. In other words, we're making a graph that has non-zero values whererever it's unobstructed.
-
-	Of course it makes more sense to present this as a polar graph! See how the graph changes as you move the origin around the scene (use Shift + mouse drag to move).
-
-	<div id="embeddedDrawing_visibility_example_polar" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
-
-	<pre style="display:none;"><script>
-								  ShowVisibilityExample("embeddedDrawing_visibility_example_polar",undefined,true);
-</script></pre>
-
-	Visibility graphs come up quite a lot in rendering theory and graphics programming, for example when working out ambient occlusion or sky dome visibility. Quite often though we don't just use that graph directly. We might process it in a manner that reduces it down to a single value (e.g. average visibility/obsurance) or might pre-process in a manner that makes subsequent computations simpler (e.g. convolve with a cosine lobe in preparation for lighting calculations).
-
-	<h3>Convolution Integrals</h3>
-	Wikipedia has a good page on <a href="https://en.wikipedia.org/wiki/Convolution" target="_blank" rel="noopener" title="Wikipedia link">convolution integrals</a> but I find them easier to understand in the context of 2D images. Let's work backwards a little and assume you want to blur a 2D image. As a graphics programmer you might write a pixel shader that samples a few texels around the position you're writing to, average them, and output the resulting color. You'd then run this shader over ever pixel of your target image. Intuitively, you'd understand that the wider your sampling pattern, the blurrier the resulting image would be.
+	Wikipedia has a good page on <a href="https://en.wikipedia.org/wiki/Convolution" target="_blank" rel="noopener" title="Wikipedia link">convolution integrals</a> which covers some of their mathematical background. I personally found that I understand them much better in the context of 2D images. Let's work backwards a little and assume you want to blur a 2D image. As a graphics programmer you might write a pixel shader that samples a few texels around the position you're writing to, average them, and output the resulting color. You'd then run this shader over ever pixel of your target image. Intuitively, you'd understand that the wider your sampling pattern, the blurrier the resulting image would be.
 
 	Let's try and turn this into pseudo-code.
 
@@ -266,8 +551,7 @@
 	For each output pixel:
 		Sample a bunch of texels from image.
 		Average them.
-		Write to output.
-	[/code]
+		Write to output.[/code]
 
 	Those 'bunch of texels' aren't just anywhere in the source image though. They are in the vicinity of the pixel we're rendering. Let's amend the pseudo-code.
 
@@ -275,8 +559,7 @@
 	For each output pixel p:
 		Sample all the texels that are in the vicinity of p.
 		Average them.
-		Write to output.
-	[/code]
+		Write to output.[/code]
 
 	What if we were to clarify what 'in the vicinity of p' meant? Let's express it as those texels that are within a certain distance threshold from p.
 
@@ -284,8 +567,7 @@
 	For each output pixel p:
 		Sample all the texels whose distance from p is less than threshold.
 		Average them.
-		Write to output.
-	[/code]
+		Write to output.[/code]
 
 	Ok, how do we find all the texels that are within a certain distance of p? Let's pretend that performance isn't an issue and that reading every texel on the source image is free. We might then write code like this:
 
@@ -300,8 +582,7 @@
 
 		Average them.
 
-		Write to output.
-	[/code]
+		Write to output.[/code]
 
 	Based on the logic above we make a binary decision to either include or exclude a texel in our calculation. If it's within our distance threshold we include it, other we don't. What if we were to express that as a multiplier? We'll multiply by 1 if we want to include the texel, and by 0 if we want to exclude it.
 
@@ -318,8 +599,7 @@
 
 		Average them.
 
-		Write to output.
-	[/code]
+		Write to output.[/code]
 
 	Let's start calling this mutliplier a 'weight'. Our algorithm works out the weight of each texel, i.e. how much it contributes towards that average.
 
@@ -339,8 +619,7 @@
 
 		Average them.
 
-		Write to output.
-	[/code]
+		Write to output.[/code]
 
 	Now, let's take a look at that 'Average them' statement. The blur operation takes in contributions from many texels and produces a single color. As long as the contibution from each (participating) texel is the same, then combining them together simply means taking their average. Since participating texels have a weight of 1 and non-participating a weight of zero, then simply adding up the weights will give us the number of participating texels.
 
@@ -362,8 +641,7 @@
 
 		average /= totalWeight;
 
-		Write to output.
-	[/code]
+		Write to output.[/code]
 
 	Expressing things via weight and totalWeight allows for an important mental leap. Not all contributions have to be the same. Each texel may contribute a different amount towards the final pixel. As long as we add up all the weights and divide the sum of the weighted texels by the sum of the contributions then we'll a (mathematically) correct answer. This is known as <a href="https://en.wikipedia.org/wiki/Weighted_arithmetic_mean" target="_blank" rel="noopener" title="Wikipedia link">weighted average</a>.
 
@@ -388,8 +666,7 @@
 
 		average /= totalWeight;
 
-		Write to output.
-	[/code]
+		Write to output.[/code]
 
 	The averaging process hold true regardless of the implementation of the <code>TexelWeight</code> function. We just need that function to return the contribution weight, given the distance of the texel being considered away from the pixel being rendered.
 
@@ -397,7 +674,62 @@
 
 	If we think of <code>TexelWeight</code> as more of mathematical rather than programming function, we should be able to plot its graph.
 
+	We can do this in the editor. Just add a Function Graph object and set the function code to this:
+	(or just right click on the diagram area and select Edit Local Copy!)
 
+	[code language="javascript"]
+	return Math.abs(x)<1 ? 1 : 0;[/code]
+
+	<div id="embeddedDrawing_filter_function_box" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
+
+	<pre style="display:none;"><script>
+	ShowFilterFunctions("embeddedDrawing_filter_function_box", undefined, true, false, false, false);
+	</script></pre>
+
+	This type of filtering function is called a box filter and it's characterised by the fact that all contributing samples have the same weight, i.e. it's a straight average. Note that in the above formulation we normalize the sum by dividing by the sum of the weights. You'll often see filtering functions (or 'kernels') where the weights have already been normalised so that they add up to 1.
+
+	The Box, Tent, and Gaussian filters are three of the most commonly used filters.
+
+	<div id="controls_filter_functions" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_filter_functions" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
+
+	<pre style="display:none;"><script>
+		ShowFilterFunctions("embeddedDrawing_filter_functions", "controls_filter_functions", false, true, false, false);
+	</script></pre>
+
+	Notice how all these filtering functions are centered around the x=0 axis. That's because the filtering function is applied over the entire range where the base function is defined, 'grabbing' nearby values and doing a weighted average to produce a set of output values. 
+	
+	Let's see this in action! On the diagram below we have the base function at the top, the filtering function in the middle and the convolution integral at the bottom row. The convolution process 'fetches' values from the base function, multiplies each value by the value of the filter function and finally adds all these results together. This process happens once for each point on the resulting function. Notice how the filter function 'slides' across the range of the base function, combining multiple input values into a single output.
+
+	<div id="embeddedDrawing_convolution_example" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
+
+	<pre style="display:none;"><script>
+		ShowConvolutionExample("embeddedDrawing_convolution_example", undefined);
+	</script></pre>
+
+	I'll close things off with some more examples.
+
+	<div id="controls_convolution_examples_random" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_convolution_examples_random" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
+
+	<pre style="display:none;"><script>
+		ShowConvolutionExample("embeddedDrawing_convolution_examples_random", "controls_convolution_examples_random", false);
+	</script></pre>
+
+	Polar Graphs
+
+	<div id="controls_convolution_examples_random_polar" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_convolution_examples_random_polar" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
+
+	<pre style="display:none;"><script>
+		ShowConvolutionExample("embeddedDrawing_convolution_examples_random_polar", "controls_convolution_examples_random_polar", true);
+	</script></pre>
+
+	Random function + convolution + vary width of conv func
+
+	https://renderdiagrams.org/2018/01/05/indirect-illumination-using-cubemaps/
+	For a more practical example of how convolution integrals can be used in computer graphics check out the post on cubemap filtering!
 
 </body>
+
 </html>
