@@ -196,7 +196,7 @@
 				embeddedObj.zoomExtents();
 			}
 
-			function ShowConvolutionExample(divName, controlsDivName, polar)
+			function ShowConvolutionExample(divName, controlsDivName, defaultFunction, polar)
 			{
 				var embeddedObj=new EmbeddedDrawing(divName);
 				var scene=embeddedObj.getScene();
@@ -207,10 +207,12 @@
 				var filterFunction = undefined;
 				var convolvedFunction = undefined;
 
-				var inputFunctionIndex = 0;
+				var inputFunctionIndex = defaultFunction;
 				var filterIndex = 0;
+				var filterWidth = 1;
 				var randomSeed = 1;
 
+				var interactiveReveal = true;
 				var xValuesRevealed;
 
 				function addControls()
@@ -224,11 +226,17 @@
 
 					var filterControl = new Dropdown(["Box", "Tent", "Gaussian"], filterIndex, function(value) { filterIndex = value; makeScene(); });
 
+					var filterWidthControl = new Slider(1, 5, filterWidth, 1, function(value) { filterWidth = value; makeScene(); });
+
+					var interactiveControl = new TickBox(interactiveReveal, function (value) { interactiveReveal = value; makeScene(); });
+
 					var controls = new PropertyGrid(document.getElementById(controlsDivName));
 
 					controls.addProperty("Base Function", inputFunctionControl);
 					controls.addProperty("Random Seed", randomSeedControl);
 					controls.addProperty("Filter Function", filterControl);
+					controls.addProperty("Filter Width", filterWidthControl);
+					if (!polar) controls.addProperty("Interactive graph calculation", interactiveControl);
 				}
 
 				function makeScene()
@@ -244,37 +252,37 @@
 					{
 						if (polar)
 						{
-							baseFunctionStr = "var result = 0; for (var power=-2; power!=8; ++power) { var cycle = Math.pow(2, power); result += Math.cos(x*8/cycle)*pseudoRandom.random(this.randomSeed) * Math.pow(1.1, power); } return result;";
+							baseFunctionStr = "var result = 0; for (var power=-2; power!=8; ++power) { var cycle = Math.pow(2, power); result += Math.cos(x*8/cycle) * pseudoRandom.random(this.randomSeed + x + power) * Math.pow(1.1, power); } return result;";
 
 							baseFunctionRevealedStr = baseFunctionStr;
 						}
 						else
 						{
-							baseFunctionStr = "var result = 0; for (var power=-2; power!=8; ++power) { var cycle = Math.pow(2, power); result += Math.cos(x * Math.PI/cycle)*pseudoRandom.random(this.randomSeed) * Math.pow(1.1, power); } return result;";
+							baseFunctionStr = "var result = 0; for (var power=-2; power!=8; ++power) { var cycle = Math.pow(2, power); result += Math.cos(x * Math.PI/cycle) * pseudoRandom.random(this.randomSeed + x + power) * Math.pow(1.1, power); } return result;";
 
-							baseFunctionRevealedStr = "var result = 0; for (var power=-2; power!=8; ++power) { var cycle = Math.pow(2, power); result += Math.cos(x * Math.PI/cycle)*pseudoRandom.random(this.randomSeed) * Math.pow(1.1, power); } var index = Math.round((x - this.xMin) / this.evalStep); result *= this.xValuesRevealed[index]; return result;";
+							baseFunctionRevealedStr = "var result = 0; for (var power=-2; power!=8; ++power) { var cycle = Math.pow(2, power); result += Math.cos(x * Math.PI/cycle) * pseudoRandom.random(this.randomSeed + x + power) * Math.pow(1.1, power); } var index = Math.round((baseX - this.xMin) / this.evalStep); result *= this.xValuesRevealed[index]; return result;";
 						}
 					}
 					else
 					{
 						baseFunctionStr = "return (Math.cos(x/4*Math.PI)>0)*5;"
-						baseFunctionRevealedStr = polar ? baseFunctionStr : "var index = Math.round((x - this.xMin) / this.evalStep); return (Math.cos(x/4*Math.PI)>0)*5*this.xValuesRevealed[index];"
+						baseFunctionRevealedStr = polar ? baseFunctionStr : "var index = Math.round((baseX - this.xMin) / this.evalStep); return (Math.cos(x/4*Math.PI)>0)*5*this.xValuesRevealed[index];"
 					}
 
 					if (filterIndex == 1)
 					{
-						filterFunctionStr = "return 1-saturate(abs(x)/1);"
-						convolvedFunctionStr = "return 1-saturate(abs(dx)/1);"
+						filterFunctionStr = "return 1-saturate(abs(x)/" + filterWidth + ");"
+						convolvedFunctionStr = "return 1-saturate(abs(dx)/" + filterWidth + ");"
 					}
 					else if (filterIndex == 2)
 					{
-						filterFunctionStr = "var sigma = 0.3; var sigmaSq = sigma*sigma; return Math.exp(-x*x/(2*sigmaSq));"
-						convolvedFunctionStr = "var sigma = 0.3; var sigmaSq = sigma*sigma; return Math.exp(-dx*dx/(2*sigmaSq));"
+						filterFunctionStr = "var sigma = 0.3 * " + filterWidth + "; var sigmaSq = sigma*sigma; return Math.exp(-x*x/(2*sigmaSq));"
+						convolvedFunctionStr = "var sigma = 0.3 * " + filterWidth + "; var sigmaSq = sigma*sigma; return Math.exp(-dx*dx/(2*sigmaSq));"
 					}
 					else
 					{
-						filterFunctionStr = "return Math.abs(x)<1 ? 1 : 0;"
-						convolvedFunctionStr = "return Math.abs(dx)<1 ? 1 : 0;"
+						filterFunctionStr = "return Math.abs(x)<" + filterWidth + " ? 1 : 0;"
+						convolvedFunctionStr = "return Math.abs(dx)<" + filterWidth + " ? 1 : 0;"
 					}
 
 					var text = new Text(new Vector(0, 12), unescape("Move%20mouse%20here%21"));
@@ -357,8 +365,8 @@
 					functionGraph.convolutionFunctionStr = unescape("//%20Type%20your%20convolution%20function%20here%2C%20using%20valid%20JavaScript.%0A//%0A//%20Parameters%3A%0A//%20%09dx%3A%20%5BCartesian%5D%20The%20distance%20along%20the%20X%20axis%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.//%20%09dx%3A%20%5BPolar%5D%20The%20angle%2C%20in%20radians%2C%20from%20the%20center%20value%20that%20the%20convolution%20function%20needs%20to%20be%20evaluated%20at.%0A//%0A//%20Expected%20Return%3A%0A//%20%09A%20single%20number%20%28scalar%20float%29%20that%20is%20the%20evalution%20of%20the%20convolution%20function%20for%20the%20specified%20input.%0A%0Areturn%201-saturate%28Math.abs%28dx%29/1%29%3B");
 					functionGraph.coordinateType = polar ? 1 : 0;
 					functionGraph.xAxis = new Vector(1, 0);
-					functionGraph.xMin = polar? 0:-2;
-					functionGraph.xMax = polar? Math.PI*2:2;
+					functionGraph.xMin = polar? 0:-filterWidth;
+					functionGraph.xMax = polar? Math.PI*2:filterWidth;
 					functionGraph.evalStep = 0.01;
 					functionGraph.xLabel = 2;
 					functionGraph.showXAxis = 0;
@@ -400,7 +408,7 @@
 					functionGraph.xAxis = new Vector(1, 0);
 					functionGraph.xMin = polar? 0:-11;
 					functionGraph.xMax = polar? Math.PI*2:11;
-					functionGraph.evalStep = polar ? 1 * Math.PI/180 : 0.1;
+					functionGraph.evalStep = polar ? 2 * Math.PI/180 : 0.1;
 					functionGraph.xLabel = 2;
 					functionGraph.showXAxis = true;
 					functionGraph.xLabelStep = polar ? 45 * Math.PI / 180 : 1;
@@ -420,12 +428,13 @@
 					functionGraph.visible = true;
 					functionGraph.frozen = false;
 					functionGraph.randomSeed = randomSeed;
+					functionGraph.useCache = false;
 
 					var count = Math.ceil( (functionGraph.xMax - functionGraph.xMin) / functionGraph.evalStep ) + 2;
 					xValuesRevealed = new Array(count);
 
 					for (var i=0; i!=xValuesRevealed.length; ++i)
-						xValuesRevealed[i] = 0;
+						xValuesRevealed[i] = interactiveReveal ? 0 : 1;
 
 					functionGraph.xValuesRevealed = xValuesRevealed;
 
@@ -451,13 +460,12 @@
 							filterFunction.toggleVisibility(1);
 						}
 
-						//for (var x = m.x-0.5; x <= m.x + 0.5; x += convolvedFunction.evalStep)
-						//{
-						//	var index = Math.round((x - convolvedFunction.xMin) / convolvedFunction.evalStep); 
-						//	xValuesRevealed[index] = 1;
-						//}
-						var index = Math.round((m.x - convolvedFunction.xMin) / convolvedFunction.evalStep); 
-						xValuesRevealed[index] = 1;
+						var delta = camera.invScale(3);
+						for (var dx=-delta; dx<=delta; dx += convolvedFunction.evalStep)
+						{
+							var index = Math.round((m.x + dx - convolvedFunction.xMin) / convolvedFunction.evalStep); 
+							xValuesRevealed[index] = 1;
+						}
 
 						//if ( buttons & 1 )
 						{
@@ -504,24 +512,44 @@
 							camera.drawText(p, "×", "#000000", "center");
 
 							var p0 = new Vector();
-							p0.x = m.x
-							p0.y = filterFunction.getOrigin().y - camera.invScale(10);
+							p0.x = Math.round(m.x / convolvedFunction.evalStep) * convolvedFunction.evalStep;
+							p0.y = filterFunction.getOrigin().y - camera.invScale(2);
 
 							var p1 = new Vector();
 							p1.x = p0.x;
 							p1.y = convolvedFunction.getOrigin().y + convolvedFunction.graphFunction(p1.x);
 
 							var radius = 0.5 * (convolvedFunction.convolutionFunctionMaxX - convolvedFunction.convolutionFunctionMinX);
-							camera.drawArc(p0, radius, Math.PI, Math.PI*2, "#FF0000", 2);
+
+							camera.drawLine(	add(p0, new Vector(-radius, 0)), 
+												add(p0, new Vector(-radius + camera.invScale(10), -camera.invScale(15))), "#FF0000", 2);
+
+							camera.drawLine(	add(p0, new Vector(+radius, 0)), 
+												add(p0, new Vector(+radius - camera.invScale(10), -camera.invScale(15))), "#FF0000", 2);
+
+							camera.drawLine(	add(p0, new Vector(-radius + camera.invScale(10), -camera.invScale(15))),
+												add(p0, new Vector(+radius - camera.invScale(10), -camera.invScale(15))), "#FF0000", 2);
+
+							camera.drawText(add(p0, new Vector(0, -0.5*camera.invScale(15))), "Σ", "#000000", "center");
+
+							camera.drawArrow(add(p0, new Vector(0, -camera.invScale(15))), p1, 8, "#FF0000", 2);
 							camera.drawArc(p1, camera.invScale(5), 0, Math.PI*2, "#008000", 2);
-							camera.drawArrow(add(p0, new Vector(0, -radius)), add(p1, new Vector(0, -camera.invScale(2))), 8, "#FF0000", 2);
-							camera.drawText(add(p0, new Vector(0, -0.5*radius)), "Σ", "#000000", "center");
 						}
 
 						embeddedObj.setRedrawOnChange(true);
 					}
 
 					return true;
+				}
+
+				embeddedObj.onMouseLeave = function()
+				{
+					if (filterFunction != undefined)
+					{
+						filterFunction.toggleVisibility(0);
+					}
+
+					embeddedObj.draw();
 				}
 
 				embeddedObj.onFrameTick = function(deltaTime_ms, accumulatedTime_ms)
@@ -704,7 +732,7 @@
 	<div id="embeddedDrawing_convolution_example" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
-		ShowConvolutionExample("embeddedDrawing_convolution_example", undefined);
+		ShowConvolutionExample("embeddedDrawing_convolution_example", undefined, 0);
 	</script></pre>
 
 	I'll close things off with some more examples.
@@ -713,21 +741,18 @@
 	<div id="embeddedDrawing_convolution_examples_random" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
-		ShowConvolutionExample("embeddedDrawing_convolution_examples_random", "controls_convolution_examples_random", false);
+		ShowConvolutionExample("embeddedDrawing_convolution_examples_random", "controls_convolution_examples_random", 1, false);
 	</script></pre>
 
-	Polar Graphs
+	All this of course applies to polar graphs as well where things are more interesting and more relevant to graphics programming.
 
 	<div id="controls_convolution_examples_random_polar" style="width: 70%; margin:0 auto;"></div>
 	<div id="embeddedDrawing_convolution_examples_random_polar" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
 	<pre style="display:none;"><script>
-		ShowConvolutionExample("embeddedDrawing_convolution_examples_random_polar", "controls_convolution_examples_random_polar", true);
+		ShowConvolutionExample("embeddedDrawing_convolution_examples_random_polar", "controls_convolution_examples_random_polar", 1, true);
 	</script></pre>
 
-	Random function + convolution + vary width of conv func
-
-	https://renderdiagrams.org/2018/01/05/indirect-illumination-using-cubemaps/
 	For a more practical example of how convolution integrals can be used in computer graphics check out the post on cubemap filtering!
 
 </body>
