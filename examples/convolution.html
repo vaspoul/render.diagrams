@@ -302,7 +302,7 @@
 					text.appearance.fillAlpha = 0;
 					text.angle = 0;
 					text.lineSpacing = 1.6;
-					text.visible = polar ? 0 : 1;
+					text.visible = polar || !interactiveReveal ? 0 : 1;
 					text.frozen = false;
 					text.maxWidth = 8.279567824469673;
 					text.totalHeight = 1.3324648539225261;
@@ -326,7 +326,7 @@
 					functionGraph.xAxis = new Vector(1, 0);
 					functionGraph.xMin = polar? 0:-11;
 					functionGraph.xMax = polar? Math.PI*2:11;
-					functionGraph.evalStep = polar ? 1 * Math.PI/180 : 0.1;
+					functionGraph.evalStep = polar ? 1 * Math.PI/180 : camera.invScale(2);//0.1;
 					functionGraph.xLabel = 2;
 					functionGraph.showXAxis = true;
 					functionGraph.xLabelStep = polar ? 45 * Math.PI / 180 : 1;
@@ -346,6 +346,7 @@
 					functionGraph.visible = true;
 					functionGraph.frozen = false;
 					functionGraph.randomSeed = randomSeed;
+					//functionGraph.useCache = false;
 					functionGraph.onChange();
 					scene.addObject(functionGraph);
 					baseFunction = functionGraph;
@@ -386,6 +387,7 @@
 					functionGraph.graphOriginLocal = new Vector(0, 0);
 					functionGraph.visible = polar ? 0 : 0;
 					functionGraph.frozen = false;
+					//functionGraph.useCache = false;
 					functionGraph.onChange();
 					scene.addObject(functionGraph);
 
@@ -460,80 +462,108 @@
 							filterFunction.toggleVisibility(1);
 						}
 
-						var delta = camera.invScale(3);
-						for (var dx=-delta; dx<=delta; dx += convolvedFunction.evalStep)
+						var filterGraphX = m.x;
+
+						if (filterFunction != undefined)
 						{
-							var index = Math.round((m.x + dx - convolvedFunction.xMin) / convolvedFunction.evalStep); 
-							xValuesRevealed[index] = 1;
+							filterGraphX = filterFunction.getOrigin().x;
 						}
 
-						//if ( buttons & 1 )
+						// Update visible part of convolution graph
+						if (interactiveReveal)
+						{
+							var delta = camera.invScale(4);
+							for (var dx=-delta; dx<=delta; dx += convolvedFunction.evalStep)
+							{
+								var index = Math.round((filterGraphX + dx - convolvedFunction.xMin) / convolvedFunction.evalStep); 
+								xValuesRevealed[index] = 1;
+							}
+						}	
+
+						// Debug lines
+						{
+							// From filter graph to base graph
+							{
+								var count = Math.round((convolvedFunction.convolutionFunctionMaxX - convolvedFunction.convolutionFunctionMinX) / camera.invScale(5));
+
+								var points = [];
+								var pointsDashed = [];
+
+								for (var i=0; i!=count; ++i)
+								{
+									var dx = lerp(convolvedFunction.convolutionFunctionMinX, convolvedFunction.convolutionFunctionMaxX, i/(count-1));
+
+									dx = Math.round(dx / filterFunction.evalStep) * filterFunction.evalStep;
+
+									var x = filterGraphX + dx;
+
+									x = Math.round(x / baseFunction.evalStep) * baseFunction.evalStep;
+
+									var p0 = new Vector();
+									p0.x = x;
+									p0.y = filterFunction.getOrigin().y + filterFunction.yFunction(dx) + camera.invScale(5);
+
+									p1 = new Vector()
+									p1.x = x;
+									p1.y = baseFunction.getOrigin().y + baseFunction.yFunction(x);
+
+									if (baseFunction.yFunction(x)>0)
+									{
+										points.push(p0);
+										points.push(p1);
+									}
+									else
+									{
+										pointsDashed.push(p0);
+										pointsDashed.push(p1);
+									}
+								}
+
+								camera.drawLines(points, "#FF0000", 2);
+								camera.drawLines(pointsDashed, "rgba(255,0,0,0.3)", 2);
+							}
+
+							// From filter to convolution graph
+							{
+								var p = new Vector();
+								p.x = filterGraphX;
+								p.y = 0.5 * (filterFunction.getOrigin().y + baseFunction.getOrigin().y);
+								camera.drawText(p, "×", "#000000", "center");
+
+								var p0 = new Vector();
+								p0.x = Math.round(filterGraphX / convolvedFunction.evalStep) * convolvedFunction.evalStep;
+								p0.y = filterFunction.getOrigin().y - camera.invScale(2);
+
+								var p1 = new Vector();
+								p1.x = p0.x;
+								p1.y = convolvedFunction.getOrigin().y + convolvedFunction.graphFunction(p1.x);
+
+								var radius = 0.5 * (convolvedFunction.convolutionFunctionMaxX - convolvedFunction.convolutionFunctionMinX);
+
+								camera.drawLine(	add(p0, new Vector(-radius, 0)), 
+													add(p0, new Vector(-radius + camera.invScale(10), -camera.invScale(15))), "#FF0000", 2);
+
+								camera.drawLine(	add(p0, new Vector(+radius, 0)), 
+													add(p0, new Vector(+radius - camera.invScale(10), -camera.invScale(15))), "#FF0000", 2);
+
+								camera.drawLine(	add(p0, new Vector(-radius + camera.invScale(10), -camera.invScale(15))),
+													add(p0, new Vector(+radius - camera.invScale(10), -camera.invScale(15))), "#FF0000", 2);
+
+								camera.drawText(add(p0, new Vector(0, -camera.invScale(12))), "Σ", "#000000", "center");
+
+								camera.drawArrow(add(p0, new Vector(0, -camera.invScale(15))), p1, 8, "#FF0000", 2);
+								camera.drawArc(p1, camera.invScale(5), 0, Math.PI*2, "#008000", 2);
+							}
+						}
+
+						// Update filter graph position
 						{
 							var p = filterFunction.getOrigin().copy();
 							p.x = m.x;
+
+							p.x = Math.round(p.x / baseFunction.evalStep) * baseFunction.evalStep;
+
 							filterFunction.setOrigin(p);
-
-							var count = Math.round((convolvedFunction.convolutionFunctionMaxX - convolvedFunction.convolutionFunctionMinX) / camera.invScale(5));
-
-							var points = [];
-							var pointsDashed = [];
-
-							for (var i=0; i!=count; ++i)
-							{
-								var dx = lerp(convolvedFunction.convolutionFunctionMinX, convolvedFunction.convolutionFunctionMaxX, i/(count-1));
-								var x = m.x + dx;
-
-								var p0 = new Vector();
-								p0.x = x;
-								p0.y = filterFunction.getOrigin().y + filterFunction.yFunction(dx) + camera.invScale(5);
-
-								p1 = new Vector()
-								p1.x = x;
-								p1.y = baseFunction.getOrigin().y + baseFunction.yFunction(x);
-
-								if (baseFunction.yFunction(x)>0)
-								{
-									points.push(p0);
-									points.push(p1);
-								}
-								else
-								{
-									pointsDashed.push(p0);
-									pointsDashed.push(p1);
-								}
-							}
-
-							camera.drawLines(points, "#FF0000", 2);
-							camera.drawLines(pointsDashed, "rgba(255,0,0,0.3)", 2);
-
-							var p = new Vector();
-							p.x = m.x;
-							p.y = 0.5 * (filterFunction.getOrigin().y + baseFunction.getOrigin().y);
-							camera.drawText(p, "×", "#000000", "center");
-
-							var p0 = new Vector();
-							p0.x = Math.round(m.x / convolvedFunction.evalStep) * convolvedFunction.evalStep;
-							p0.y = filterFunction.getOrigin().y - camera.invScale(2);
-
-							var p1 = new Vector();
-							p1.x = p0.x;
-							p1.y = convolvedFunction.getOrigin().y + convolvedFunction.graphFunction(p1.x);
-
-							var radius = 0.5 * (convolvedFunction.convolutionFunctionMaxX - convolvedFunction.convolutionFunctionMinX);
-
-							camera.drawLine(	add(p0, new Vector(-radius, 0)), 
-												add(p0, new Vector(-radius + camera.invScale(10), -camera.invScale(15))), "#FF0000", 2);
-
-							camera.drawLine(	add(p0, new Vector(+radius, 0)), 
-												add(p0, new Vector(+radius - camera.invScale(10), -camera.invScale(15))), "#FF0000", 2);
-
-							camera.drawLine(	add(p0, new Vector(-radius + camera.invScale(10), -camera.invScale(15))),
-												add(p0, new Vector(+radius - camera.invScale(10), -camera.invScale(15))), "#FF0000", 2);
-
-							camera.drawText(add(p0, new Vector(0, -0.5*camera.invScale(15))), "Σ", "#000000", "center");
-
-							camera.drawArrow(add(p0, new Vector(0, -camera.invScale(15))), p1, 8, "#FF0000", 2);
-							camera.drawArc(p1, camera.invScale(5), 0, Math.PI*2, "#008000", 2);
 						}
 
 						embeddedObj.setRedrawOnChange(true);
@@ -568,8 +598,10 @@
 
 </script></pre>
 
-	I recently added support for convolution integrals on the Function Graph object in the <a href="https://renderdiagrams.org/editor.html" target="_blank" rel="noopener">editor</a>. I thought I'd take the opportunity to write a quick introduction on the topic and present a few interactive diagrams. As with previous posts this is not meant to be a complete teaching resource on convolution integrals. There are many excellent resources out there already. It's just another take on them with some, hopefully interesting, diagrams.
+	I recently added support for convolution integrals on the Function Graph object in the <a href="https://renderdiagrams.org/editor.html" target="_blank" rel="noopener">editor</a>. I thought I'd take the opportunity to write a quick introduction on the topic and present a few interactive diagrams. As with previous posts, this is not meant to be a complete teaching resource on convolution integrals. There are many excellent resources out there already! It's just another take on them with some, hopefully interesting, diagrams.
 	<!--more-->
+
+	Note, if you already know all about convolution integrals and just want to see some nice interactive diagrams, just scroll down to <a href="#diagrams">here</a>!
 
 	Wikipedia has a good page on <a href="https://en.wikipedia.org/wiki/Convolution" target="_blank" rel="noopener" title="Wikipedia link">convolution integrals</a> which covers some of their mathematical background. I personally found that I understand them much better in the context of 2D images. Let's work backwards a little and assume you want to blur a 2D image. As a graphics programmer you might write a pixel shader that samples a few texels around the position you're writing to, average them, and output the resulting color. You'd then run this shader over ever pixel of your target image. Intuitively, you'd understand that the wider your sampling pattern, the blurrier the resulting image would be.
 
@@ -727,7 +759,7 @@
 
 	Notice how all these filtering functions are centered around the x=0 axis. That's because the filtering function is applied over the entire range where the base function is defined, 'grabbing' nearby values and doing a weighted average to produce a set of output values. 
 	
-	Let's see this in action! On the diagram below we have the base function at the top, the filtering function in the middle and the convolution integral at the bottom row. The convolution process 'fetches' values from the base function, multiplies each value by the value of the filter function and finally adds all these results together. This process happens once for each point on the resulting function. Notice how the filter function 'slides' across the range of the base function, combining multiple input values into a single output.
+	<a id="diagrams"></a>Let's see this in action! On the diagram below we have the base function at the top, the filtering function in the middle and the convolution integral at the bottom row. The convolution process 'fetches' values from the base function, multiplies each value by the value of the filter function and finally adds all these results together. This process happens once for each point on the resulting function. Notice how the filter function 'slides' across the range of the base function, combining multiple input values into a single output.
 
 	<div id="embeddedDrawing_convolution_example" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
 
@@ -735,7 +767,7 @@
 		ShowConvolutionExample("embeddedDrawing_convolution_example", undefined, 0);
 	</script></pre>
 
-	I'll close things off with some more examples.
+	I'll close things off with some more examples. In the diagram below you can see how a random noise input function is smoothed out by the various filtering kernels. You can try out different filters, but also vary the width of each. The wider the kernel, the smoother the resulting graph becomes.
 
 	<div id="controls_convolution_examples_random" style="width: 70%; margin:0 auto;"></div>
 	<div id="embeddedDrawing_convolution_examples_random" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
@@ -753,7 +785,7 @@
 		ShowConvolutionExample("embeddedDrawing_convolution_examples_random_polar", "controls_convolution_examples_random_polar", 1, true);
 	</script></pre>
 
-	For a more practical example of how convolution integrals can be used in computer graphics check out the post on cubemap filtering!
+	For a more practical example of how convolution integrals can be used in computer graphics check out the post on <a href="http://renderdiagrams.org/2018/01/05/indirect-illumination-using-cubemaps/" target="_blank" rel="noopener">cubemap filtering</a>!
 
 </body>
 

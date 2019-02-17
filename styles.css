@@ -110,13 +110,13 @@ table.contextMenuTable tr:hover
     font-weight: bold;
 }
 
-.toolbar input {
+.toolbar input[type=text] {
     background:#F5F5E5;
     border:1px solid dodgerblue;
     padding:1px;
 }
 
-.toolbar input:hover {
+.toolbar input[type=text]:hover {
     background:#F5F5E5;
     border:2px solid dodgerblue;
     padding:0px;
