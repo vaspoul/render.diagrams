@@ -16,8 +16,8 @@
 	<link rel="stylesheet" href="../styles.css" />
 </head>
 
-
 <body style="width:750px; margin:0 auto">
+
 
 	<pre style="display:none;"><script>
 
@@ -278,6 +278,920 @@
 				embeddedObj.zoomExtents();
 			}
 
+			function ShowGIGrid(divName, controlsDivName, polar, convolution)
+			{
+				var embeddedObj=new EmbeddedDrawing(divName);
+				var scene=embeddedObj.getScene();
+				var camera=embeddedObj.camera;
+				var functionGraphs=[];
+				var textObject = undefined;
+				var movingWall = undefined;
+
+				var doConvolution = convolution;
+
+				function addControls()
+				{
+					if(controlsDivName==undefined)
+					return;
+
+					var convolutionControl = new TickBox(doConvolution, function (value)
+					{ 
+						doConvolution = value; 
+						
+						for (var i=0; i!=functionGraphs.length; ++i)
+						{
+							functionGraphs[i].doConvolution = value; 
+							functionGraphs[i].onChange(); 
+						}
+					});
+
+					var controls=new PropertyGrid(document.getElementById(controlsDivName));
+					controls.addProperty("Apply Convolution", convolutionControl);
+				}
+
+				function makeScene()
+				{
+					scene.deleteAllObjects();
+
+					embeddedObj.setDragUsingCtrl();
+					embeddedObj.enableGridSnap(false);
+
+
+					var w = new Wall([new Vector(-5.5, 14), new Vector(-8.5, 12), new Vector(-10.5, 14), new Vector(-8.5, 17), new Vector(-5.5, 16)]);
+					w.closed = true;
+					w.roughness = 0;
+					w.metalness = 0;
+					w.intensity = 1;
+					w.BRDFIndex = 1;
+					w.appearance.lineWidth = 1;
+					w.appearance.lineRGB[0] = 0;
+					w.appearance.lineRGB[1] = 0;
+					w.appearance.lineRGB[2] = 0;
+					w.appearance.lineAlpha = 1;
+					w.appearance.lineDashIndex = 0;
+					w.appearance.fillRGB[0] = 127;
+					w.appearance.fillRGB[1] = 127;
+					w.appearance.fillRGB[2] = 127;
+					w.appearance.fillAlpha = 0.2;
+					w.visible = true;
+					w.frozen = true;
+					w.onChange();
+					scene.addObject(w);
+
+					var w = new Wall([new Vector(2.5, 17), new Vector(-0.5, 15), new Vector(-2.5, 17), new Vector(-0.5, 20), new Vector(2.5, 19)]);
+					w.closed = true;
+					w.roughness = 0;
+					w.metalness = 0;
+					w.intensity = 1;
+					w.BRDFIndex = 1;
+					w.appearance.lineWidth = 1;
+					w.appearance.lineRGB[0] = 0;
+					w.appearance.lineRGB[1] = 0;
+					w.appearance.lineRGB[2] = 0;
+					w.appearance.lineAlpha = 1;
+					w.appearance.lineDashIndex = 0;
+					w.appearance.fillRGB[0] = 127;
+					w.appearance.fillRGB[1] = 127;
+					w.appearance.fillRGB[2] = 127;
+					w.appearance.fillAlpha = 0.2;
+					w.visible = true;
+					w.frozen = true;
+					w.onChange();
+					scene.addObject(w);
+
+					var w = new Wall([new Vector(11, 10), new Vector(8, 8), new Vector(6, 10), new Vector(8, 13), new Vector(11, 12)]);
+					w.closed = true;
+					w.roughness = 0;
+					w.metalness = 0;
+					w.intensity = 1;
+					w.BRDFIndex = 1;
+					w.appearance.lineWidth = 1;
+					w.appearance.lineRGB[0] = 0;
+					w.appearance.lineRGB[1] = 0;
+					w.appearance.lineRGB[2] = 0;
+					w.appearance.lineAlpha = 1;
+					w.appearance.lineDashIndex = 0;
+					w.appearance.fillRGB[0] = 127;
+					w.appearance.fillRGB[1] = 127;
+					w.appearance.fillRGB[2] = 127;
+					w.appearance.fillAlpha = 0.2;
+					w.visible = true;
+					w.frozen = true;
+					w.onChange();
+					scene.addObject(w);
+
+					var w = new Wall([new Vector(-9.5, -3), new Vector(-12.5, -5), new Vector(-14.5, -3), new Vector(-12.5, 0), new Vector(-9.5, -1)]);
+					w.closed = true;
+					w.roughness = 0;
+					w.metalness = 0;
+					w.intensity = 1;
+					w.BRDFIndex = 1;
+					w.appearance.lineWidth = 1;
+					w.appearance.lineRGB[0] = 0;
+					w.appearance.lineRGB[1] = 0;
+					w.appearance.lineRGB[2] = 0;
+					w.appearance.lineAlpha = 1;
+					w.appearance.lineDashIndex = 0;
+					w.appearance.fillRGB[0] = 127;
+					w.appearance.fillRGB[1] = 127;
+					w.appearance.fillRGB[2] = 127;
+					w.appearance.fillAlpha = 0.2;
+					w.visible = true;
+					w.frozen = true;
+					w.onChange();
+					scene.addObject(w);
+
+					var w = new Wall([new Vector(3, -7), new Vector(0, -9), new Vector(-2, -7), new Vector(0, -4), new Vector(3, -5)]);
+					w.closed = true;
+					w.roughness = 0;
+					w.metalness = 0;
+					w.intensity = 1;
+					w.BRDFIndex = 1;
+					w.appearance.lineWidth = 1;
+					w.appearance.lineRGB[0] = 0;
+					w.appearance.lineRGB[1] = 0;
+					w.appearance.lineRGB[2] = 0;
+					w.appearance.lineAlpha = 1;
+					w.appearance.lineDashIndex = 0;
+					w.appearance.fillRGB[0] = 127;
+					w.appearance.fillRGB[1] = 127;
+					w.appearance.fillRGB[2] = 127;
+					w.appearance.fillAlpha = 0.2;
+					w.visible = true;
+					w.frozen = true;
+					w.onChange();
+					scene.addObject(w);
+
+					var w = new Wall([new Vector(17, -2), new Vector(14, -4), new Vector(12, -2), new Vector(14, 1), new Vector(17, 0)]);
+					w.closed = true;
+					w.roughness = 0;
+					w.metalness = 0;
+					w.intensity = 1;
+					w.BRDFIndex = 1;
+					w.appearance.lineWidth = 1;
+					w.appearance.lineRGB[0] = 0;
+					w.appearance.lineRGB[1] = 0;
+					w.appearance.lineRGB[2] = 0;
+					w.appearance.lineAlpha = 1;
+					w.appearance.lineDashIndex = 0;
+					w.appearance.fillRGB[0] = 127;
+					w.appearance.fillRGB[1] = 127;
+					w.appearance.fillRGB[2] = 127;
+					w.appearance.fillAlpha = 0.2;
+					w.visible = true;
+					w.frozen = true;
+					w.onChange();
+					scene.addObject(w);
+
+					var functionGraph = new FunctionGraph(new Vector(-13.75, 17.875));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var rectObj = new Rectangle(new Vector(0,0));
+					rectObj.points[0] = new Vector(-18, 22);
+					rectObj.points[1] = new Vector(16, 22);
+					rectObj.points[2] = new Vector(16, -11);
+					rectObj.points[3] = new Vector(-18, -11);
+					rectObj.appearance.lineWidth = 2;
+					rectObj.appearance.lineRGB[0] = 144;
+					rectObj.appearance.lineRGB[1] = 0;
+					rectObj.appearance.lineRGB[2] = 144;
+					rectObj.appearance.lineAlpha = 1;
+					rectObj.appearance.lineDashIndex = 0;
+					rectObj.appearance.fillRGB[0] = 127;
+					rectObj.appearance.fillRGB[1] = 127;
+					rectObj.appearance.fillRGB[2] = 127;
+					rectObj.appearance.fillAlpha = 0;
+					rectObj.rows = 4;
+					rectObj.columns = 4;
+					rectObj.centerPoints = true;
+					rectObj.visible = true;
+					rectObj.frozen = true;
+					rectObj.onChange();
+					scene.addObject(rectObj);
+
+					var functionGraph = new FunctionGraph(new Vector(-5.25, 17.875));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(3.25, 17.875));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(11.75, 17.875));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(-13.75, 9.625));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(-5.25, 9.625));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(3.25, 9.625));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(11.75, 9.625));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(-13.75, 1.375));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(-5.25, 1.375));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(3.25, 1.375));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(11.75, 1.375));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(-13.75, -6.875));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(-5.25, -6.875));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(3.25, -6.875));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var functionGraph = new FunctionGraph(new Vector(11.75, -6.875));
+					functionGraph.appearance.lineWidth = 2;
+					functionGraph.appearance.lineRGB[0] = 66;
+					functionGraph.appearance.lineRGB[1] = 134;
+					functionGraph.appearance.lineRGB[2] = 244;
+					functionGraph.appearance.lineAlpha = 1;
+					functionGraph.appearance.lineDashIndex = 0;
+					functionGraph.appearance.fillRGB[0] = 255;
+					functionGraph.appearance.fillRGB[1] = 127;
+					functionGraph.appearance.fillRGB[2] = 0;
+					functionGraph.appearance.fillAlpha = 0.2;
+					functionGraph.functionStr = unescape("return%20hitDistance%20%3F%200%20%3A%204%3B");
+					functionGraph.convolutionFunctionStr = unescape("return%20Math.max%280%2C%20Math.cos%28dx%29%29%3B");
+					functionGraph.coordinateType = 1;
+					functionGraph.xAxis = new Vector(1, 0);
+					functionGraph.xMin = 0;
+					functionGraph.xMax = 6.283185307179586;
+					functionGraph.evalStep = 2 * Math.PI/180;
+					functionGraph.xLabel = 2;
+					functionGraph.showXAxis = false;
+					functionGraph.xLabelStep = 1;
+					functionGraph.xLabelDecimals = 0;
+					functionGraph.xGridlines = false;
+					functionGraph.yLabel = 2;
+					functionGraph.showYAxis = true;
+					functionGraph.yLabelStep = 1;
+					functionGraph.yLabelDecimals = 0;
+					functionGraph.yGridlines = false;
+					functionGraph.evaluateOnMouseCursor = false;
+					functionGraph.doConvolution = true;
+					functionGraph.doRayCasting = true;
+					functionGraph.yLimitMin = -5;
+					functionGraph.yLimitMax = 7;
+					functionGraph.graphOriginLocal = new Vector(0, 0);
+					functionGraph.visible = true;
+					functionGraph.frozen = false;
+					functionGraph.onChange();
+					scene.addObject(functionGraph);
+					functionGraphs.push(functionGraph);
+
+					var w = new Wall([new Vector(0, 0), new Vector(-0.1, -3), new Vector(-3, 0), new Vector(-1, 3), new Vector(1, 3), new Vector(3, 0), new Vector(0.1, -3)]);
+					w.closed = true;
+					w.roughness = 0;
+					w.metalness = 0;
+					w.intensity = 1;
+					w.BRDFIndex = 1;
+					w.appearance.lineWidth = 1;
+					w.appearance.lineRGB[0] = 0;
+					w.appearance.lineRGB[1] = 0;
+					w.appearance.lineRGB[2] = 0;
+					w.appearance.lineAlpha = 1;
+					w.appearance.lineDashIndex = 0;
+					w.appearance.fillRGB[0] = 0;
+					w.appearance.fillRGB[1] = 127;
+					w.appearance.fillRGB[2] = 255;
+					w.appearance.fillAlpha = 0.5;
+					w.visible = true;
+					w.frozen = false;
+					w.onChange();
+					scene.addObject(w);
+					movingWall = w;
+
+					var text = new Text(new Vector(0, 27), unescape("Drag%20mouse%20here%21"));
+					text.halign = "1";
+					text.valign = "1";
+					text.font = "Arial";
+					text.fontSize = 2.040714317983893;
+					text.appearance.lineWidth = 3;
+					text.appearance.lineRGB[0] = 255;
+					text.appearance.lineRGB[1] = 64;
+					text.appearance.lineRGB[2] = 0;
+					text.appearance.lineAlpha = 1;
+					text.appearance.lineDashIndex = 0;
+					text.appearance.fillRGB[0] = 127;
+					text.appearance.fillRGB[1] = 127;
+					text.appearance.fillRGB[2] = 127;
+					text.appearance.fillAlpha = 0;
+					text.angle = 0;
+					text.lineSpacing = 1.6;
+					text.visible = true;
+					text.frozen = true;
+					text.maxWidth = 16.33119632036258;
+					text.totalHeight = 2.71965809357472;
+					scene.addObject(text);
+					textObject = text;
+				}
+
+				embeddedObj.onMouseMove=function(m,mp,buttons,ctrlKey,shiftKey)
+				{
+					embeddedObj.setRedrawOnChange(false);
+
+					if (textObject!=undefined && textObject.isVisible())
+					{
+						textObject.toggleVisibility(0);
+						embeddedObj.zoomExtents();
+					}
+
+					if ( (buttons&1) && !ctrlKey )
+					{
+						movingWall.setOrigin(m);
+					}
+
+					embeddedObj.setRedrawOnChange(true);
+
+					return false;
+				}
+
+				embeddedObj.onMouseLeave=function()
+				{
+					embeddedObj.draw();
+				}
+
+				embeddedObj.onFrameTick = function(deltaTime_ms, accumulatedTime_ms)
+				{
+					if (textObject.isVisible())
+					{
+						textObject.fontSize = lerp(2, 2.2, (Math.sin(accumulatedTime_ms / 1000 * Math.PI * 2) * 0.5 + 0.5));
+						textObject.onChange();
+					}
+				}
+
+				addControls();
+				makeScene();
+				embeddedObj.zoomExtents();
+			}
+
 </script></pre>
 
 	The Function Graph object in the editor allows you to plot cartesian and polar graphs of arbitrary functions. Since the functions are authored in Javascript, it's actually quite easy to add logic and more or less arbitrary code to them, i.e. we're not restricted to stricly maths-like functions. One of the advantages of this is that it was quite easy to expose ray hit testing results as inputs to the functions. This has allowed for some quite interesting graphs!
@@ -310,7 +1224,7 @@
 	</script></pre>
 
 	<h3>Lighting Equation</h3>
-	With ray casting results available to us, we're very close to being able to do some nice things! The previous graph has a non-zero value where the 'view' of the world in that direction is unobstructed. We use this as the visibility term of the <a href="https://en.wikipedia.org/wiki/Rendering_equation" target="_blank" rel="noopener" title="Wikipedia link">Lighting Equation</a>:
+	With ray casting results available to us, we're very close to being able to do some nice things! The previous graph has a non-zero value where the 'view' of the world in that direction is unobstructed. We could use this as the visibility term of the <a href="https://en.wikipedia.org/wiki/Rendering_equation" target="_blank" rel="noopener" title="Wikipedia link">Lighting Equation</a>:
 	$$L_o = \int_\Omega \mathit{f}_r(i,o) L(i) V(i)(\overline{n \cdot i}) d\omega$$
 
 	where:
@@ -346,6 +1260,21 @@
 	<pre style="display:none;"><script>
 	ShowVisibilityExample("embeddedDrawing_visibility_cosine_lobe", "controls_visibility_cosine_lobe", true, true);
 	</script></pre>
+
+	Hey presto, we have a moveable preview of the visibility integral of the lighting equation! You can toggle between the base and the convolved function, which is the same as showing radiance vs irradiance.
+	
+	Like most of the diagrams in this blog it has no real value in itself. It's intended to form the basis for experimentation and to perhaps help new graphics programmers get a better understanding and better intuition on how lighting behaves.
+
+	Having said that, I recently spent quite a bit of time at work discussing how visibility varies across a scene and how we might best represent and store that information. It would have been useful to be able to quickly knock up a diagram like this:
+
+	<div id="controls_gi_grid" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_gi_grid" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
+	
+	<pre style="display:none;"><script>
+	ShowGIGrid("embeddedDrawing_gi_grid", "controls_gi_grid", true, true);
+	</script></pre>
+
+	All the diagrams on this blog are editable. You can just right click and select 'Edit Local Copy'. To create the above visibility grid diagram all I had to do was edit a copy of the single graph version and the copy &amp; paste it along a grid. The grid itself was trivial to make; it's just a rectangle object with its rows &amp; columns set to 4 and the option to show the cell centers ticked. I could then snap each copy of the graph to a cell center.
 
 </body>
 </html>
