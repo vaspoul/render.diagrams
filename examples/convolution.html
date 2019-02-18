@@ -210,7 +210,7 @@
 				var inputFunctionIndex = defaultFunction;
 				var filterIndex = 0;
 				var filterWidth = 1;
-				var randomSeed = 1;
+				var randomSeed = 4;
 
 				var interactiveReveal = true;
 				var xValuesRevealed;
@@ -222,7 +222,7 @@
 
 					var inputFunctionControl = new Dropdown(["Square Wave", "Random"], inputFunctionIndex, function(value) { inputFunctionIndex = value; makeScene(); });
 
-					var randomSeedControl = new Slider(1, 10, randomSeed, 1, function(value) { randomSeed = value; makeScene(); });
+					var randomSeedControl = new Slider(1, 9, randomSeed, 1, function(value) { randomSeed = value; makeScene(); });
 
 					var filterControl = new Dropdown(["Box", "Tent", "Gaussian"], filterIndex, function(value) { filterIndex = value; makeScene(); });
 
@@ -233,7 +233,7 @@
 					var controls = new PropertyGrid(document.getElementById(controlsDivName));
 
 					controls.addProperty("Base Function", inputFunctionControl);
-					controls.addProperty("Random Seed", randomSeedControl);
+					controls.addProperty("Variant", randomSeedControl);
 					controls.addProperty("Filter Function", filterControl);
 					controls.addProperty("Filter Width", filterWidthControl);
 					if (!polar) controls.addProperty("Interactive graph calculation", interactiveControl);
@@ -265,8 +265,16 @@
 					}
 					else
 					{
-						baseFunctionStr = "return (Math.cos(x/4*Math.PI)>0)*5;"
-						baseFunctionRevealedStr = polar ? baseFunctionStr : "var index = Math.round((baseX - this.xMin) / this.evalStep); return (Math.cos(x/4*Math.PI)>0)*5*this.xValuesRevealed[index];"
+						if (polar)
+						{
+							baseFunctionStr = "return (Math.cos(x*(2+this.randomSeed))>0)*5;"
+							baseFunctionRevealedStr = baseFunctionStr;
+						}
+						else
+						{
+							baseFunctionStr = "return (Math.cos(x/4*Math.PI)>0)*5;"
+							baseFunctionRevealedStr = "var index = Math.round((baseX - this.xMin) / this.evalStep); return (Math.cos(x/4*Math.PI)>0)*5*this.xValuesRevealed[index];"
+						}
 					}
 
 					if (filterIndex == 1)
@@ -785,7 +793,7 @@
 		ShowConvolutionExample("embeddedDrawing_convolution_examples_random_polar", "controls_convolution_examples_random_polar", 1, true);
 	</script></pre>
 
-	For a more practical example of how convolution integrals can be used in computer graphics check out the post on <a href="http://renderdiagrams.org/2018/01/05/indirect-illumination-using-cubemaps/" target="_blank" rel="noopener">cubemap filtering</a>!
+	For a more practical example of how convolution integrals can be used in computer graphics check out the post on <a href="https://renderdiagrams.org/2018/01/05/indirect-illumination-using-cubemaps/" target="_blank" rel="noopener">cubemap filtering</a>!
 
 </body>
 
