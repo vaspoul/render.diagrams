@@ -102,6 +102,8 @@
 						functionGraph.graphOriginLocal = new Vector(0, 0);
 						functionGraph.visible = true;
 						functionGraph.frozen = false;
+						functionGraph.yFunction = undefined;
+						functionGraph.convolutionFunction = undefined;
 						functionGraph.onChange();
 						scene.addObject(functionGraph);
 					}
@@ -144,6 +146,8 @@
 						functionGraph.graphOriginLocal = new Vector(0, 0);
 						functionGraph.visible = true;
 						functionGraph.frozen = false;
+						functionGraph.yFunction = undefined;
+						functionGraph.convolutionFunction = undefined;
 						functionGraph.onChange();
 						scene.addObject(functionGraph);
 					}
@@ -186,6 +190,8 @@
 						functionGraph.graphOriginLocal = new Vector(0, 0);
 						functionGraph.visible = true;
 						functionGraph.frozen = false;
+						functionGraph.yFunction = undefined;
+						functionGraph.convolutionFunction = undefined;
 						functionGraph.onChange();
 						scene.addObject(functionGraph);
 					}
@@ -355,6 +361,8 @@
 					functionGraph.frozen = false;
 					functionGraph.randomSeed = randomSeed;
 					//functionGraph.useCache = false;
+					functionGraph.yFunction = undefined;
+					functionGraph.convolutionFunction = undefined;
 					functionGraph.onChange();
 					scene.addObject(functionGraph);
 					baseFunction = functionGraph;
@@ -396,6 +404,8 @@
 					functionGraph.visible = polar ? 0 : 0;
 					functionGraph.frozen = false;
 					//functionGraph.useCache = false;
+					functionGraph.yFunction = undefined;
+					functionGraph.convolutionFunction = undefined;
 					functionGraph.onChange();
 					scene.addObject(functionGraph);
 
@@ -448,6 +458,8 @@
 
 					functionGraph.xValuesRevealed = xValuesRevealed;
 
+					functionGraph.yFunction = undefined;
+					functionGraph.convolutionFunction = undefined;
 					functionGraph.onChange();
 					scene.addObject(functionGraph);
 
