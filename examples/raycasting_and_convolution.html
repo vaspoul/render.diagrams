@@ -269,7 +269,7 @@
 
 				embeddedObj.onFrameTick = function(deltaTime_ms, accumulatedTime_ms)
 				{
-					if (textObject.isVisible())
+					if (embeddedObj.isOnScreen() && textObject.isVisible())
 					{
 						textObject.fontSize = lerp(2, 2.2, (Math.sin(accumulatedTime_ms / 1000 * Math.PI * 2) * 0.5 + 0.5));
 						textObject.onChange();
@@ -1186,7 +1186,7 @@
 
 				embeddedObj.onFrameTick = function(deltaTime_ms, accumulatedTime_ms)
 				{
-					if (textObject.isVisible())
+					if (embeddedObj.isOnScreen() && textObject.isVisible())
 					{
 						textObject.fontSize = lerp(2, 2.2, (Math.sin(accumulatedTime_ms / 1000 * Math.PI * 2) * 0.5 + 0.5));
 						textObject.onChange();
