@@ -1166,14 +1166,17 @@
 						embeddedObj.zoomExtents();
 					}
 
+					var handled = false;
+
 					if ( (buttons&1) && !ctrlKey )
 					{
 						movingWall.setOrigin(m);
+						handled = true;
 					}
 
 					embeddedObj.setRedrawOnChange(true);
 
-					return false;
+					return handled;
 				}
 
 				embeddedObj.onMouseLeave=function()
