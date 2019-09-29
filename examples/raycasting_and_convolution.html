@@ -1,18 +1,18 @@
 <html>
 <head>
 
-<script type="text/javascript" src="../lib/maths.js"></script>
-<script type="text/javascript" src="../lib/graphics.js"></script>
-<script type="text/javascript" src="../lib/camera.js"></script>
-<script type="text/javascript" src="../lib/ui.js"></script>
-<script type="text/javascript" src="../lib/scene.js"></script>
-<script type="text/javascript" src="../lib/sceneObjects.js"></script>
-<script type="text/javascript" src="../lib/brdf.js"></script>
+<script type="text/javascript" src="../lib/maths.js?v=1.5"></script>
+<script type="text/javascript" src="../lib/graphics.js?v=1.8"></script>
+<script type="text/javascript" src="../lib/camera.js?v=1.9"></script>
+<script type="text/javascript" src="../lib/ui.js?v=2.0"></script>
+<script type="text/javascript" src="../lib/scene.js?v=1.4"></script>
+<script type="text/javascript" src="../lib/sceneObjects.js?v=2.3"></script>
+<script type="text/javascript" src="../lib/brdf.js?v=1.6"></script>
 <script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
-	<link rel="stylesheet" href="http://renderdiagrams.org/wp-content/themes/structural/style.css" />
+	<link rel="stylesheet" href="https://renderdiagrams.org/wp-content/themes/structural/style.css" />
 	<link rel="stylesheet" href="../styles.css" />
 </head>
 
@@ -214,7 +214,7 @@
 					functionGraph.onChange();
 					scene.addObject(functionGraph);
 
-					var text = new Text(new Vector(0, 12), unescape("Drag%20mouse%20here%21"));
+					var text = new Text(new Vector(0, 12), unescape("Drag%20here%21"));
 					text.halign = "1";
 					text.valign = "1";
 					text.font = "Arial";
@@ -249,14 +249,17 @@
 						textObject.toggleVisibility(0);
 					}
 
+					var handled = false;
+
 					if ( (buttons&1) && !ctrlKey )
 					{
 						functionGraph.setOrigin(m);
+						handled = true;
 					}
 
 					embeddedObj.setRedrawOnChange(true);
 
-					return false;
+					return handled;
 				}
 
 				embeddedObj.onMouseLeave=function()
