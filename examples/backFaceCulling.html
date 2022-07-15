@@ -1,0 +1,387 @@
+<html>
+<head>
+
+	<script type="text/javascript" src="../lib/maths.js"></script>
+	<script type="text/javascript" src="../lib/graphics.js"></script>
+	<script type="text/javascript" src="../lib/camera.js"></script>
+	<script type="text/javascript" src="../lib/ui.js"></script>
+	<script type="text/javascript" src="../lib/scene.js"></script>
+	<script type="text/javascript" src="../lib/sceneObject_arcWall.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_axis.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_barChart.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_bitmap.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_bouncingBall.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_brdfHemisphere.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_brdfRay.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_camera.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_dimension.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_editorInternals.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_functionGraph.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_line.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_ngon.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_pageOutline.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_parallelLight.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_pointLight.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_rectangle.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_spotLight.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_text.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_wall.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/brdf.js"></script>
+	<script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
+
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+	<link rel="stylesheet" href="http://renderdiagrams.org/wp-content/themes/structural/style.css" />
+	<link rel="stylesheet" href="../styles.css" />
+</head>
+
+<body style="width:750px; margin:0 auto">
+
+	<pre style="display:none;"><script>
+		function ShowFaceCulling(divName, controlsDivName, showDetailedCull, showCoarseCull, showCullCircles)
+		{
+			var embeddedObj = new EmbeddedDrawing(divName);
+			var scene = embeddedObj.getScene();
+			var camera = embeddedObj.camera;
+
+            var cameraObject = undefined;
+			var cameraObjectPivot = new Vector(0,0);
+            var culledObject = undefined;
+			var shapeIndex = 0;
+            var culledLinesDetailed = [];
+			var culledLinesCoarse = [];
+			var cullConeDir = new Vector(0,0);
+			var cullConeAngle = 0;
+			
+			function addControls()
+			{
+				if (controlsDivName == undefined)
+					return;
+
+				var buttonBox = new PlainButton("Box", function (value)
+                {
+				});
+
+				var objectDropdown = new Dropdown(["Irregular", "Box", "Circle", "Regular Concave", "Line"], shapeIndex, function (value)
+				{
+                    setShape(value);					
+				});
+
+				var buttonFlipNormals = new PlainButton("Flip Normals", function (value)
+                {
+                    culledObject.points.reverse();
+                    culledObject.onChange();
+					updateCulledFaces();
+                    embeddedObj.draw();
+				});
+
+                var controls = new PropertyGrid(document.getElementById(controlsDivName));
+
+				controls.addProperty("Shape", objectDropdown);
+				controls.addProperty("Flip Normals", buttonFlipNormals);
+			}
+
+			function makeScene()
+			{
+				scene.deleteAllObjects();
+
+                scene.name = "Unnamed Scene";
+                camera.setViewPosition(0.04233333333333322, 1.871999999999998);
+                camera.setUnitScale(23.622047244094485);
+
+                var cam = new CameraObject(new Vector(0, -12), new Vector(0, 12), 10);
+                cam.nearWidth = 3;
+                cam.farWidth = 33.57937251875967;
+                cam.fovDegrees = 65;
+                cam.collisionOutline = false;
+                cam.appearance.lineWidth = 2;
+                cam.appearance.lineRGB[0] = 57;
+                cam.appearance.lineRGB[1] = 244;
+                cam.appearance.lineRGB[2] = 255;
+                cam.appearance.lineAlpha = 1;
+                cam.appearance.lineDashIndex = 0;
+                cam.appearance.fillRGB[0] = 127;
+                cam.appearance.fillRGB[1] = 127;
+                cam.appearance.fillRGB[2] = 127;
+                cam.appearance.fillAlpha = 0;
+                cam.pixelCount = 0;
+                cam.showZBuffer = false;
+                cam.showMinZBuffer = false;
+                cam.showCenterLines = true;
+                cam.spanCount = 1;
+                cam.visible = true;
+                cam.frozen = false;
+                cam.onChange();
+                scene.addObject(cam);
+
+                cameraObject = cam;
+
+                setShape(0);
+
+				updateCulledFaces();
+            }
+
+			function setShape(value)
+			{
+				shapeIndex = value;
+
+                var w;
+
+                if (value == 0)
+                { 
+					w = new Wall([new Vector(-4, 2), new Vector(-3, 4), new Vector(-1, 3), new Vector(1, 6), new Vector(4, 4), new Vector(5, 1), new Vector(2, -1), new Vector(0, 0), new Vector(-1, -2), new Vector(-4, -2), new Vector(-6, 0), new Vector(-6, 2)]);
+	                w.closed = true;
+                }
+                else if (value == 1)
+                {
+					w = new Wall([new Vector(-4, -4), new Vector(-4, 4), new Vector(4, 4), new Vector(4, -4)]);
+	                w.closed = true;
+                }
+                else if (value == 2)
+                {
+					var points = [];
+
+					var angleStep = Math.PI * 2 / 16;
+
+					for (var a = 0; a <= Math.PI * 2; a += angleStep)
+					{
+						points.push(mad(fromAngle(-a), 5, new Vector(0,0)));
+					}
+
+					w = new Wall(points);
+	                w.closed = true;
+                }
+                else if (value == 3)
+                {
+					w = new Wall([new Vector(-2, -3), new Vector(-2, -5), new Vector(-5, -5), new Vector(-5, -2), new Vector(-3, -2), new Vector(-3, 2), new Vector(-5, 2), new Vector(-5, 5), new Vector(-2, 5), new Vector(-2, 3), new Vector(2, 3), new Vector(2, 5), new Vector(5, 5), new Vector(5, 2), new Vector(3, 2), new Vector(3, -2), new Vector(5, -2), new Vector(5, -5), new Vector(2, -5), new Vector(2, -3)]);
+	                w.closed = true;
+                }
+				else if (value == 4)
+                {
+					w = new Wall([new Vector(4, 0), new Vector(-4, 0)]);
+                }
+
+                w.onChange();
+				scene.deleteObjects([culledObject]);
+                scene.addObject(w);
+                culledObject = w;
+                updateCulledFaces();
+			}
+            function updateCulledFaces()
+            {
+                scene.deleteObjects(culledLinesDetailed);
+				scene.deleteObjects(culledLinesCoarse);
+
+				var count = culledObject.closed ? culledObject.points.length : culledObject.points.length -1;
+
+				culledLinesDetailed = [];
+				culledLinesCoarse = [];
+
+                for (var i = 0; i != count; ++i)
+                {
+                    var cam2point0 = sub(culledObject.points[i], cameraObject.O);
+                    var cam2point1 = sub(culledObject.points[(i+1)%culledObject.points.length], cameraObject.O);
+                    var faceDir = transpose(sub(culledObject.points[i], culledObject.points[(i+1)%culledObject.points.length])).unit();
+
+					var detailCull = dot(cam2point0, faceDir) >= 0 || dot(cam2point1, faceDir) >= 0;
+					var coarseCull = dot(faceDir, cullConeDir) >= Math.cos(cullConeAngle);
+
+                    if (detailCull && showDetailedCull)
+                    {
+                        var lineObject = new Line([culledObject.points[i], culledObject.points[(i+1)%culledObject.points.length]]);
+                        lineObject.closed = false;
+                        lineObject.appearance.lineWidth = 6;
+                        lineObject.appearance.lineRGB[0] = 255;
+                        lineObject.appearance.lineRGB[1] = 0;
+                        lineObject.appearance.lineRGB[2] = 0;
+						lineObject.appearance.lineDashIndex = 0;
+						lineObject.appearance.lineAlpha = 1;
+
+                        scene.addObject(lineObject);
+                        culledLinesDetailed.push(lineObject);
+                    }
+
+                    if (coarseCull && showCoarseCull)
+                    {
+                        var lineObject = new Line([culledObject.points[i], culledObject.points[(i+1)%culledObject.points.length]]);
+                        lineObject.closed = false;
+                        lineObject.appearance.lineWidth = 3;
+                        lineObject.appearance.lineRGB[0] = 0;
+                        lineObject.appearance.lineRGB[1] = 0;
+                        lineObject.appearance.lineRGB[2] = 255;
+						lineObject.appearance.lineDashIndex = 0;
+						lineObject.appearance.lineAlpha = 1;
+
+                        scene.addObject(lineObject);
+                        culledLinesCoarse.push(lineObject);
+                    }
+                }
+            }
+
+			embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey, shiftKey)
+			{
+				if (cameraObject == undefined)
+					return;
+
+				var handled = false;
+
+				embeddedObj.setRedrawOnChange(false);
+
+				if ( (buttons & 1) && ctrlKey )
+				{
+					var delta = sub(m, cameraObject.O);
+
+					cameraObject.O = add(cameraObject.O, delta);
+					cameraObject.target = add(cameraObject.target, delta);
+					cameraObjectPivot = add(cameraObjectPivot, delta);
+					cameraObject.onChange();
+					handled = true;
+				}
+				else if (buttons == 1)
+				{
+					var delta = mul(normalize(sub(m, cameraObjectPivot)), 12);
+					cameraObject.O = add(cameraObjectPivot, delta);
+					cameraObject.target = add(cameraObjectPivot, delta.neg());
+					cameraObject.onChange();
+					handled = true;
+				}
+				else if (buttons == 4)
+				{
+					handled = "pan";
+				}
+
+                updateCulledFaces();
+
+				embeddedObj.setRedrawOnChange(true);
+
+				return handled;
+			}
+
+			embeddedObj.onMouseLeave = function ()
+			{
+				embeddedObj.draw();
+			}
+
+			embeddedObj.onDraw = function()
+			{
+				if (culledObject != undefined)
+				{
+					var p = [	new Vector(culledObject.getBoundsMin().x, culledObject.getBoundsMin().y),
+								new Vector(culledObject.getBoundsMin().x, culledObject.getBoundsMax().y),
+								new Vector(culledObject.getBoundsMax().x, culledObject.getBoundsMax().y),
+								new Vector(culledObject.getBoundsMax().x, culledObject.getBoundsMin().y) ];
+
+					var c = avg(culledObject.getBoundsMin(), culledObject.getBoundsMax());
+
+					var dirs = [	sub(p[0], cameraObject.apexPoint).unit(), 
+									sub(p[1], cameraObject.apexPoint).unit(), 
+									sub(p[2], cameraObject.apexPoint).unit(), 
+									sub(p[3], cameraObject.apexPoint).unit() ];
+
+					var angles = [	toAngle(dirs[0]), 
+									toAngle(dirs[1]), 
+									toAngle(dirs[2]), 
+									toAngle(dirs[3]) ]
+
+					for (var i=0; i!=p.length; ++i)
+					{
+						if (angles[i]<0)
+							angles[i] += Math.PI*2;
+					}
+
+					var minAngle = 1000;
+					var maxAngle = -1000;
+					var minAngleIndex = 0;
+					var maxAngleIndex = 0;
+					var camAngle = toAngle(cameraObject.dir);
+					
+					if (camAngle<0)
+						camAngle += Math.PI*2;
+
+					for (var i=0; i!=p.length; ++i)
+					{
+						var a = angles[i];
+
+						a -= camAngle;
+
+						if (Math.abs(a - Math.PI*2) < Math.abs(a))
+							a -= Math.PI*2;
+
+						if (Math.abs(a + Math.PI*2) < Math.abs(a))
+							a += Math.PI*2;
+
+						if (a > maxAngle)
+						{
+							maxAngle = a;
+							maxAngleIndex = i;
+						}
+
+						if (a < minAngle)
+						{
+							minAngle = a;
+							minAngleIndex = i;
+						}
+					}
+
+					cullConeDir = fromAngle(camAngle + (minAngle + maxAngle) * 0.5)
+					cullConeAngle = (Math.PI - Math.abs(maxAngle-minAngle)) * 0.5;
+
+					// Print stats
+					{
+						var detailedCulledCount = culledLinesDetailed.length;
+						var coarseCulledCount = culledLinesCoarse.length;
+						var totalCount = culledObject.closed ? culledObject.points.length : culledObject.points.length - 1;
+
+						if (showDetailedCull)
+							camera.drawText(mad(camera.getViewSize(), new Vector(0.48, 0.45), camera.getViewPosition()), "Detailed cull: " + detailedCulledCount + " / " + totalCount + " faces (" + (detailedCulledCount/totalCount*100).toFixed(0) + "%)", "#808080", "right");
+
+						if (showCoarseCull)
+							camera.drawText(mad(camera.getViewSize(), new Vector(0.48, 0.41), camera.getViewPosition()), "Coarse cull: " + coarseCulledCount + " / " + totalCount + " faces (" + (coarseCulledCount/totalCount*100).toFixed(0) + "%)", "#808080", "right");
+					}
+
+					// Show culling extents
+					if (showCullCircles)
+					{
+						camera.drawRectangle(culledObject.getBoundsMin(), culledObject.getBoundsMax(), "#000000", 1, [5,5]);
+
+						camera.drawLine(cameraObject.apexPoint, mad(dirs[minAngleIndex], distance(cameraObject.target, cameraObject.apexPoint) / dot(dirs[minAngleIndex], cameraObject.dir), cameraObject.apexPoint), "rgba(0,0,0,0.5)", 1, [5,5]);
+						camera.drawLine(cameraObject.apexPoint, mad(dirs[maxAngleIndex], distance(cameraObject.target, cameraObject.apexPoint) / dot(dirs[maxAngleIndex], cameraObject.dir), cameraObject.apexPoint), "rgba(0,0,0,0.5)", 1, [5,5]);
+
+						camera.drawArc(p[minAngleIndex], 1, -Math.PI/2 + toAngle(dirs[minAngleIndex]),  Math.PI/2 + toAngle(dirs[minAngleIndex]), "#000000", 1, "rgba(255,0,0,0.2)");
+						camera.drawArc(p[minAngleIndex], 1,  Math.PI/2 + toAngle(dirs[minAngleIndex]), -Math.PI/2 + toAngle(dirs[minAngleIndex]), "#000000", 1, "rgba(0,255,0,0.2)");
+
+						camera.drawArc(p[maxAngleIndex], 1, -Math.PI/2 + toAngle(dirs[maxAngleIndex]),  Math.PI/2 + toAngle(dirs[maxAngleIndex]), "#000000", 1, "rgba(255,0,0,0.2)");
+						camera.drawArc(p[maxAngleIndex], 1,  Math.PI/2 + toAngle(dirs[maxAngleIndex]), -Math.PI/2 + toAngle(dirs[maxAngleIndex]), "#000000", 1, "rgba(0,255,0,0.2)");
+
+						camera.drawArc(c, 1,  Math.PI/2 + toAngle(dirs[minAngleIndex]), -Math.PI/2 + toAngle(dirs[maxAngleIndex]), "#000000", 1, "rgba(0,255,0,0.4)");
+						camera.drawArc(c, 1,  -Math.PI/2 + toAngle(dirs[maxAngleIndex]), Math.PI/2 + toAngle(dirs[minAngleIndex]), "#000000", 1, "rgba(255,0,0,0.4)");
+
+						camera.drawArrow(c, mad(cullConeDir, 1, c), 10);
+					}
+				}
+
+				camera.drawCross(cameraObjectPivot, 0.5, 0);
+			}
+
+			addControls();
+            makeScene();
+
+            camera.setViewPosition(0, 0);
+            camera.setUnitScale(96 / 2.54 * 1.25 * 0.3);
+            embeddedObj.draw();
+
+		}
+
+	</script></pre>
+
+	<h3>Back Face Culling</h3>
+	In graphics, backface culling is the process by which the faces of a mesh that are facing away from 
+
+    <div id="controls_backfacecull_simpleCull" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_backfacecull_simpleCull" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
+
+	<pre style="display:none;"><script>
+		ShowFaceCulling("embeddedDrawing_backfacecull_simpleCull", "controls_backfacecull_simpleCull", true, true, true);
+	</script></pre>
+
+</body>
+</html>
