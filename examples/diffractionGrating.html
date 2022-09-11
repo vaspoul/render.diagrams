@@ -1,0 +1,209 @@
+<html>
+<head>
+
+	<script type="text/javascript" src="../lib/maths.js"></script>
+	<script type="text/javascript" src="../lib/graphics.js"></script>
+	<script type="text/javascript" src="../lib/camera.js"></script>
+	<script type="text/javascript" src="../lib/ui.js"></script>
+	<script type="text/javascript" src="../lib/scene.js"></script>
+	<script type="text/javascript" src="../lib/sceneObject_arcWall.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_axis.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_barChart.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_bouncingBall.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_brdfHemisphere.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_brdfRay.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_camera.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_dimension.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_editorInternals.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_functionGraph.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_line.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_ngon.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_pageOutline.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_parallelLight.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_pointLight.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_rectangle.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_spotLight.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_text.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/sceneObject_wall.js?v=1.0"></script>
+	<script type="text/javascript" src="../lib/brdf.js"></script>
+	<script type="text/javascript" src="../lib/embeddedDrawing.js"></script>
+
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+	<link rel="stylesheet" href="http://renderdiagrams.org/wp-content/themes/structural/style.css" />
+	<link rel="stylesheet" href="../styles.css" />
+</head>
+
+<body style="width:750px; margin:0 auto">
+
+	<pre style="display:none;"><script>
+		function ShowDiffraction(divName, controlsDivName)
+		{
+			var embeddedObj = new EmbeddedDrawing(divName);
+			var scene = embeddedObj.getScene();
+			var camera = embeddedObj.camera;
+
+            var cameraObject        = undefined;
+			var cameraObjectPivot   = new Vector(0,0);
+            var lightObject         = undefined;
+			var diffractionPlate    = undefined;
+			var lightLines			= [];
+			var cameraLines			= [];
+			
+			function addControls()
+			{
+				if (controlsDivName == undefined)
+					return;
+
+                var controls = new PropertyGrid(document.getElementById(controlsDivName));
+
+			}
+
+			function makeScene()
+			{
+				scene.deleteAllObjects();
+
+                scene.name="Unnamed Scene";
+                camera.setViewPosition(-5,10);
+                camera.setUnitScale(10);
+
+                var cam=new CameraObject(new Vector(-14,27),new Vector(-14,19),10);
+                cam.nearWidth=3;
+                cam.farWidth=8.823523748259237;
+                cam.fovDegrees=40;
+                cam.collisionOutline=false;
+                cam.appearance.lineWidth=2;
+                cam.appearance.lineRGB[0]=57;
+                cam.appearance.lineRGB[1]=244;
+                cam.appearance.lineRGB[2]=255;
+                cam.appearance.lineAlpha=1;
+                cam.appearance.lineDashIndex=0;
+                cam.appearance.fillRGB[0]=127;
+                cam.appearance.fillRGB[1]=127;
+                cam.appearance.fillRGB[2]=127;
+                cam.appearance.fillAlpha=0;
+                cam.pixelCount=7;
+                cam.showZBuffer=false;
+                cam.showMinZBuffer=false;
+                cam.showCenterLines=true;
+                cam.spanCount=1;
+                cam.visible=true;
+                cam.frozen=false;
+                cam.onChange();
+                scene.addObject(cam);
+
+                var lineObject=new Line([new Vector(-20,17),new Vector(-8,17)]);
+                lineObject.closed=false;
+                lineObject.appearance.lineWidth=4;
+                lineObject.appearance.lineRGB[0]=0;
+                lineObject.appearance.lineRGB[1]=0;
+                lineObject.appearance.lineRGB[2]=0;
+                lineObject.appearance.lineAlpha=1;
+                lineObject.appearance.lineDashIndex=1;
+                lineObject.appearance.fillRGB[0]=0;
+                lineObject.appearance.fillRGB[1]=0;
+                lineObject.appearance.fillRGB[2]=0;
+                lineObject.appearance.fillAlpha=0;
+                lineObject.pixelMip=-1;
+                lineObject.arrowStart=false;
+                lineObject.arrowEnd=false;
+                lineObject.handDrawn=false;
+                lineObject.visible=true;
+                lineObject.frozen=false;
+                scene.addObject(lineObject);
+
+                diffractionPlate = lineObject;
+
+                var light=new PointLight(new Vector(5,7),3);
+                light.bulbRadius=1;
+                light.collisionOutline=true;
+                light.appearance.lineWidth=2;
+                light.appearance.lineRGB[0]=255;
+                light.appearance.lineRGB[1]=192;
+                light.appearance.lineRGB[2]=0;
+                light.appearance.lineAlpha=1;
+                light.appearance.lineDashIndex=0;
+                light.appearance.fillRGB[0]=127;
+                light.appearance.fillRGB[1]=127;
+                light.appearance.fillRGB[2]=127;
+                light.appearance.fillAlpha=0;
+                light.visible=true;
+                light.frozen=false;
+                scene.addObject(light);
+
+                lightObject = light;
+
+                cameraObject = cam;
+
+                setShape(0);
+
+				updateCulledFaces();
+            }
+
+			embeddedObj.onMouseMove = function (m, mp, buttons, ctrlKey, shiftKey)
+			{
+				if (cameraObject == undefined)
+					return;
+
+				var handled = false;
+
+				embeddedObj.setRedrawOnChange(false);
+
+				if ( (buttons & 1) && ctrlKey )
+				{
+					var delta = sub(m, cameraObject.O);
+
+					cameraObject.O = add(cameraObject.O, delta);
+					cameraObject.target = add(cameraObject.target, delta);
+					cameraObjectPivot = add(cameraObjectPivot, delta);
+					cameraObject.onChange();
+					handled = true;
+				}
+				else if (buttons == 1)
+				{
+					var delta = mul(normalize(sub(m, cameraObjectPivot)), 12);
+					cameraObject.O = add(cameraObjectPivot, delta);
+					cameraObject.target = add(cameraObjectPivot, delta.neg());
+					cameraObject.onChange();
+					handled = true;
+				}
+				else if (buttons == 4)
+				{
+					handled = "pan";
+				}
+
+				embeddedObj.setRedrawOnChange(true);
+
+				return handled;
+			}
+
+			embeddedObj.onMouseLeave = function ()
+			{
+				embeddedObj.draw();
+			}
+
+			embeddedObj.onDraw = function()
+			{
+			}
+
+			addControls();
+            makeScene();
+
+            camera.setViewPosition(0, 0);
+            camera.setUnitScale(96 / 2.54 * 1.25 * 0.3);
+            embeddedObj.draw();
+
+		}
+
+	</script></pre>
+
+	<h3>Diffraction Grating</h3>
+
+    <div id="controls_diffractiongrating" style="width: 70%; margin:0 auto;"></div>
+	<div id="embeddedDrawing_diffractiongrating" style="width: 70%; padding-bottom: 70%; margin:0 auto 1em;"></div>
+
+	<pre style="display:none;"><script>
+        ShowDiffraction("embeddedDrawing_diffractiongrating", "controls_diffractiongrating", true, true, true);
+	</script></pre>
+
+</body>
+</html>
