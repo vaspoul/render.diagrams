@@ -271,10 +271,10 @@
 
 					var c = avg(culledObject.getBoundsMin(), culledObject.getBoundsMax());
 
-					var dirs = [	sub(p[0], cameraObject.apexPoint).unit(), 
-									sub(p[1], cameraObject.apexPoint).unit(), 
-									sub(p[2], cameraObject.apexPoint).unit(), 
-									sub(p[3], cameraObject.apexPoint).unit() ];
+					var dirs = [	sub(p[0], cameraObject.O).unit(), 
+									sub(p[1], cameraObject.O).unit(), 
+									sub(p[2], cameraObject.O).unit(), 
+									sub(p[3], cameraObject.O).unit() ];
 
 					var angles = [	toAngle(dirs[0]), 
 									toAngle(dirs[1]), 
@@ -342,8 +342,8 @@
 					{
 						camera.drawRectangle(culledObject.getBoundsMin(), culledObject.getBoundsMax(), "#000000", 1, [5,5]);
 
-						camera.drawLine(cameraObject.apexPoint, mad(dirs[minAngleIndex], distance(cameraObject.target, cameraObject.apexPoint) / dot(dirs[minAngleIndex], cameraObject.dir), cameraObject.apexPoint), "rgba(0,0,0,0.5)", 1, [5,5]);
-						camera.drawLine(cameraObject.apexPoint, mad(dirs[maxAngleIndex], distance(cameraObject.target, cameraObject.apexPoint) / dot(dirs[maxAngleIndex], cameraObject.dir), cameraObject.apexPoint), "rgba(0,0,0,0.5)", 1, [5,5]);
+						camera.drawLine(cameraObject.O, mad(dirs[minAngleIndex], distance(cameraObject.target, cameraObject.O) / dot(dirs[minAngleIndex], cameraObject.dir), cameraObject.O), "rgba(0,0,0,0.5)", 1, [5,5]);
+						camera.drawLine(cameraObject.O, mad(dirs[maxAngleIndex], distance(cameraObject.target, cameraObject.O) / dot(dirs[maxAngleIndex], cameraObject.dir), cameraObject.O), "rgba(0,0,0,0.5)", 1, [5,5]);
 
 						camera.drawArc(p[minAngleIndex], 1, -Math.PI/2 + toAngle(dirs[minAngleIndex]),  Math.PI/2 + toAngle(dirs[minAngleIndex]), "#000000", 1, "rgba(255,0,0,0.2)");
 						camera.drawArc(p[minAngleIndex], 1,  Math.PI/2 + toAngle(dirs[minAngleIndex]), -Math.PI/2 + toAngle(dirs[minAngleIndex]), "#000000", 1, "rgba(0,255,0,0.2)");

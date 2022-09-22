@@ -273,7 +273,7 @@
 
 						if (dist <= light.radius)
 						{
-							var V = sub(cameraObj.apexPoint, rayFromLight.intersectionPoints[0].P).unit();
+							var V = sub(cameraObj.O, rayFromLight.intersectionPoints[0].P).unit();
 							var L = sub(light.O, rayFromLight.intersectionPoints[0].P).unit();
 
 							var F0 = lerp(0.04, 1, rayFromLight.intersectionPoints[0].metalness);
