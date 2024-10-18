@@ -260,7 +260,10 @@ input {
 }
 
 .button {
-    background:#EEEEEE;
+	background: #EEEEEE;
+	user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
 }
 
 .button:hover {
